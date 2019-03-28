@@ -1,0 +1,22 @@
+{
+  "name": "stampede-server",
+  "version": "0.1.0",
+  "description": "A centralized job queue system",
+  "main": "bin/stampede-server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "David House",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "chalk": "^2.4.2",
+    "clear": "^0.1.0",
+    "express": "^4.16.4",
+    "figlet": "^1.2.1",
+    "rc": "^1.2.8",
+    "redis": "^2.8.0",
+    "ws": "^6.0.0",
+    "express-ws": "^4.0.0"
+  }
+}
