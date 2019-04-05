@@ -4,6 +4,7 @@ const clear = require('clear')
 const figlet = require('figlet')
 const redis = require('redis')
 let express = require('express')
+const fs = require('fs')
 let app = express()
 const expressWs = require('express-ws')(app)
 let router = express.Router() // eslint-disable-line new-cap
@@ -16,7 +17,8 @@ const conf = require('rc')('stampede', {
   redisHost: 'localhost',
   redisPort: 6379,
   redisPassword: null,
-  webPort: 7766
+  webPort: 7766,
+  jobFolder: '.'
 })
 
 let client = createRedisClient()
@@ -41,6 +43,12 @@ app.ws('/socket', function(ws, req) {
 
 app.listen(conf.webPort, function() {
   console.log(chalk.yellow('Listening on port: ' + conf.webPort))
+})
+
+const jobFiles = fs.readdirSync(conf.jobFolder).filter(function(file) {
+  const jobFile = fs.readFileSync(conf.jobFolder + '/' + file)
+  const job = JSON.parse(jobFile)
+  client.set('job_' + job.title, JSON.stringify(job))
 })
 
 function createRedisClient() {
