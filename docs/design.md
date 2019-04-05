@@ -47,5 +47,60 @@ This file storage should be available from both the server and worker.
 | github_<org>_<repo>_pullrequest | This contains a link to the job that will be executed for any PR detected in the repo |
 | github_<org>_<repo>_branch | This contains a link to the job that will be executed for any Branch push detected in the repo |
 
+### Job definition file
 
+Jobs have the following characteristics:
 
+- Stages
+- Steps
+- Parameters
+
+A stage is simply a grouping of steps. If any of the steps fail then the stage also fails and no subsequent step/stage will be executed (see excption to this below).
+
+A step is simply an execution of a command. Simple as that. Step output is captured in the output folder under the stage/step.log folder. If a step fails (ie: non zero exit code) then the processing stops, unless it is marked to ignore the exit code.
+
+Parameters are turned into environment variables for each command execution.
+
+A job & stage can have some optional steps that fall outside the normal processing flow. Note that the exit code for these do not play a part in the continuation of the job/stage.
+
+- onStart: executed when the job/stage starts.
+- onSuccess: executed when the job/stage ends with a success.
+- onFailure: executed when the job/stage ends with a failure.
+
+The order of operations are:
+
+- job/onStart
+- stage_1/onStart
+- stage_1/step 1..X
+- stage_1/onSuccess OR stage_1/onFailure
+- job/onSuccess OR job/onFailure
+
+Job file structure (yaml or json):
+
+{
+  "title": "",
+  "onStart": "...cmd...",
+  "onSuccess": "...cmd...",
+  "onFailure": "...cmd...",
+  "stages": [
+    {
+      "title": "",
+      "onStart": "...cmd...",
+      "onSuccess": "...cmd...",
+      "onFailure": "...cmd...",
+      "steps": [
+        {
+          "title": "",
+          "command": "...cmd...",
+          "ignoreExitCode": false
+        }
+      ]
+    }
+  ],
+  "parameters": [
+    {
+      "title": "",
+      "required": true
+    }
+  ]
+}
