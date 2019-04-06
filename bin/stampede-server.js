@@ -2,7 +2,7 @@
 const chalk = require('chalk')
 const clear = require('clear')
 const figlet = require('figlet')
-const redis = require('redis')
+const asyncRedis = require("async-redis")
 let express = require('express')
 const fs = require('fs')
 let app = express()
@@ -11,6 +11,10 @@ let router = express.Router() // eslint-disable-line new-cap
 let bodyParser = require('body-parser')
 app.use(bodyParser.json())
 app.use('/', router)
+
+// APIs
+const apiJobs = require('../api/jobs')
+const apiStartJob = require('../api/startJob')
 
 const conf = require('rc')('stampede', {
   // defaults
@@ -45,19 +49,30 @@ app.listen(conf.webPort, function() {
   console.log(chalk.yellow('Listening on port: ' + conf.webPort))
 })
 
+router.get('/api/jobs', function(req, res) {
+  apiJobs.handle(req, res, client)
+})
+
+router.post('/api/startJob/:job', function(req, res) {
+  apiStartJob.handle(req, res, client)
+})
+
+let jobs = []
 const jobFiles = fs.readdirSync(conf.jobFolder).filter(function(file) {
   const jobFile = fs.readFileSync(conf.jobFolder + '/' + file)
   const job = JSON.parse(jobFile)
   client.set('job_' + job.title, JSON.stringify(job))
+  jobs.push(job.title)
 })
+client.set('jobs', JSON.stringify(jobs))
 
 function createRedisClient() {
   if (conf.redisPassword != null) {
-    return redis.createClient({host: conf.redisHost, 
+    return asyncRedis.createClient({host: conf.redisHost, 
                                port: conf.redisPort, 
                                password: conf.redisPassword})
   } else {
-    return redis.createClient({host: conf.redisHost, 
+    return asyncRedis.createClient({host: conf.redisHost, 
                                port: conf.redisPort})
   }
 }
