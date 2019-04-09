@@ -15,7 +15,7 @@ async function handle(req, res, redisClient) {
 
     const jobIdentifier = 'job_' + req.params.job + '_' + buildNumber
 
-    const status = {status: 'queued', dateQueued: new Date()}
+    const status = {status: 'queued', queueTime: new Date()}
     const job = {queue: queue, status: status, build: buildNumber, details: jobDetails}
     await redisClient.set(jobIdentifier, JSON.stringify(job))
     await redisClient.expire(jobIdentifier, 3600)
