@@ -1,37 +1,64 @@
 const { App } = require('@octokit/app')
 const Octokit = require('@octokit/rest')
 const { request } = require("@octokit/request")
+const chalk = require('chalk')
 
+/**
+ * handle github hook
+ * @param {*} req 
+ * @param {*} res 
+ * @param {*} serverConf 
+ * @param {*} redisClient 
+ */
 async function handle(req, res, serverConf, redisClient) {
-    console.log('--- github hook: ' + req.headers['x-github-event'])
+    console.log(chalk.green('--- github hook: ' + req.headers['x-github-event']))
     if (req.headers['x-github-event'] === 'check_suite') {
-      if (req.body.check_suite.app.id === parseInt(serverConf.githubAppID)) {
-        const octokit = await getAuthorizedOctokit(req, serverConf)
-        console.log('--- suite action: ' + req.body.action)
-        if (req.body.action === 'requested' || req.body.action === 'rerequested') {
-            await createCheckRun(req, serverConf, octokit, redisClient)
-        } else {
-          console.log('--- ignoring, action not requested or rerequested')
-        }
-      } else {
-        console.log('--- ignoring not for this app ' + req.body.check_suite.app.id)
-      }
+      await handleCheckSuite(req, serverConf, redisClient)
     } else if (req.headers['x-github-event'] === 'check_run') {
-        if (req.body.check_run.app.id === parseInt(serverConf.githubAppID)) {
-            const octokit = await getAuthorizedOctokit(req, serverConf)
-            console.log('--- run action: ' + req.body.action)
-            if (req.body.action === 'created') {
-              await queueCheckRun(req, serverConf, octokit, redisClient)
-            } else if (req.body.action === 'rerequested') {
-                await createCheckRun(req, serverConf, octokit, redisClient)
-            }
-        } else {
-          console.log('--- ignoring, app not ours ' + req.body.check_run.app.id)
-        }
+      await handleCheckRun(req, serverConf, redisClient)
     }
     res.send({status: 'ok'})
 }
 
+/**
+ * handleCheckSuite
+ * @param {*} req
+ * @param {*} serverConf
+ * @param {*} redisClient
+ */
+async function handleCheckSuite(req, serverConf, redisClient) {
+  if (req.body.check_suite.app.id === parseInt(serverConf.githubAppID)) {
+    const octokit = await getAuthorizedOctokit(req, serverConf)
+    console.log(chalk.green('--- suite action: ' + req.body.action))
+    if (req.body.action === 'requested' || req.body.action === 'rerequested') {
+        await createCheckRun(req, serverConf, octokit, redisClient)
+    }
+  }
+}
+
+/**
+ * handleCheckRun
+ * @param {*} req 
+ * @param {*} serverConf 
+ * @param {*} redisClient 
+ */
+async function handleCheckRun(req, serverConf, redisClient) {
+  if (req.body.check_run.app.id === parseInt(serverConf.githubAppID)) {
+    const octokit = await getAuthorizedOctokit(req, serverConf)
+    console.log(chalk.green('--- run action: ' + req.body.action))
+    if (req.body.action === 'created') {
+      await queueCheckRun(req, serverConf, octokit, redisClient)
+    } else if (req.body.action === 'rerequested') {
+      await createCheckRun(req, serverConf, octokit, redisClient)
+    }
+  }
+}
+
+/**
+ * get an authorized octokit object for further github api calls
+ * @param {*} req 
+ * @param {*} serverConf 
+ */
 async function getAuthorizedOctokit(req, serverConf) {
         const fullName = req.body.repository.full_name
         const parts = fullName.split('/')
@@ -53,13 +80,10 @@ async function getAuthorizedOctokit(req, serverConf) {
             error: console.error
             }
         })
-        console.log('--- Getting installation id ', owner, repo)
         const installation = await octokit.apps.getRepoInstallation({
             owner, repo
         })
         const installID = installation.data.id
-
-        console.log('--- Getting access token', installID)
         const accessToken = await app.getInstallationAccessToken({
             installationId: installID
         })
@@ -77,6 +101,13 @@ async function getAuthorizedOctokit(req, serverConf) {
         return authorizedOctokit
 }
 
+/**
+ * Create a check run
+ * @param {*} req 
+ * @param {*} serverConf 
+ * @param {*} octokit 
+ * @param {*} redisClient 
+ */
 async function createCheckRun(req, serverConf, octokit, redisClient) {
     const fullName = req.body.repository.full_name
     const parts = fullName.split('/')
@@ -84,20 +115,19 @@ async function createCheckRun(req, serverConf, octokit, redisClient) {
     const repo = parts[1]
     const sha = req.body.check_run != null ? req.body.check_run.head_sha : req.body.check_suite.head_sha
     const pullRequests = req.body.check_suite != null ? req.body.check_suite.pull_requests : []
+    console.log(chalk.green('--- Creating check run for ' + owner + ' ' + repo))
 
     // Lookup task list for this repo
     const taskList = await redisClient.fetch('stampede-' + owner + '-' + repo + '-pullrequest')
     if (taskList != null) {
-      console.dir(taskList)
-
       for (let prindex = 0; prindex < pullRequests.length; prindex++) {
 
         const buildPath = owner + '-' + repo + '-pullrequest-' + pullRequests[prindex].number
-        console.log('--- buildPath: ' + buildPath)
+        console.log(chalk.green('--- Build path: ' + buildPath))
 
         // determine our build number
         const buildNumber = await redisClient.increment('stampede-' + buildPath)
-        console.log('--- build number: ' + buildNumber)
+        console.log(chalk.green('--- Created build number: ' + buildNumber))
 
         // create the build in redis
         const buildDetails = {
@@ -112,42 +142,51 @@ async function createCheckRun(req, serverConf, octokit, redisClient) {
         
         for (let index = 0; index < taskList.tasks.length; index++) {
           const task = taskList.tasks[index]
+          const external_id = buildPath + '-' + buildNumber + '-' + task.id
 
           // create the github check
-          // TODO: We can pass an external ID here. We should do that and make it
-          // easier to identify.
           octokit.checks.create({
               owner: owner,
               repo: repo,
               name: task.title,
               head_sha: sha,
-              external_id: buildPath + '-' + buildNumber + '-' + task.id
+              external_id: external_id
           })
 
-          // enqueue all the tasks
+          // store the initial task details
           const taskDetails = {
-            build: buildDetails,
+            owner: owner,
+            repository: repo,
+            buildNumber: buildNumber,
+            pullRequest: pullRequests[prindex],
             task: task,
             status: 'queued',
-            external_id: buildPath + '-' + buildNumber + '-' + task.id
+            external_id: external_id,
           }
-          await redisClient.store('stampede-' + buildPath + '-' + buildNumber + '-' + task.id, taskDetails)
+          console.log(chalk.green('--- Creating task: ' + task.id))
+          await redisClient.store('stampede-' + external_id, taskDetails)
         }
       }
     } else {
-      console.log('--- no task list found for this repo')
+      console.log(chalk.red('--- no task list found for this repo'))
     }
 }
 
+/**
+ * Queue check run
+ * @param {*} req 
+ * @param {*} serverConf 
+ * @param {*} octokit 
+ * @param {*} redisClient 
+ */
 async function queueCheckRun(req, serverConf, octokit, redisClient) {
-
   const fullName = req.body.repository.full_name
   const parts = fullName.split('/')
   const owner = parts[0]
   const repo = parts[1]
   const started_at = new Date()
 
-  console.log('--- Updating check run to queued')
+  console.log(chalk.green('--- Updating check run to queued'))
   await octokit.checks.update({
       owner: owner,
       repo: repo,
@@ -156,14 +195,13 @@ async function queueCheckRun(req, serverConf, octokit, redisClient) {
       started_at: started_at.toISOString()
   })
 
-  console.log('--- external id: ' + req.body.check_run.external_id)
-  console.log('--- Adding task to queue')
+  console.log(chalk.green('--- Adding task to queue'))
   const taskDetails = await redisClient.fetch('stampede-' + req.body.check_run.external_id)
   if (taskDetails != null) {
     taskDetails.check_run_id = req.body.check_run.id
     await redisClient.rpush('stampede-' + taskDetails.task.id, JSON.stringify(taskDetails))
   } else {
-    console.log('--- Error finding task details, unable to queue')
+    console.log(chalk.red('--- Error finding task details, unable to queue'))
   }
 }
 
