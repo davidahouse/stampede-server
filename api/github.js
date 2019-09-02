@@ -153,15 +153,23 @@ async function createCheckRun(req, serverConf, octokit, redisClient) {
               external_id: external_id
           })
 
+          // TODO: Combine the shared config for all tasks along
+          // with the config for this specific task
+          const config = taskList.config
+
           // store the initial task details
           const taskDetails = {
             owner: owner,
             repository: repo,
             buildNumber: buildNumber,
             pullRequest: pullRequests[prindex],
-            task: task,
+            task: {
+              id: task.id,
+              config: config,
+            },
             status: 'queued',
             external_id: external_id,
+            clone_url: req.body.repository.clone_url,
           }
           console.log(chalk.green('--- Creating task: ' + task.id))
           await redisClient.store('stampede-' + external_id, taskDetails)
