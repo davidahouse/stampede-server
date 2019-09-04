@@ -10,7 +10,7 @@ const redis = require('../lib/redis')
 
 const conf = require('rc')('stampede', {
   // defaults
-  redisHost: 'localhost',
+  redisHost: 'cache',
   redisPort: 6379,
   redisPassword: null,
   webPort: 7766,

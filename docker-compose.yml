@@ -9,10 +9,10 @@ app:
   volumes:
     - ./:/var/www/app
   ports:
-    - 3000:3000
+    - 7766:7766
   environment:
     - NODE_ENV=development
-    - PORT=3000
+    - PORT=7766
   command:
     sh -c 'npm i && node ./bin/stampede-server.js'
   links:
