@@ -1,0 +1,21 @@
+extends layout
+
+block content
+
+ nav(class="w-100")
+  ol(class="breadcrumb align-items-center")
+    li(class="breadcrumb-item")
+      a(href="/" class="")
+        =`Home`
+    li(class="breadcrumb-item active")
+        =`Tasks`
+
+ table(class="table table-striped table-sm")
+    thead
+      tr
+        th= `Task`
+    tbody
+      each task, i in tasks
+        tr
+          td
+            a(href=`/tasl?task=` + task)= task

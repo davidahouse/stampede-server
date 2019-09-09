@@ -1,12 +1,13 @@
 /**
- * handle index
+ * handle tasks
  * @param {*} req 
  * @param {*} res 
  * @param {*} redisClient 
  * @param {*} path 
  */
 async function handle(req, res, redisClient, path) {
-  res.render(path + 'index', {version: module.exports.version})
+  const tasks = await redisClient.fetchMembers('stampede-tasks', [])
+  res.render(path + 'tasks', {tasks: tasks})
 }
 
 module.exports.handle = handle
