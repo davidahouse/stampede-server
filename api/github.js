@@ -2,6 +2,7 @@ const { App } = require('@octokit/app')
 const Octokit = require('@octokit/rest')
 const { request } = require("@octokit/request")
 const chalk = require('chalk')
+const yaml = require('js-yaml')
 
 /**
  * handle github hook
@@ -151,12 +152,33 @@ async function createCheckRun(req, owner, repo, sha, pullRequest, octokit, redis
     await redisClient.add('stampede-orgs', owner)
     await redisClient.add('stampede-orgs-' + owner, repo)
 
+    // Now try to find the config needed to execute this run. We will look in two places:
+    // 1) First we look in redis and if we find it here then we will use it because it represents a config
+    //    override by the admin.
+    // 2) We look in the repo for a .stampede.yaml file.
+
     // Lookup task list for this repo and default to an empty list
     let taskList = await redisClient.fetch('stampede-' + owner + '-' + repo + '-pullrequest')
     if (taskList == null) {
-      taskList = {config: {}, tasks: []}
-      console.log(chalk.red('--- no task list found for this repo. Saving an empty task list.'))
-      await redisClient.store('stampede-' + owner + '-' + repo + '-pullrequest', taskList)
+      console.log(chalk.green('--- No override found in redis, looking into the repo'))
+      const contents = await octokit.repos.getContents({
+        owner: owner,
+        repo: repo,
+        path: '.stampede.yaml',
+        ref: sha
+      })
+      console.log(contents)
+      if (contents != null) {
+        const stampedeConfig = yaml.safeLoad(taskListContents)
+        if (stampedeConfig != null && stampedeConfig.pullrequest != null) {
+          taskList = stampedeConfig.pullrequest
+        }
+      }
+    }
+
+    if (taskList == null) {
+      console.log(chalk.red('--- Unable to determine task list, no found in Redis or the project. Unable to continue'))
+      return
     }
 
     const buildPath = owner + '-' + repo + '-pullrequest-' + pullRequest.number
