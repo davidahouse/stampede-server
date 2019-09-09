@@ -5,7 +5,7 @@
  * @param {*} redisClient 
  * @param {*} path 
  */
-async function handle(req, res, redisClient, path) {
+async function handle(req, res, serverConf, redisClient, path) {
   const orgs = await redisClient.fetchMembers('stampede-orgs', [])
   res.render(path + 'orgs', {orgs: orgs})
 }
