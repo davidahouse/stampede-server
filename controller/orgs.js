@@ -1,12 +1,13 @@
 /**
- * handle index
+ * handle orgs
  * @param {*} req 
  * @param {*} res 
  * @param {*} redisClient 
  * @param {*} path 
  */
 async function handle(req, res, redisClient, path) {
-  res.render(path + 'index', {version: module.exports.version})
+  const orgs = await redisClient.fetchMembers('stampede-orgs', [])
+  res.render(path + 'orgs', {orgs: orgs})
 }
 
 module.exports.handle = handle

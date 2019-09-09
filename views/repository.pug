@@ -1,0 +1,54 @@
+extends layout
+
+block content
+
+ nav(class="w-100")
+  ol(class="breadcrumb align-items-center")
+    li(class="breadcrumb-item")
+      a(href="/" class="")
+        =`Home`
+    li(class="breadcrumb-item")
+      =org
+    li(class="breadcrumb-item active")
+      =repo
+       
+ hr
+ h5= `Pull Request Config`
+
+ table(class="table table-striped table-sm")
+    thead
+      tr
+        th= `Key`
+        th= `Value`
+    tbody
+      each config, i in prConfig
+        tr
+          td
+            =config[0]
+          td
+            =config[1]
+          td
+            a(href=`/editPullRequestConfig?org=` + org + `&repo=` + repo + `&config=` + config[0])= `Edit`
+          td
+            a(href=`/removePullRequestConfig?org=` + org + `&repo=` + repo + `&config=` + config[0])= `Remove`
+
+ a(href=`/addPullRequestConfig?org=` + org + `&repo=` + repo)= `Add Config`
+
+ hr
+ h5= `Pull Request Tasks`
+
+ table(class="table table-striped table-sm")
+    thead
+      tr
+        th= `Task`
+    tbody
+      each task, i in prTasks
+        tr
+          td
+            =task.id
+          td
+            =task.title
+          td
+            a(href=`/removePullRequestTask?org=` + org + `&repo=` + repo + `&task=` + task.id)= `Remove`
+  
+ a(href=`/addPullRequestTask?org=` + org + `&repo=` + repo)= `Add Task`
