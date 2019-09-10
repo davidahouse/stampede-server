@@ -11,14 +11,8 @@ block content
       =org
     li(class="breadcrumb-item active")
       =repo
-       
- hr
- h5= `Pull Request Config`
-
- pre= pullRequestConfig
-
- a(href=`/repositoryUploadConfig?org=` + org + `&repo=` + repo)= `Upload Config`
-
- hr
- h5= `Pull Request Builds`
- 
+  
+  form(action=`/repositoryUploadConfigFile?org=` + org + `&repo=` + repo  encType='multipart/form-data' method='POST')
+    div(class="form-group")
+      input(type='file' class='form-control' name='endpoint')
+      input(type='submit' value='Upload')
