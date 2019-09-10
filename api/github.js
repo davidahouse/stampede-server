@@ -181,6 +181,11 @@ async function createCheckRun(req, owner, repo, sha, pullRequest, octokit, redis
       return
     }
 
+    if (taskList.tasks.length === 0) {
+      console.log(chalk.red('--- Task list was empty. Unable to continue.'))
+      return
+    }
+
     const buildPath = owner + '-' + repo + '-pullrequest-' + pullRequest.number
     console.log(chalk.green('--- Build path: ' + buildPath))
 
@@ -198,7 +203,9 @@ async function createCheckRun(req, owner, repo, sha, pullRequest, octokit, redis
       build: buildNumber
     }
     await redisClient.store('stampede-' + buildPath + '-' + buildNumber, buildDetails)
+    await redisClient.add('stampede-activeBuilds', buildPath + '-' + buildNumber)
       
+    // Now queue the tasks
     for (let index = 0; index < taskList.tasks.length; index++) {
       const task = taskList.tasks[index]
       const external_id = buildPath + '-' + buildNumber + '-' + task.id
