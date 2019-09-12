@@ -10,6 +10,12 @@ async function handle(req, res, serverConf, redisClient) {
     return
   }
   const taskDetails = await redisClient.fetch('stampede-' + req.body.external_id)
+  if (taskDetails.pullRequest == null) {
+    console.log('--- Not a PR update, skipping')
+    res.send({status: 'ok'})
+    return
+  }
+
   const owner = taskDetails.owner
   const repository = taskDetails.repository
   const buildNumber = taskDetails.buildNumber
