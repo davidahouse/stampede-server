@@ -6,10 +6,10 @@ const yaml = require('js-yaml')
 
 /**
  * handle github hook
- * @param {*} req 
- * @param {*} res 
- * @param {*} serverConf 
- * @param {*} redisClient 
+ * @param {*} req
+ * @param {*} res
+ * @param {*} serverConf
+ * @param {*} redisClient
  */
 async function handle(req, res, serverConf, redisClient) {
     console.log(chalk.green('--- github hook: ' + req.headers['x-github-event']))
@@ -19,6 +19,10 @@ async function handle(req, res, serverConf, redisClient) {
       await handleCheckRun(req, serverConf, redisClient)
     } else if (req.headers['x-github-event'] === 'pull_request') {
       await handlePullRequest(req, serverConf, redisClient)
+    } else if (req.headers['x-github-event'] === 'push') {
+      await handleBranchPush(req, serverConf, redisClient)
+    } else if (req.headers['x-github-event'] === 'release') {
+      await handleRelease(req, serverConf, redisClient)
     }
     res.send({status: 'ok'})
 }
@@ -106,6 +110,45 @@ async function handlePullRequest(req, serverConf, redisClient) {
 }
 
 /**
+ * handleBranchPush
+ * @param {*} req 
+ * @param {*} serverConf 
+ * @param {*} redisClient 
+ */
+async function handleBranchPush(req, serverConf, redisClient) {
+  console.dir(req.body)
+  if (req.body.created == false && req.body.deleted == false) {
+    const fullName = req.body.repository.full_name
+    const parts = fullName.split('/')
+    const owner = parts[0]
+    const repo = parts[1]
+    const ref = req.body.ref.split('/')
+    const branch = ref[ref.length-1]
+    console.log('--- Got a branch push for ' + owner + '/' + repo + ' on branch ' + branch)
+    const octokit = await getAuthorizedOctokit(req, serverConf)
+    await createBranchRun(req, owner, repo, req.body.after, branch, octokit, redisClient)
+  }
+}
+
+/**
+ * handleBranchPush
+ * @param {*} req 
+ * @param {*} serverConf 
+ * @param {*} redisClient 
+ */
+async function handleRelease(req, serverConf, redisClient) {
+  const fullName = req.body.repository.full_name
+  const parts = fullName.split('/')
+  const owner = parts[0]
+  const repo = parts[1]
+  const release = req.body.release.name
+  const tag = req.body.release.tag_name
+  const octokit = await getAuthorizedOctokit(req, serverConf)
+  await createReleaseRun(req, owner, repo, release, tag, octokit, redisClient)
+}
+
+
+/**
  * get an authorized octokit object for further github api calls
  * @param {*} req 
  * @param {*} serverConf 
@@ -162,28 +205,7 @@ async function getAuthorizedOctokit(req, serverConf) {
 async function createCheckRun(req, owner, repo, sha, pullRequest, octokit, redisClient) {
   console.log(chalk.green('--- Creating check run for ' + owner + ' ' + repo + ' PR ' + pullRequest.number))
 
-  // Now try to find the config needed to execute this run. We will look in two places:
-  // 1) First we look in redis and if we find it here then we will use it because it represents a config
-  //    override by the admin.
-  // 2) We look in the repo for a .stampede.yaml file.
-  let config = await redisClient.fetch('stampede-' + owner + '-' + repo + '-config')  
-  if (config == null) {
-    console.log(chalk.green('--- No override found in redis, looking into the repo'))
-    const contents = await octokit.repos.getContents({
-      owner: owner,
-      repo: repo,
-      path: 'stampede.yaml',
-      ref: sha
-    })
-    console.log(contents)
-    if (contents != null) {
-      const stampedeConfig = yaml.safeLoad(contents)
-      if (stampedeConfig != null) {
-        config = stampedeConfig
-      }
-    }
-  }
-
+  const config = await findRepoConfig(owner, repo, sha, octokit, redisClient)
   if (config == null) {
     console.log(chalk.red('--- Unable to determine config, no found in Redis or the project. Unable to continue'))
     return
@@ -249,6 +271,200 @@ async function createCheckRun(req, owner, repo, sha, pullRequest, octokit, redis
     console.log(chalk.green('--- Creating task: ' + task.id))
     await redisClient.store('stampede-' + external_id, taskDetails)
   }
+}
+
+/**
+ * createBranchRun
+ * @param {*} req 
+ * @param {*} owner 
+ * @param {*} repo 
+ * @param {*} sha 
+ * @param {*} branch 
+ * @param {*} octokit 
+ * @param {*} redisClient 
+ */
+async function createBranchRun(req, owner, repo, sha, branch, octokit, redisClient) {
+  const config = await findRepoConfig(owner, repo, sha, octokit, redisClient)
+  if (config == null) {
+    console.log(chalk.red('--- Unable to determine config, no found in Redis or the project. Unable to continue'))
+    return
+  }
+
+  if (config.branches == null) {
+    console.log(chalk.red('--- No branch builds configured, unable to continue.'))
+    return
+  }
+
+  console.dir(config.branches)
+  for (let index = 0; index < config.branches.length; index++) {
+    const branchConfig = config.branches[index]
+    if (branchConfig.branch === branch) {
+
+      if (branchConfig.tasks.length === 0) {
+        console.log(chalk.red('--- Task list was empty. Unable to continue.'))
+        return
+      }
+    
+      const buildPath = owner + '-' + repo + '-' + branch
+      console.log(chalk.green('--- Build path: ' + buildPath))
+    
+      // determine our build number
+      const buildNumber = await redisClient.increment('stampede-' + buildPath)
+      console.log(chalk.green('--- Created build number: ' + buildNumber))
+    
+      // create the build in redis
+      const buildDetails = {
+        githubEvent: req.body,
+        owner: owner,
+        repository: repo,
+        sha: sha,
+        branch: branch,
+        build: buildNumber
+      }
+      await redisClient.store('stampede-' + buildPath + '-' + buildNumber, buildDetails)
+      await redisClient.add('stampede-activeBuilds', buildPath + '-' + buildNumber)
+          
+      // Now queue the tasks
+      const tasks = branchConfig.tasks
+      for (let tindex = 0; tindex < tasks.length; tindex++) {
+        const task = tasks[tindex]
+    
+        const external_id = buildPath + '-' + buildNumber + '-' + task.id
+          
+        // store the initial task details
+        const taskDetails = {
+          owner: owner,
+          repository: repo,
+          buildNumber: buildNumber,
+          branch: branch,
+          branch_sha: sha,
+          config: branchConfig,
+          task: {
+            id: task.id,
+          },
+          status: 'queued',
+          external_id: external_id,
+          clone_url: req.body.repository.clone_url,
+        }
+        console.log(chalk.green('--- Creating task: ' + task.id))
+        await redisClient.store('stampede-' + external_id, taskDetails)
+        await redisClient.rpush('stampede-' + task.id, JSON.stringify(taskDetails))
+      }
+    }
+  }
+}
+
+/**
+ * createReleaseRun
+ * @param {*} req 
+ * @param {*} owner 
+ * @param {*} repo 
+ * @param {*} release
+ * @param {*} octokit 
+ * @param {*} redisClient 
+ * 
+ */
+async function createReleaseRun(req, owner, repo, release, tag, octokit, redisClient) {
+  // Find the sha for this release based on the tag
+  console.log('--- Trying to find sha for ' + tag)
+  const tagInfo = await octokit.git.getRef({
+    owner: owner,
+    repo: repo,
+    ref: 'tags/' + tag
+  })
+
+  if (tagInfo.data.object == null || tagInfo.data.object.sha == null) {
+    console.log(chalk.red('--- Unable to find sha for tag, unlable to continue'))
+    return 
+  }
+
+  const sha = tagInfo.data.object.sha
+  const config = await findRepoConfig(owner, repo, sha, octokit, redisClient)
+  if (config == null) {
+    console.log(chalk.red('--- Unable to determine config, no found in Redis or the project. Unable to continue'))
+    return
+  }
+
+  if (config.releases == null) {
+    console.log(chalk.red('--- No release builds configured, unable to continue.'))
+    return
+  }
+
+  if (config.releases.tasks.length === 0) {
+    console.log(chalk.red('--- Task list was empty. Unable to continue.'))
+    return
+  }
+
+  const buildPath = owner + '-' + repo + '-' + release
+  console.log(chalk.green('--- Build path: ' + buildPath))
+
+  // determine our build number
+  const buildNumber = await redisClient.increment('stampede-' + buildPath)
+  console.log(chalk.green('--- Created build number: ' + buildNumber))
+
+  // create the build in redis
+  const buildDetails = {
+    githubEvent: req.body,
+    owner: owner,
+    repository: repo,
+    sha: sha,
+    release: release,
+    build: buildNumber
+  }
+  await redisClient.store('stampede-' + buildPath + '-' + buildNumber, buildDetails)
+  await redisClient.add('stampede-activeBuilds', buildPath + '-' + buildNumber)
+      
+  // Now queue the tasks
+  const tasks = config.releases.tasks
+  for (let tindex = 0; tindex < tasks.length; tindex++) {
+    const task = tasks[tindex]
+
+    const external_id = buildPath + '-' + buildNumber + '-' + task.id
+      
+    // store the initial task details
+    const taskDetails = {
+      owner: owner,
+      repository: repo,
+      buildNumber: buildNumber,
+      release: release,
+      release_sha: sha,
+      config: config.releases,
+      task: {
+        id: task.id,
+      },
+      status: 'queued',
+      external_id: external_id,
+      clone_url: req.body.repository.clone_url,
+    }
+    console.log(chalk.green('--- Creating task: ' + task.id))
+    await redisClient.store('stampede-' + external_id, taskDetails)
+    await redisClient.rpush('stampede-' + task.id, JSON.stringify(taskDetails))
+  }
+}
+
+async function findRepoConfig(owner, repo, sha, octokit, redisClient) {
+// Now try to find the config needed to execute this run. We will look in two places:
+  // 1) First we look in redis and if we find it here then we will use it because it represents a config
+  //    override by the admin.
+  // 2) We look in the repo for a .stampede.yaml file.
+  let config = await redisClient.fetch('stampede-' + owner + '-' + repo + '-config')  
+  if (config == null) {
+    console.log(chalk.green('--- No override found in redis, looking into the repo'))
+    const contents = await octokit.repos.getContents({
+      owner: owner,
+      repo: repo,
+      path: 'stampede.yaml',
+      ref: sha
+    })
+    console.log(contents)
+    if (contents != null) {
+      const stampedeConfig = yaml.safeLoad(contents)
+      if (stampedeConfig != null) {
+        config = stampedeConfig
+      }
+    }
+  }
+  return config
 }
 
 /**
