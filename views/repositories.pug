@@ -1,0 +1,23 @@
+extends layout
+
+block content
+
+ nav(class="w-100")
+  ol(class="breadcrumb align-items-center")
+    li(class="breadcrumb-item")
+      a(href="/" class="")
+        =`Home`
+    li(class="breadcrumb-item")
+        =`Organizations`
+    li(class="breadcrumb-item active")
+        =org
+
+ table(class="table table-striped table-sm")
+    thead
+      tr
+        th= `Repository`
+    tbody
+      each repo, i in repos
+        tr
+          td
+            a(href=`/repository?org=` + org + `&repo=` + repo)= repo
