@@ -33,7 +33,21 @@ async function handleCheckSuite(req, serverConf, redisClient) {
   if (req.body.check_suite.app.id === parseInt(serverConf.githubAppID)) {
     const octokit = await getAuthorizedOctokit(req, serverConf)
     console.log(chalk.green('--- suite action: ' + req.body.action))
-    if (req.body.action === 'rerequested') {
+    if (req.body.action === 'requested') {
+      if (req.body.check_suite.pull_requests != null) {
+        if (req.body.check_suite.pull_requests.length > 0) {
+          const fullName = req.body.repository.full_name
+          const parts = fullName.split('/')
+          const owner = parts[0]
+          const repo = parts[1]
+          const sha = req.body.check_suite.head_sha
+          const pullRequests = req.body.check_suite != null ? req.body.check_suite.pull_requests : []
+          for (let prindex = 0; prindex < pullRequests.length; prindex++) {
+            await createCheckRun(req, owner, repo, sha, pullRequests[prindex], octokit, redisClient)
+          }
+        }
+      }
+    } else if (req.body.action === 'rerequested') {
       const fullName = req.body.repository.full_name
       const parts = fullName.split('/')
       const owner = parts[0]
@@ -146,100 +160,95 @@ async function getAuthorizedOctokit(req, serverConf) {
  * @param {*} redisClient 
  */
 async function createCheckRun(req, owner, repo, sha, pullRequest, octokit, redisClient) {
-    console.log(chalk.green('--- Creating check run for ' + owner + ' ' + repo + ' PR ' + pullRequest.number))
+  console.log(chalk.green('--- Creating check run for ' + owner + ' ' + repo + ' PR ' + pullRequest.number))
 
-    // Capture the org and repo in case we haven't seen it before
-    await redisClient.add('stampede-orgs', owner)
-    await redisClient.add('stampede-orgs-' + owner, repo)
+  // Now try to find the config needed to execute this run. We will look in two places:
+  // 1) First we look in redis and if we find it here then we will use it because it represents a config
+  //    override by the admin.
+  // 2) We look in the repo for a .stampede.yaml file.
+  let config = await redisClient.fetch('stampede-' + owner + '-' + repo + '-config')  
+  if (config == null) {
+    console.log(chalk.green('--- No override found in redis, looking into the repo'))
+    const contents = await octokit.repos.getContents({
+      owner: owner,
+      repo: repo,
+      path: 'stampede.yaml',
+      ref: sha
+    })
+    console.log(contents)
+    if (contents != null) {
+      const stampedeConfig = yaml.safeLoad(contents)
+      if (stampedeConfig != null) {
+        config = stampedeConfig
+      }
+    }
+  }
 
-    // Now try to find the config needed to execute this run. We will look in two places:
-    // 1) First we look in redis and if we find it here then we will use it because it represents a config
-    //    override by the admin.
-    // 2) We look in the repo for a .stampede.yaml file.
+  if (config == null) {
+    console.log(chalk.red('--- Unable to determine config, no found in Redis or the project. Unable to continue'))
+    return
+  }
 
-    // Lookup task list for this repo and default to an empty list
-    let taskList = await redisClient.fetch('stampede-' + owner + '-' + repo + '-pullrequest')
-    if (taskList == null) {
-      console.log(chalk.green('--- No override found in redis, looking into the repo'))
-      const contents = await octokit.repos.getContents({
+  console.dir(config.pullrequests)
+  console.dir(config.pullrequests.tasks)
+  if (config.pullrequests.tasks.length === 0) {
+    console.log(chalk.red('--- Task list was empty. Unable to continue.'))
+    return
+  }
+
+  const buildPath = owner + '-' + repo + '-pullrequest-' + pullRequest.number
+  console.log(chalk.green('--- Build path: ' + buildPath))
+
+  // determine our build number
+  const buildNumber = await redisClient.increment('stampede-' + buildPath)
+  console.log(chalk.green('--- Created build number: ' + buildNumber))
+
+  // create the build in redis
+  const buildDetails = {
+    githubEvent: req.body,
+    owner: owner,
+    repository: repo,
+    sha: sha,
+    pullRequest: pullRequest,
+    build: buildNumber
+  }
+  await redisClient.store('stampede-' + buildPath + '-' + buildNumber, buildDetails)
+  await redisClient.add('stampede-activeBuilds', buildPath + '-' + buildNumber)
+      
+  // Now queue the tasks
+  const tasks = config.pullrequests.tasks
+  for (let index = 0; index < tasks.length; index++) {
+    const task = tasks[index]
+    const external_id = buildPath + '-' + buildNumber + '-' + task.id
+
+    const taskInfo = await redisClient.fetch('stampede-tasks-' + task.id)
+    
+    // create the github check
+    octokit.checks.create({
         owner: owner,
         repo: repo,
-        path: '.stampede.yaml',
-        ref: sha
-      })
-      console.log(contents)
-      if (contents != null) {
-        const stampedeConfig = yaml.safeLoad(taskListContents)
-        if (stampedeConfig != null && stampedeConfig.pullrequest != null) {
-          taskList = stampedeConfig.pullrequest
-        }
-      }
-    }
+        name: taskInfo.title,
+        head_sha: sha,
+        external_id: external_id
+    })
 
-    if (taskList == null) {
-      console.log(chalk.red('--- Unable to determine task list, no found in Redis or the project. Unable to continue'))
-      return
-    }
-
-    if (taskList.tasks.length === 0) {
-      console.log(chalk.red('--- Task list was empty. Unable to continue.'))
-      return
-    }
-
-    const buildPath = owner + '-' + repo + '-pullrequest-' + pullRequest.number
-    console.log(chalk.green('--- Build path: ' + buildPath))
-
-    // determine our build number
-    const buildNumber = await redisClient.increment('stampede-' + buildPath)
-    console.log(chalk.green('--- Created build number: ' + buildNumber))
-
-    // create the build in redis
-    const buildDetails = {
-      githubEvent: req.body,
+    // store the initial task details
+    const taskDetails = {
       owner: owner,
       repository: repo,
-      sha: sha,
+      buildNumber: buildNumber,
       pullRequest: pullRequest,
-      build: buildNumber
+      config: config.pullrequests,
+      task: {
+        id: task.id,
+      },
+      status: 'queued',
+      external_id: external_id,
+      clone_url: req.body.repository.clone_url,
     }
-    await redisClient.store('stampede-' + buildPath + '-' + buildNumber, buildDetails)
-    await redisClient.add('stampede-activeBuilds', buildPath + '-' + buildNumber)
-      
-    // Now queue the tasks
-    for (let index = 0; index < taskList.tasks.length; index++) {
-      const task = taskList.tasks[index]
-      const external_id = buildPath + '-' + buildNumber + '-' + task.id
-
-      // create the github check
-      octokit.checks.create({
-          owner: owner,
-          repo: repo,
-          name: task.title,
-          head_sha: sha,
-          external_id: external_id
-      })
-
-      // TODO: Combine the shared config for all tasks along
-      // with the config for this specific task
-      const config = taskList.config
-
-      // store the initial task details
-      const taskDetails = {
-        owner: owner,
-        repository: repo,
-        buildNumber: buildNumber,
-        pullRequest: pullRequest,
-        task: {
-          id: task.id,
-          config: config,
-        },
-        status: 'queued',
-        external_id: external_id,
-        clone_url: req.body.repository.clone_url,
-      }
-      console.log(chalk.green('--- Creating task: ' + task.id))
-      await redisClient.store('stampede-' + external_id, taskDetails)
-    }
+    console.log(chalk.green('--- Creating task: ' + task.id))
+    await redisClient.store('stampede-' + external_id, taskDetails)
+  }
 }
 
 /**
