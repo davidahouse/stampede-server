@@ -7,6 +7,7 @@ const fs = require('fs')
 // Internal modules
 const web = require('../lib/web')
 const redis = require('../lib/redis')
+const config = require('../lib/config')
 
 const conf = require('rc')('stampede', {
   // defaults
@@ -17,7 +18,8 @@ const conf = require('rc')('stampede', {
   githubAppID: 0,
   githubAppPEMPath: null,
   githubAppPEM: null,
-  githubHost: null
+  githubHost: null,
+  stampedeConfigPath: null
 })
 
 clear()
@@ -33,3 +35,4 @@ conf.githubAppPEM = pem
 
 redis.startRedis(conf)
 web.startRESTApi(conf, redis)
+config.initialize(conf, redis)
