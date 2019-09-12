@@ -5,19 +5,20 @@ const { request } = require("@octokit/request")
 async function handle(req, res, serverConf, redisClient) {
   console.log('--- taskUpdate:')
   console.dir(req.body)
-  if (req.body.owner == null) {
-    res.send({error: 'no body found'})
+  if (req.body.external_id == null) {
+    res.send({error: 'no external_id found'})
     return
   }
-  const owner = req.body.owner
-  const repository = req.body.repository
-  const buildNumber = req.body.buildNumber
-  const prNumber = req.body.pullRequest.number
-  const taskID = req.body.task.id
-  const status = req.body.status
+  const taskDetails = await redisClient.fetch('stampede-' + req.body.external_id)
+  const owner = taskDetails.owner
+  const repository = taskDetails.repository
+  const buildNumber = taskDetails.buildNumber
+  const prNumber = taskDetails.pullRequest.number
+  const taskID = taskDetails.task.id
+  const status = taskDetails.status
   const buildPath = owner + '-' + repository + 
         '-pullrequest-' + prNumber
-  const check_run_id = req.body.check_run_id
+  const check_run_id = taskDetails.check_run_id
 
   console.log(owner)
   console.log(repository)
@@ -36,13 +37,13 @@ async function handle(req, res, serverConf, redisClient) {
     check_run_id: check_run_id,
   }
 
-  if (req.body.conclusion != null) {
-    update.conclusion = req.body.conclusion
+  if (taskDetails.conclusion != null) {
+    update.conclusion = taskDetails.conclusion
     update.completed_at = new Date().toISOString()
   }
 
-  if (req.body.output != null) {
-    update.output = req.body.output
+  if (taskDetails.output != null) {
+    update.output = taskDetails.output
   }
   console.dir(update)
   console.log('--- updating check')

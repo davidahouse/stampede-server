@@ -17,13 +17,14 @@
     "chalk": "^2.4.2",
     "clear": "^0.1.0",
     "cookie-parser": "^1.4.4",
+    "express-fileupload": "^1.1.5",
     "express": "^4.16.4",
-    "express-ws": "^4.0.0",
     "figlet": "^1.2.1",
     "morgan": "^1.9.1",
-    "morgan-body": "^2.4.7",
     "rc": "^1.2.8",
     "redis": "^2.8.0",
-    "ws": "^6.0.0"
+    "ws": "^6.0.0",
+    "pug": "^2.0.3",
+    "js-yaml": "^3.13.1"
   }
 }
