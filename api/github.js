@@ -1,3 +1,4 @@
+'use strict'
 const { App } = require('@octokit/app')
 const Octokit = require('@octokit/rest')
 const { request } = require("@octokit/request")
