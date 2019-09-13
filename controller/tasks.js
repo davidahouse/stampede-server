@@ -1,3 +1,4 @@
+'use strict'
 /**
  * handle tasks
  * @param {*} req 
