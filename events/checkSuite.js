@@ -1,5 +1,7 @@
 'use strict'
 
+const chalk = require('chalk')
+
 const auth = require('../lib/auth')
 const checkRun = require('../lib/checkRun')
 
@@ -14,7 +16,7 @@ async function handle(req, serverConf, redisClient) {
 
   // Parse the incoming body into the parts we care about
   const event = parseEvent(req)
-  console.log('--- CheckSuiteEvent:')
+  console.log(chalk.green('--- CheckSuiteEvent:'))
   console.dir(event)
 
   // Ignore check_suite events not for this app
@@ -28,7 +30,7 @@ async function handle(req, serverConf, redisClient) {
   }
 
   // Get an authorized octokit instance so we can create our check runs
-  const octokit = auth.getAuthorizedOctokit(event.owner, event.repo, serverConf)
+  const octokit = await auth.getAuthorizedOctokit(event.owner, event.repo, serverConf)
   for (let index = 0; index < event.pullRequests.length; index++) {
     await checkRun.createCheckRun(event.owner, event.repo, event.sha,
       event.pullRequests[index], event.cloneURL,

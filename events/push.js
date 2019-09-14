@@ -4,6 +4,7 @@ const chalk = require('chalk')
 
 const auth = require('../lib/auth')
 const config = require('../lib/config')
+const taskQueue = require('../lib/taskQueue')
 
 /**
  * handle event
@@ -23,18 +24,18 @@ async function handle(req, serverConf, redisClient) {
     return {status: 'ignoring due to created or pushed'}
   }
 
-  const octokit = auth.getAuthorizedOctokit(event.owner, event.repo, serverConf)
+  const octokit = await auth.getAuthorizedOctokit(event.owner, event.repo, serverConf)
 
   const repoConfig = await config.findRepoConfig(event.owner, event.repo, event.sha,
     octokit, redisClient)
   if (repoConfig == null) {
     console.log(chalk.red('--- Unable to determine config, no found in Redis or the project. Unable to continue'))
-    return
+    return {status: 'no repo config found'}
   }
 
   if (repoConfig.branches == null) {
     console.log(chalk.red('--- No branch builds configured, unable to continue.'))
-    return
+    return {status: 'no branches configured'}
   }
 
   console.dir(repoConfig.branches)
@@ -44,7 +45,7 @@ async function handle(req, serverConf, redisClient) {
 
       if (branchConfig.tasks.length === 0) {
         console.log(chalk.red('--- Task list was empty. Unable to continue.'))
-        return
+        continue
       }
 
       const buildPath = event.owner + '-' + event.repo + '-' + event.branch
@@ -90,10 +91,12 @@ async function handle(req, serverConf, redisClient) {
         }
         console.log(chalk.green('--- Creating task: ' + task.id))
         await redisClient.store('stampede-' + external_id, taskDetails)
-        await redisClient.rpush('stampede-' + task.id, JSON.stringify(taskDetails))
+        const queue = taskQueue.createTaskQueue('stampede-' + task.id)
+        queue.add(taskDetails)
       }
     }
   }
+  return {status: 'branch tasks created'}
 }
 
 /**
@@ -108,7 +111,6 @@ function parseEvent(req) {
   const repo = parts[1]
   const ref = req.body.ref.split('/')
   return {
-    appID: req.body.check_run.app.id,
     owner: owner,
     repo: repo,
     created: req.body.created,
