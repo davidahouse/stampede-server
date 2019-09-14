@@ -1,7 +1,7 @@
 'use strict'
 const { App } = require('@octokit/app')
 const Octokit = require('@octokit/rest')
-const { request } = require("@octokit/request")
+const { request } = require('@octokit/request')
 
 async function handle(req, res, serverConf, redisClient) {
   console.log('--- taskUpdate:')
@@ -23,7 +23,7 @@ async function handle(req, res, serverConf, redisClient) {
   const prNumber = taskDetails.pullRequest.number
   const taskID = taskDetails.task.id
   const status = taskDetails.status
-  const buildPath = owner + '-' + repository + 
+  const buildPath = owner + '-' + repository +
         '-pullrequest-' + prNumber
   const check_run_id = taskDetails.check_run_id
 
@@ -59,43 +59,43 @@ async function handle(req, res, serverConf, redisClient) {
 }
 
 async function getAuthorizedOctokit(req, owner, repository, serverConf) {
-  const app = new App({id: serverConf.githubAppID, 
-      privateKey: serverConf.githubAppPEM,
-      baseUrl: serverConf.githubHost})
+  const app = new App({id: serverConf.githubAppID,
+    privateKey: serverConf.githubAppPEM,
+    baseUrl: serverConf.githubHost})
   const jwt = app.getSignedJsonWebToken()
-  
+
   const octokit = new Octokit({
-      auth: 'Bearer ' + jwt,
-      userAgent: 'octokit/rest.js v1.2.3',
-      baseUrl: serverConf.githubHost,
-      log: {
+    auth: 'Bearer ' + jwt,
+    userAgent: 'octokit/rest.js v1.2.3',
+    baseUrl: serverConf.githubHost,
+    log: {
       debug: () => {},
       info: () => {},
       warn: console.warn,
-      error: console.error
-      }
+      error: console.error,
+    },
   })
   console.log('--- Getting installation id ', owner, repository)
   const installation = await octokit.apps.getRepoInstallation({
-      owner: owner,
-      repo: repository
+    owner: owner,
+    repo: repository,
   })
   const installID = installation.data.id
 
   console.log('--- Getting access token', installID)
   const accessToken = await app.getInstallationAccessToken({
-      installationId: installID
+    installationId: installID,
   })
   const authorizedOctokit = new Octokit({
-      auth: 'token ' + accessToken,
-      userAgent: 'octokit/rest.js v1.2.3',
-      baseUrl: serverConf.githubHost,
-      log: {
+    auth: 'token ' + accessToken,
+    userAgent: 'octokit/rest.js v1.2.3',
+    baseUrl: serverConf.githubHost,
+    log: {
       debug: () => {},
       info: () => {},
       warn: console.warn,
-      error: console.error
-      }
+      error: console.error,
+    },
   })
   return authorizedOctokit
 }

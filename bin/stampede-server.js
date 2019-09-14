@@ -4,6 +4,7 @@ const chalk = require('chalk')
 const clear = require('clear')
 const figlet = require('figlet')
 const fs = require('fs')
+const Queue = require('bull')
 
 // Internal modules
 const web = require('../lib/web')
@@ -20,7 +21,8 @@ const conf = require('rc')('stampede', {
   githubAppPEMPath: null,
   githubAppPEM: null,
   githubHost: null,
-  stampedeConfigPath: null
+  stampedeConfigPath: null,
+  responseQueue: 'stampede-response',
 })
 
 clear()
@@ -31,9 +33,15 @@ console.log(chalk.red('Web Port: ' + conf.webPort))
 console.log(chalk.red('GitHub APP ID: ' + conf.githubAppID))
 console.log(chalk.red('GitHub PEM Path: ' + conf.githubAppPEMPath))
 
+// Load up our key for this GitHub app. You get this key from GitHub
+// when you create the app.
 const pem = fs.readFileSync(conf.githubAppPEMPath, 'utf8')
 conf.githubAppPEM = pem
 
+// Start our own queue that listens for updates that need to get
+// made back into GitHub
+
+// Start the webhook listener
 redis.startRedis(conf)
 web.startRESTApi(conf, redis)
 config.initialize(conf, redis)
