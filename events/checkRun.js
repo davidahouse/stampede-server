@@ -21,7 +21,7 @@ async function handle(req, serverConf, redisClient) {
     return {status: 'ignored, not our app id'}
   }
 
-  const octokit = auth.getAuthorizedOctokit(event.owner, event.repo, serverConf)
+  const octokit = await auth.getAuthorizedOctokit(event.owner, event.repo, serverConf)
   if (event.action === 'created') {
     await checkRun.queueCheckRun(event.owner, event.repo, event.checkRunID,
       event.externalID, octokit, redisClient)
@@ -50,11 +50,10 @@ function parseEvent(req) {
     owner: owner,
     repo: repo,
     action: req.body.action,
-    pullRequests: req.body.check_suite.pull_requests != null ?
-      req.body.check_suite.pull_requests :
+    pullRequests: req.body.check_run.check_suite.pull_requests != null ?
+      req.body.check_run.check_suite.pull_requests :
       [],
-    sha: req.body.check_run != null ? req.body.check_run.head_sha
-      : req.body.check_suite.head_sha,
+    sha: req.body.check_run.head_sha,
     cloneURL: req.body.repository.clone_url,
     checkRunID: req.body.check_run.id,
     externalID: req.body.check_run.external_id,

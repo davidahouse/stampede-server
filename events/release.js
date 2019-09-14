@@ -4,6 +4,7 @@ const chalk = require('chalk')
 
 const auth = require('../lib/auth')
 const config = require('../lib/config')
+const taskQueue = require('../lib/taskQueue')
 
 /**
  * handle event
@@ -18,7 +19,7 @@ async function handle(req, serverConf, redisClient) {
   console.log('--- ReleaseEvent:')
   console.dir(event)
 
-  const octokit = auth.getAuthorizedOctokit(event.owner, event.repo, serverConf)
+  const octokit = await auth.getAuthorizedOctokit(event.owner, event.repo, serverConf)
 
   // Find the sha for this release based on the tag
   console.log('--- Trying to find sha for ' + event.tag)
@@ -30,24 +31,32 @@ async function handle(req, serverConf, redisClient) {
 
   if (tagInfo.data.object == null || tagInfo.data.object.sha == null) {
     console.log(chalk.red('--- Unable to find sha for tag, unlable to continue'))
-    return
+    return {status: 'unable to find sha for this tag'}
   }
 
   const sha = tagInfo.data.object.sha
   const repoConfig = await config.findRepoConfig(event.owner, event.repo, sha, octokit, redisClient)
   if (repoConfig == null) {
     console.log(chalk.red('--- Unable to determine config, no found in Redis or the project. Unable to continue'))
-    return
+    return {status: 'config not found'}
   }
 
   if (repoConfig.releases == null) {
     console.log(chalk.red('--- No release builds configured, unable to continue.'))
-    return
+    return {status: 'releases config not found'}
   }
 
-  if (repoConfig.releases.tasks.length === 0) {
+  let releaseConfig = ((event.prerelease === true) && (repoConfig.releases.prerelease != null)) ?
+    repoConfig.releases.prerelease :
+    repoConfig.releases.published
+  if (releaseConfig == null) {
+    console.log(chalk.red('--- No release config found under prerelease or published.'))
+    return {status: 'releases config not found'}
+  }
+
+  if (releaseConfig.tasks.length === 0) {
     console.log(chalk.red('--- Task list was empty. Unable to continue.'))
-    return
+    return {status: 'task list was empty'}
   }
 
   const buildPath = event.owner + '-' + event.repo + '-' + event.release
@@ -70,7 +79,7 @@ async function handle(req, serverConf, redisClient) {
   await redisClient.add('stampede-activeBuilds', buildPath + '-' + buildNumber)
 
   // Now queue the tasks
-  const tasks = repoConfig.releases.tasks
+  const tasks = releaseConfig.tasks
   for (let tindex = 0; tindex < tasks.length; tindex++) {
     const task = tasks[tindex]
 
@@ -84,7 +93,7 @@ async function handle(req, serverConf, redisClient) {
       release: event.release,
       tag: event.tag,
       release_sha: sha,
-      config: repoConfig.releases,
+      config: releaseConfig,
       task: {
         id: task.id,
       },
@@ -94,8 +103,10 @@ async function handle(req, serverConf, redisClient) {
     }
     console.log(chalk.green('--- Creating task: ' + task.id))
     await redisClient.store('stampede-' + external_id, taskDetails)
-    await redisClient.rpush('stampede-' + task.id, JSON.stringify(taskDetails))
+    const queue = taskQueue.createTaskQueue('stampede-' + task.id)
+    queue.add(taskDetails)
   }
+  return {status: 'tasks created for the release'}
 }
 
 /**
@@ -109,7 +120,6 @@ function parseEvent(req) {
   const owner = parts[0]
   const repo = parts[1]
   return {
-    appID: req.body.check_run.app.id,
     owner: owner,
     repo: repo,
     created: req.body.created,
@@ -117,6 +127,7 @@ function parseEvent(req) {
     release: req.body.release.name,
     tag: req.body.release.tag_name,
     cloneURL: req.body.repository.clone_url,
+    prerelease: req.body.release.prerelease,
   }
 }
 

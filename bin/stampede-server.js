@@ -4,12 +4,12 @@ const chalk = require('chalk')
 const clear = require('clear')
 const figlet = require('figlet')
 const fs = require('fs')
-const Queue = require('bull')
 
 // Internal modules
 const web = require('../lib/web')
 const redis = require('../lib/redis')
 const config = require('../lib/config')
+const taskQueue = require('../lib/taskQueue')
 
 const conf = require('rc')('stampede', {
   // defaults
@@ -43,5 +43,12 @@ conf.githubAppPEM = pem
 
 // Start the webhook listener
 redis.startRedis(conf)
+taskQueue.setRedisConfig({
+  redis: {
+    port: conf.redisPort,
+    host: conf.redisHost,
+    password: conf.redisPassword,
+  },
+})
 web.startRESTApi(conf, redis)
 config.initialize(conf, redis)

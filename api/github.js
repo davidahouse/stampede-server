@@ -18,15 +18,15 @@ async function handle(req, res, serverConf, redisClient) {
   console.log(chalk.green('--- github hook: ' + req.headers['x-github-event']))
   let response = {}
   if (req.headers['x-github-event'] === 'check_suite') {
-    response = await checkSuiteEvent(req, serverConf, redisClient)
+    response = await checkSuiteEvent.handle(req, serverConf, redisClient)
   } else if (req.headers['x-github-event'] === 'check_run') {
-    response = await checkRunEvent(req, serverConf, redisClient)
+    response = await checkRunEvent.handle(req, serverConf, redisClient)
   } else if (req.headers['x-github-event'] === 'pull_request') {
-    response = await pullRequestEvent(req, serverConf, redisClient)
+    response = await pullRequestEvent.handle(req, serverConf, redisClient)
   } else if (req.headers['x-github-event'] === 'push') {
-    response = await pushEvent(req, serverConf, redisClient)
+    response = await pushEvent.handle(req, serverConf, redisClient)
   } else if (req.headers['x-github-event'] === 'release') {
-    response = await releaseEvent(req, serverConf, redisClient)
+    response = await releaseEvent.handle(req, serverConf, redisClient)
   }
   res.send(response)
 }

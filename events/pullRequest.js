@@ -17,10 +17,13 @@ async function handle(req, serverConf, redisClient) {
   console.dir(event)
 
   if ((event.action === 'opened') || (event.action === 'reopened')) {
-    const octokit = auth.getAuthorizedOctokit(event.owner, event.repo, serverConf)
+    const octokit = await auth.getAuthorizedOctokit(event.owner, event.repo, serverConf)
     await checkRun.createCheckRun(event.owner, event.repo, event.sha,
       event.pullRequest, event.cloneURL,
       octokit, redisClient)
+    return {status: 'pull request tasks created'}
+  } else {
+    return {status: 'ignored, pull request not opened or reopened'}
   }
 }
 
@@ -35,7 +38,6 @@ function parseEvent(req) {
   const owner = parts[0]
   const repo = parts[1]
   return {
-    appID: req.body.check_run.app.id,
     owner: owner,
     repo: repo,
     action: req.body.action,
