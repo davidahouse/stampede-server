@@ -10,6 +10,13 @@
     "extends": "strongloop",
     "rules": {
         "semi": 0,
-        "radix": [2, "as-needed"]
+        "radix": [2, "as-needed"],
+        "max-len": ["error", 100, 2, {
+            "ignoreUrls": true,
+            "ignoreComments": false,
+            "ignoreRegExpLiterals": true,
+            "ignoreStrings": true,
+            "ignoreTemplateLiterals": true
+          }]
       }
 }
