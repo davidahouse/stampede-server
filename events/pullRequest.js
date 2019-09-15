@@ -42,9 +42,7 @@ function parseEvent(req) {
     repo: repo,
     action: req.body.action,
     pullRequest: req.body.pull_request,
-    // TODO: sha is probably wrong here
-    sha: req.body.check_run != null ? req.body.check_run.head_sha
-      : req.body.check_suite.head_sha,
+    sha: req.body.pull_request.head.sha,
     cloneURL: req.body.repository.clone_url,
   }
 }
