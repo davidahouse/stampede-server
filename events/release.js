@@ -9,10 +9,10 @@ const taskQueue = require('../lib/taskQueue')
 /**
  * handle event
  * @param {*} req
- * @param {*} res
  * @param {*} serverConf
+ * @param {*} cache
  */
-async function handle(req, serverConf, redisClient) {
+async function handle(req, serverConf, cache) {
 
   // Parse the incoming body into the parts we care about
   const event = parseEvent(req)
@@ -35,7 +35,7 @@ async function handle(req, serverConf, redisClient) {
   }
 
   const sha = tagInfo.data.object.sha
-  const repoConfig = await config.findRepoConfig(event.owner, event.repo, sha, octokit, redisClient)
+  const repoConfig = await config.findRepoConfig(event.owner, event.repo, sha, octokit, cache)
   if (repoConfig == null) {
     console.log(chalk.red('--- Unable to determine config, no found in Redis or the project. Unable to continue'))
     return {status: 'config not found'}
@@ -63,7 +63,7 @@ async function handle(req, serverConf, redisClient) {
   console.log(chalk.green('--- Build path: ' + buildPath))
 
   // determine our build number
-  const buildNumber = await redisClient.increment('stampede-' + buildPath)
+  const buildNumber = cache.incrementBuildNumber(buildPath)
   console.log(chalk.green('--- Created build number: ' + buildNumber))
 
   // create the build in redis
@@ -75,8 +75,8 @@ async function handle(req, serverConf, redisClient) {
     release: event.release,
     build: buildNumber,
   }
-  await redisClient.store('stampede-' + buildPath + '-' + buildNumber, buildDetails)
-  await redisClient.add('stampede-activeBuilds', buildPath + '-' + buildNumber)
+  cache.addBuildToActiveList(buildPath + '-' + buildNumber)
+  // TODO: Send notification here for new build going out
 
   // Now queue the tasks
   const tasks = releaseConfig.tasks
@@ -102,7 +102,6 @@ async function handle(req, serverConf, redisClient) {
       clone_url: event.cloneURL,
     }
     console.log(chalk.green('--- Creating task: ' + task.id))
-    await redisClient.store('stampede-' + external_id, taskDetails)
     const queue = taskQueue.createTaskQueue('stampede-' + task.id)
     queue.add(taskDetails)
   }

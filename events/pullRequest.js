@@ -6,10 +6,10 @@ const checkRun = require('../lib/checkRun')
 /**
  * handle event
  * @param {*} req
- * @param {*} res
  * @param {*} serverConf
+ * @param {*} cache
  */
-async function handle(req, serverConf, redisClient) {
+async function handle(req, serverConf, cache) {
 
   // Parse the incoming body into the parts we care about
   const event = parseEvent(req)
@@ -20,7 +20,7 @@ async function handle(req, serverConf, redisClient) {
     const octokit = await auth.getAuthorizedOctokit(event.owner, event.repo, serverConf)
     await checkRun.createCheckRun(event.owner, event.repo, event.sha,
       event.pullRequest, event.cloneURL,
-      octokit, redisClient)
+      octokit, cache)
     return {status: 'pull request tasks created'}
   } else {
     return {status: 'ignored, pull request not opened or reopened'}

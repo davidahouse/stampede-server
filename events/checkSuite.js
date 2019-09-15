@@ -9,10 +9,10 @@ const checkRun = require('../lib/checkRun')
  * handle event
  * @param {*} req
  * @param {*} serverConf
- * @param {*} redisClient
+ * @param {*} cache
  * @return {Object} response to the event
  */
-async function handle(req, serverConf, redisClient) {
+async function handle(req, serverConf, cache) {
 
   // Parse the incoming body into the parts we care about
   const event = parseEvent(req)
@@ -34,7 +34,7 @@ async function handle(req, serverConf, redisClient) {
   for (let index = 0; index < event.pullRequests.length; index++) {
     await checkRun.createCheckRun(event.owner, event.repo, event.sha,
       event.pullRequests[index], event.cloneURL,
-      octokit, redisClient)
+      octokit, cache)
   }
   return {status: 'check runs created'}
 }
