@@ -10,6 +10,7 @@ const web = require('../lib/web')
 const redis = require('../lib/redis')
 const config = require('../lib/config')
 const taskQueue = require('../lib/taskQueue')
+const taskUpdate = require('../lib/taskUpdate')
 
 const conf = require('rc')('stampede', {
   // defaults
@@ -38,9 +39,6 @@ console.log(chalk.red('GitHub PEM Path: ' + conf.githubAppPEMPath))
 const pem = fs.readFileSync(conf.githubAppPEMPath, 'utf8')
 conf.githubAppPEM = pem
 
-// Start our own queue that listens for updates that need to get
-// made back into GitHub
-
 // Start the webhook listener
 redis.startRedis(conf)
 taskQueue.setRedisConfig({
@@ -50,5 +48,13 @@ taskQueue.setRedisConfig({
     password: conf.redisPassword,
   },
 })
+
+// Start our own queue that listens for updates that need to get
+// made back into GitHub
+const responseQueue = taskQueue.createTaskQueue(conf.responseQueue)
+responseQueue.process(function(job) {
+  return taskUpdate.handle(job, conf, redis)
+})
+
 web.startRESTApi(conf, redis)
 config.initialize(conf, redis)
