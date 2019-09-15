@@ -52,7 +52,7 @@ async function handle(req, serverConf, cache) {
       console.log(chalk.green('--- Build path: ' + buildPath))
 
       // determine our build number
-      const buildNumber = cache.incrementBuildNumber(buildPath)
+      const buildNumber = await cache.incrementBuildNumber(buildPath)
       console.log(chalk.green('--- Created build number: ' + buildNumber))
 
       // create the build in redis
@@ -64,7 +64,7 @@ async function handle(req, serverConf, cache) {
         branch: event.branch,
         build: buildNumber,
       }
-      cache.addBuildToActiveList(buildPath + '-' + buildNumber)
+      await cache.addBuildToActiveList(buildPath + '-' + buildNumber)
   // TODO: Send notification here for new build going out
 
       // Now queue the tasks
