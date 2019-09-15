@@ -19,14 +19,28 @@ async function handle(req, serverConf, cache) {
   console.log('--- ReleaseEvent:')
   console.dir(event)
 
+  if (event.action !== "created") {
+    console.log('--- Ignoring as the release is not marked as created')
+    return {status: 'not a created release, ignoring'}
+  }
+
   const octokit = await auth.getAuthorizedOctokit(event.owner, event.repo, serverConf)
 
-  // Find the sha for this release based on the tag
-  console.log('--- Trying to find sha for ' + event.tag)
+  // Find the sha for this release based on the tag unless this is a draft PR. In that
+  // case, we need to just try and find the sha from the target branch
+  let ref = ''
+  if (event.draft == true) {
+    console.log('--- Trying to find head sha for branch ' + event.target)
+    ref = 'heads/' + event.target
+  } else {
+    console.log('--- Trying to find sha for ' + event.tag)
+    ref = 'tags/' + event.tag
+  }
+
   const tagInfo = await octokit.git.getRef({
     owner: event.owner,
     repo: event.repo,
-    ref: 'tags/' + event.tag,
+    ref: ref,
   })
 
   if (tagInfo.data.object == null || tagInfo.data.object.sha == null) {
@@ -35,6 +49,8 @@ async function handle(req, serverConf, cache) {
   }
 
   const sha = tagInfo.data.object.sha
+  console.log(chalk.green('--- Found sha: ' + sha))
+
   const repoConfig = await config.findRepoConfig(event.owner, event.repo, sha, octokit, cache)
   if (repoConfig == null) {
     console.log(chalk.red('--- Unable to determine config, no found in Redis or the project. Unable to continue'))
@@ -46,11 +62,11 @@ async function handle(req, serverConf, cache) {
     return {status: 'releases config not found'}
   }
 
-  let releaseConfig = ((event.prerelease === true) && (repoConfig.releases.prerelease != null)) ?
-    repoConfig.releases.prerelease :
+  let releaseConfig = ((event.draft === true) && (repoConfig.releases.draft != null)) ?
+    repoConfig.releases.draft :
     repoConfig.releases.published
   if (releaseConfig == null) {
-    console.log(chalk.red('--- No release config found under prerelease or published.'))
+    console.log(chalk.red('--- No release config found under draft or published.'))
     return {status: 'releases config not found'}
   }
 
@@ -121,12 +137,15 @@ function parseEvent(req) {
   return {
     owner: owner,
     repo: repo,
+    action: req.body.action,
     created: req.body.created,
     deleted: req.body.deleted,
     release: req.body.release.name,
     tag: req.body.release.tag_name,
     cloneURL: req.body.repository.clone_url,
     prerelease: req.body.release.prerelease,
+    draft: req.body.release.draft,
+    target: req.body.release.target_commitish,
   }
 }
 
