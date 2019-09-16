@@ -2,6 +2,7 @@
 
 const auth = require('../lib/auth')
 const checkRun = require('../lib/checkRun')
+const notification = require('../lib/notification')
 
 /**
  * handle event
@@ -15,6 +16,7 @@ async function handle(req, serverConf, cache) {
   const event = parseEvent(req)
   console.log('--- CheckRunEvent:')
   console.dir(event)
+  notification.repositoryEventReceived('check_run', event)
 
   // Ignore check_suite events not for this app
   if (event.appID != parseInt(serverConf.githubAppID)) {
