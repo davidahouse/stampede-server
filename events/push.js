@@ -5,6 +5,7 @@ const chalk = require('chalk')
 const auth = require('../lib/auth')
 const config = require('../lib/config')
 const taskQueue = require('../lib/taskQueue')
+const notification = require('../lib/notification')
 
 /**
  * handle event
@@ -18,6 +19,7 @@ async function handle(req, serverConf, cache) {
   const event = parseEvent(req)
   console.log('--- PushEvent:')
   console.dir(event)
+  notification.repositoryEventReceived('push', event)
 
   if (event.created === true || event.deleted === true) {
     console.log('--- Ignoring push since it is created or deleted')
@@ -65,7 +67,7 @@ async function handle(req, serverConf, cache) {
         build: buildNumber,
       }
       await cache.addBuildToActiveList(buildPath + '-' + buildNumber)
-  // TODO: Send notification here for new build going out
+      notification.buildStarted(buildPath + '-' + buildNumber, buildDetails)
 
       // Now queue the tasks
       const tasks = branchConfig.tasks
@@ -94,7 +96,7 @@ async function handle(req, serverConf, cache) {
         await cache.addTaskToActiveList(buildPath + '-' + buildNumber, task.id)
         const queue = taskQueue.createTaskQueue('stampede-' + task.id)
         queue.add(taskDetails)
-        // TODO: Send out notification of queued task
+        notification.taskStarted(external_id, taskDetails)
       }
     }
   }

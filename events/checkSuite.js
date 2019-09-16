@@ -4,6 +4,7 @@ const chalk = require('chalk')
 
 const auth = require('../lib/auth')
 const checkRun = require('../lib/checkRun')
+const notification = require('../lib/notification')
 
 /**
  * handle event
@@ -18,6 +19,7 @@ async function handle(req, serverConf, cache) {
   const event = parseEvent(req)
   console.log(chalk.green('--- CheckSuiteEvent:'))
   console.dir(event)
+  notification.repositoryEventReceived('check_suite', event)
 
   // Ignore check_suite events not for this app
   if (event.appID != parseInt(serverConf.githubAppID)) {

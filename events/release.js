@@ -5,6 +5,7 @@ const chalk = require('chalk')
 const auth = require('../lib/auth')
 const config = require('../lib/config')
 const taskQueue = require('../lib/taskQueue')
+const notification = require('../lib/notification')
 
 /**
  * handle event
@@ -18,6 +19,7 @@ async function handle(req, serverConf, cache) {
   const event = parseEvent(req)
   console.log('--- ReleaseEvent:')
   console.dir(event)
+  notification.repositoryEventReceived('release', event)
 
   if (event.action !== "created") {
     console.log('--- Ignoring as the release is not marked as created')
@@ -92,7 +94,7 @@ async function handle(req, serverConf, cache) {
     build: buildNumber,
   }
   await cache.addBuildToActiveList(buildPath + '-' + buildNumber)
-  // TODO: Send notification here for new build going out
+  notification.buildStarted(buildPath + '-' + buildNumber, buildDetails)
 
   // Now queue the tasks
   const tasks = releaseConfig.tasks
@@ -122,7 +124,7 @@ async function handle(req, serverConf, cache) {
     await cache.addTaskToActiveList(buildPath + '-' + buildNumber, task.id)
     const queue = taskQueue.createTaskQueue('stampede-' + task.id)
     queue.add(taskDetails)
-    // TODO: notification
+    notification.taskStarted(external_id, taskDetails)
   }
   return {status: 'tasks created for the release'}
 }
