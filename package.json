@@ -14,7 +14,6 @@
     "@octokit/app": "^4.1.0",
     "@octokit/request": "^5.0.2",
     "@octokit/rest": "^16.28.7",
-    "async-redis": "^1.1.7",
     "body-parser": "^1.18.3",
     "bull": "^3.10.0",
     "chalk": "^2.4.2",
@@ -25,8 +24,7 @@
     "figlet": "^1.2.1",
     "morgan": "^1.9.1",
     "rc": "^1.2.8",
-    "redis": "^2.8.0",
-    "ws": "^6.0.0"
+    "stampede-cache": "^0.1.0"
   },
   "devDependencies": {
     "eslint": "^6.3.0",

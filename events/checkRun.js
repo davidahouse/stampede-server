@@ -6,10 +6,10 @@ const checkRun = require('../lib/checkRun')
 /**
  * handle event
  * @param {*} req
- * @param {*} res
  * @param {*} serverConf
+ * @param {*} cache
  */
-async function handle(req, serverConf, redisClient) {
+async function handle(req, serverConf, cache) {
 
   // Parse the incoming body into the parts we care about
   const event = parseEvent(req)
@@ -22,14 +22,11 @@ async function handle(req, serverConf, redisClient) {
   }
 
   const octokit = await auth.getAuthorizedOctokit(event.owner, event.repo, serverConf)
-  if (event.action === 'created') {
-    await checkRun.queueCheckRun(event.owner, event.repo, event.checkRunID,
-      event.externalID, octokit, redisClient)
-  } else if (event.action === 'rerequested') {
+  if (event.action === 'rerequested') {
     for (let index = 0; index < event.pullRequests.length; index++) {
       await checkRun.createCheckRun(event.owner, event.repo, event.sha,
         event.pullRequests[index], event.cloneURL,
-        octokit, redisClient)
+        octokit, cache)
     }
   }
   return {status: 'check runs created'}

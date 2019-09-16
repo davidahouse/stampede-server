@@ -9,24 +9,38 @@ const taskQueue = require('../lib/taskQueue')
 /**
  * handle event
  * @param {*} req
- * @param {*} res
  * @param {*} serverConf
+ * @param {*} cache
  */
-async function handle(req, serverConf, redisClient) {
+async function handle(req, serverConf, cache) {
 
   // Parse the incoming body into the parts we care about
   const event = parseEvent(req)
   console.log('--- ReleaseEvent:')
   console.dir(event)
 
+  if (event.action !== "created") {
+    console.log('--- Ignoring as the release is not marked as created')
+    return {status: 'not a created release, ignoring'}
+  }
+
   const octokit = await auth.getAuthorizedOctokit(event.owner, event.repo, serverConf)
 
-  // Find the sha for this release based on the tag
-  console.log('--- Trying to find sha for ' + event.tag)
+  // Find the sha for this release based on the tag unless this is a draft PR. In that
+  // case, we need to just try and find the sha from the target branch
+  let ref = ''
+  if (event.draft == true) {
+    console.log('--- Trying to find head sha for branch ' + event.target)
+    ref = 'heads/' + event.target
+  } else {
+    console.log('--- Trying to find sha for ' + event.tag)
+    ref = 'tags/' + event.tag
+  }
+
   const tagInfo = await octokit.git.getRef({
     owner: event.owner,
     repo: event.repo,
-    ref: 'tags/' + event.tag,
+    ref: ref,
   })
 
   if (tagInfo.data.object == null || tagInfo.data.object.sha == null) {
@@ -35,7 +49,9 @@ async function handle(req, serverConf, redisClient) {
   }
 
   const sha = tagInfo.data.object.sha
-  const repoConfig = await config.findRepoConfig(event.owner, event.repo, sha, octokit, redisClient)
+  console.log(chalk.green('--- Found sha: ' + sha))
+
+  const repoConfig = await config.findRepoConfig(event.owner, event.repo, sha, octokit, cache)
   if (repoConfig == null) {
     console.log(chalk.red('--- Unable to determine config, no found in Redis or the project. Unable to continue'))
     return {status: 'config not found'}
@@ -46,11 +62,11 @@ async function handle(req, serverConf, redisClient) {
     return {status: 'releases config not found'}
   }
 
-  let releaseConfig = ((event.prerelease === true) && (repoConfig.releases.prerelease != null)) ?
-    repoConfig.releases.prerelease :
+  let releaseConfig = ((event.draft === true) && (repoConfig.releases.draft != null)) ?
+    repoConfig.releases.draft :
     repoConfig.releases.published
   if (releaseConfig == null) {
-    console.log(chalk.red('--- No release config found under prerelease or published.'))
+    console.log(chalk.red('--- No release config found under draft or published.'))
     return {status: 'releases config not found'}
   }
 
@@ -63,7 +79,7 @@ async function handle(req, serverConf, redisClient) {
   console.log(chalk.green('--- Build path: ' + buildPath))
 
   // determine our build number
-  const buildNumber = await redisClient.increment('stampede-' + buildPath)
+  const buildNumber = await cache.incrementBuildNumber(buildPath)
   console.log(chalk.green('--- Created build number: ' + buildNumber))
 
   // create the build in redis
@@ -75,8 +91,8 @@ async function handle(req, serverConf, redisClient) {
     release: event.release,
     build: buildNumber,
   }
-  await redisClient.store('stampede-' + buildPath + '-' + buildNumber, buildDetails)
-  await redisClient.add('stampede-activeBuilds', buildPath + '-' + buildNumber)
+  await cache.addBuildToActiveList(buildPath + '-' + buildNumber)
+  // TODO: Send notification here for new build going out
 
   // Now queue the tasks
   const tasks = releaseConfig.tasks
@@ -102,7 +118,6 @@ async function handle(req, serverConf, redisClient) {
       clone_url: event.cloneURL,
     }
     console.log(chalk.green('--- Creating task: ' + task.id))
-    await redisClient.store('stampede-' + external_id, taskDetails)
     const queue = taskQueue.createTaskQueue('stampede-' + task.id)
     queue.add(taskDetails)
   }
@@ -122,12 +137,15 @@ function parseEvent(req) {
   return {
     owner: owner,
     repo: repo,
+    action: req.body.action,
     created: req.body.created,
     deleted: req.body.deleted,
     release: req.body.release.name,
     tag: req.body.release.tag_name,
     cloneURL: req.body.repository.clone_url,
     prerelease: req.body.release.prerelease,
+    draft: req.body.release.draft,
+    target: req.body.release.target_commitish,
   }
 }
 
