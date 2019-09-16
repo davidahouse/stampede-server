@@ -1,6 +1,6 @@
 {
   "name": "stampede-server",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A distributed github task system",
   "main": "bin/stampede-server.js",
   "scripts": {
@@ -24,7 +24,7 @@
     "figlet": "^1.2.1",
     "morgan": "^1.9.1",
     "rc": "^1.2.8",
-    "stampede-cache": "^0.1.0"
+    "stampede-cache": "^0.2.0"
   },
   "devDependencies": {
     "eslint": "^6.3.0",
