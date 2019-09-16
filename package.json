@@ -24,7 +24,7 @@
     "figlet": "^1.2.1",
     "morgan": "^1.9.1",
     "rc": "^1.2.8",
-    "stampede-cache": "file:../stampede-cache"
+    "stampede-cache": "^0.1.0"
   },
   "devDependencies": {
     "eslint": "^6.3.0",
