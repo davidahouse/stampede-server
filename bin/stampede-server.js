@@ -4,10 +4,10 @@ const chalk = require('chalk')
 const clear = require('clear')
 const figlet = require('figlet')
 const fs = require('fs')
+const cache = require('stampede-cache')
 
 // Internal modules
 const web = require('../lib/web')
-const redis = require('../lib/redis')
 const config = require('../lib/config')
 const taskQueue = require('../lib/taskQueue')
 const taskUpdate = require('../lib/taskUpdate')
@@ -39,8 +39,10 @@ console.log(chalk.red('GitHub PEM Path: ' + conf.githubAppPEMPath))
 const pem = fs.readFileSync(conf.githubAppPEMPath, 'utf8')
 conf.githubAppPEM = pem
 
+// Initialize our cache
+cache.startCache(conf)
+
 // Start the webhook listener
-redis.startRedis(conf)
 taskQueue.setRedisConfig({
   redis: {
     port: conf.redisPort,
@@ -53,8 +55,8 @@ taskQueue.setRedisConfig({
 // made back into GitHub
 const responseQueue = taskQueue.createTaskQueue(conf.responseQueue)
 responseQueue.process(function(job) {
-  return taskUpdate.handle(job, conf, redis)
+  return taskUpdate.handle(job, conf, cache)
 })
 
-web.startRESTApi(conf, redis)
-config.initialize(conf, redis)
+web.startRESTApi(conf, cache)
+config.initialize(conf, cache)
