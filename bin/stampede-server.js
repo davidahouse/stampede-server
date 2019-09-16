@@ -11,6 +11,7 @@ const web = require('../lib/web')
 const config = require('../lib/config')
 const taskQueue = require('../lib/taskQueue')
 const taskUpdate = require('../lib/taskUpdate')
+const notification = require('../lib/notification')
 
 const conf = require('rc')('stampede', {
   // defaults
@@ -24,6 +25,7 @@ const conf = require('rc')('stampede', {
   githubHost: null,
   stampedeConfigPath: null,
   responseQueue: 'stampede-response',
+  notificationQueues: ''
 })
 
 clear()
@@ -50,6 +52,16 @@ taskQueue.setRedisConfig({
     password: conf.redisPassword,
   },
 })
+
+// Setup the notification queue
+notification.setRedisConfig({
+  redis: {
+    port: conf.redisPort,
+    host: conf.redisHost,
+    password: conf.redisPassword,
+  },
+})
+notification.setNotificationQueues(conf.notificationQueues.split(','))
 
 // Start our own queue that listens for updates that need to get
 // made back into GitHub
