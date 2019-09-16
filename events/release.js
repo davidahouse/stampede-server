@@ -21,9 +21,9 @@ async function handle(req, serverConf, cache) {
   console.dir(event)
   notification.repositoryEventReceived('release', event)
 
-  if (event.action !== "created") {
-    console.log('--- Ignoring as the release is not marked as created')
-    return {status: 'not a created release, ignoring'}
+  if (event.action !== 'created' && event.action !== 'published') {
+    console.log('--- Ignoring as the release is not marked as created/published')
+    return {status: 'not a created/published release, ignoring'}
   }
 
   const octokit = await auth.getAuthorizedOctokit(event.owner, event.repo, serverConf)
@@ -31,7 +31,7 @@ async function handle(req, serverConf, cache) {
   // Find the sha for this release based on the tag unless this is a draft PR. In that
   // case, we need to just try and find the sha from the target branch
   let ref = ''
-  if (event.draft == true) {
+  if (event.draft === true) {
     console.log('--- Trying to find head sha for branch ' + event.target)
     ref = 'heads/' + event.target
   } else {
