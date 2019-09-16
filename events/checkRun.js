@@ -28,6 +28,9 @@ async function handle(req, serverConf, cache) {
         event.pullRequests[index], event.cloneURL,
         octokit, cache)
     }
+  } else {
+    console.log('--- ignoring check run, not a rerequested one')
+    return {status: 'check run ignored as it was not a rerequested check'}
   }
   return {status: 'check runs created'}
 }
