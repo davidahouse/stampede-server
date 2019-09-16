@@ -2,6 +2,7 @@
 
 const auth = require('../lib/auth')
 const checkRun = require('../lib/checkRun')
+const notification = require('../lib/notification')
 
 /**
  * handle event
@@ -15,6 +16,7 @@ async function handle(req, serverConf, cache) {
   const event = parseEvent(req)
   console.log('--- PullRequestEvent:')
   console.dir(event)
+  notification.repositoryEventReceived('pull_request', event)
 
   if ((event.action === 'opened') || (event.action === 'reopened')) {
     const octokit = await auth.getAuthorizedOctokit(event.owner, event.repo, serverConf)
