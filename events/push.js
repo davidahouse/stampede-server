@@ -86,10 +86,12 @@ async function handle(req, serverConf, cache) {
             id: task.id,
           },
           status: 'queued',
+          buildID: buildPath + '-' + buildNumber,
           external_id: external_id,
           clone_url: event.cloneURL,
         }
         console.log(chalk.green('--- Creating task: ' + task.id))
+        await cache.addTaskToActiveList(buildPath + '-' + buildNumber, task.id)
         const queue = taskQueue.createTaskQueue('stampede-' + task.id)
         queue.add(taskDetails)
         // TODO: Send out notification of queued task
