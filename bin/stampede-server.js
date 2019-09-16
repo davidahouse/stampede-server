@@ -25,7 +25,7 @@ const conf = require('rc')('stampede', {
   githubHost: null,
   stampedeConfigPath: null,
   responseQueue: 'stampede-response',
-  notificationQueues: ''
+  notificationQueues: '',
 })
 
 clear()
