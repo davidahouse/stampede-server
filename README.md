@@ -41,3 +41,22 @@ githubHost=https://ourghe/api/v3
 redisHost=localhost
 stampedeConfigPath=/stampedestuff
 notificationQueues=stampede-cli
+
+## Configuring available tasks
+
+The list of available tasks is contained in a tasks.yaml file that is found in the `stampedeConfigPath`. This represents
+the tasks that the stampede system knows about, while the configuration per-repo is separate.
+
+Format of the tasks file is:
+
+- id: ...
+  title: ... 
+  config:
+    - key: ...
+    - key: ...
+    - key: ...
+
+You can include multiple tasks in the file by having multiples of these sections, one per task. The id can be anything but
+make it descriptive so when you are setting up the worker you will remember what it is. For example: compile-ios-app or upload-artifacts.
+
+
