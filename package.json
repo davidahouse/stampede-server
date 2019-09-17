@@ -1,12 +1,15 @@
 {
   "name": "stampede-server",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "A distributed github task system",
   "main": "bin/stampede-server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint --ignore-path .gitignore .",
     "lint-fix": "eslint --fix --ignore-path .gitignore ."
+  },
+  "bin": {
+    "stampede-server": "bin/stampede-server.js"
   },
   "author": "David House",
   "license": "MIT",
