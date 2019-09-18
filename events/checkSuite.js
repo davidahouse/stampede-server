@@ -35,7 +35,7 @@ async function handle(req, serverConf, cache) {
   const octokit = await auth.getAuthorizedOctokit(event.owner, event.repo, serverConf)
   for (let index = 0; index < event.pullRequests.length; index++) {
     await checkRun.createCheckRun(event.owner, event.repo, event.sha,
-      event.pullRequests[index], event.cloneURL,
+      event.pullRequests[index], event.cloneURL, event.sshURL,
       octokit, cache)
   }
   return {status: 'check runs created'}
