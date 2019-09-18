@@ -26,6 +26,7 @@ const conf = require('rc')('stampede', {
   stampedeConfigPath: null,
   responseQueue: 'stampede-response',
   notificationQueues: '',
+  stampedeFileName: '.stampede.yaml',
 })
 
 clear()
