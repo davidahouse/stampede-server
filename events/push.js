@@ -28,7 +28,7 @@ async function handle(req, serverConf, cache) {
 
   const octokit = await auth.getAuthorizedOctokit(event.owner, event.repo, serverConf)
 
-  const repoConfig = await config.findRepoConfig(event.owner, event.repo, event.sha,
+  const repoConfig = await config.findRepoConfig(event.owner, event.repo, event.sha, serverConf.stampedeFileName,
     octokit, cache)
   if (repoConfig == null) {
     console.log(chalk.red('--- Unable to determine config, no found in Redis or the project. Unable to continue'))
