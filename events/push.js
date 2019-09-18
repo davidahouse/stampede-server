@@ -91,6 +91,7 @@ async function handle(req, serverConf, cache) {
           buildID: buildPath + '-' + buildNumber,
           external_id: external_id,
           clone_url: event.cloneURL,
+          ssh_url: event.sshURL,
         }
         console.log(chalk.green('--- Creating task: ' + task.id))
         await cache.addTaskToActiveList(buildPath + '-' + buildNumber, task.id)
@@ -123,6 +124,7 @@ function parseEvent(req) {
     // TODO: Need to find the sha for this push
     sha: '',
     cloneURL: req.body.repository.clone_url,
+    sshURL: req.body.repository.ssh_url,
   }
 }
 

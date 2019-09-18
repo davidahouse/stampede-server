@@ -119,6 +119,7 @@ async function handle(req, serverConf, cache) {
       buildID: buildPath + '-' + buildNumber,
       external_id: external_id,
       clone_url: event.cloneURL,
+      ssh_url: event.sshURL,
     }
     console.log(chalk.green('--- Creating task: ' + task.id))
     await cache.addTaskToActiveList(buildPath + '-' + buildNumber, task.id)
@@ -148,6 +149,7 @@ function parseEvent(req) {
     release: req.body.release.name,
     tag: req.body.release.tag_name,
     cloneURL: req.body.repository.clone_url,
+    sshURL: req.body.repository.ssh_url,
     prerelease: req.body.release.prerelease,
     draft: req.body.release.draft,
     target: req.body.release.target_commitish,

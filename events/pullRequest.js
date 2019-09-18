@@ -46,6 +46,7 @@ function parseEvent(req) {
     pullRequest: req.body.pull_request,
     sha: req.body.pull_request.head.sha,
     cloneURL: req.body.repository.clone_url,
+    sshURL: req.body.repository.ssh_url,
   }
 }
 
