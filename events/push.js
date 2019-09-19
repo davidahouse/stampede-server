@@ -6,6 +6,7 @@ const auth = require('../lib/auth')
 const config = require('../lib/config')
 const taskQueue = require('../lib/taskQueue')
 const notification = require('../lib/notification')
+const taskDetail = require('../lib/taskDetail')
 
 /**
  * handle event
@@ -28,7 +29,8 @@ async function handle(req, serverConf, cache) {
 
   const octokit = await auth.getAuthorizedOctokit(event.owner, event.repo, serverConf)
 
-  const repoConfig = await config.findRepoConfig(event.owner, event.repo, event.sha, serverConf.stampedeFileName,
+  const repoConfig = await config.findRepoConfig(event.owner, event.repo, 
+    event.sha, serverConf.stampedeFileName,
     octokit, cache)
   if (repoConfig == null) {
     console.log(chalk.red('--- Unable to determine config, no found in Redis or the project. Unable to continue'))
@@ -41,65 +43,69 @@ async function handle(req, serverConf, cache) {
   }
 
   console.dir(repoConfig.branches)
-  for (let index = 0; index < repoConfig.branches.length; index++) {
-    const branchConfig = repoConfig.branches[index]
-    if (branchConfig.branch === event.branch) {
+  const branchConfig = repoConfig.branches[event.branch]
+  if (branchConfig == null) {
+    console.log(chalk.red('--- No branch config for this branch, skipping'))
+    return {status: 'branch not configured'}
+  }
 
-      if (branchConfig.tasks.length === 0) {
-        console.log(chalk.red('--- Task list was empty. Unable to continue.'))
-        continue
-      }
+  if (branchConfig.tasks.length === 0) {
+    console.log(chalk.red('--- Task list was empty. Unable to continue.'))
+    return {status: 'no tasks configured for the branch'}
+  }
 
-      const buildPath = event.owner + '-' + event.repo + '-' + event.branch
-      console.log(chalk.green('--- Build path: ' + buildPath))
+  const buildPath = event.owner + '-' + event.repo + '-' + event.branch
+  console.log(chalk.green('--- Build path: ' + buildPath))
 
-      // determine our build number
-      const buildNumber = await cache.incrementBuildNumber(buildPath)
-      console.log(chalk.green('--- Created build number: ' + buildNumber))
+  // determine our build number
+  const buildNumber = await cache.incrementBuildNumber(buildPath)
+  console.log(chalk.green('--- Created build number: ' + buildNumber))
 
-      // create the build in redis
-      const buildDetails = {
-        githubEvent: req.body,
-        owner: event.owner,
-        repository: event.repo,
-        sha: event.sha,
-        branch: event.branch,
-        build: buildNumber,
-      }
-      await cache.addBuildToActiveList(buildPath + '-' + buildNumber)
-      notification.buildStarted(buildPath + '-' + buildNumber, buildDetails)
+  // create the build in redis
+  const buildDetails = {
+    githubEvent: req.body,
+    owner: event.owner,
+    repository: event.repo,
+    sha: event.sha,
+    branch: event.branch,
+    build: buildNumber,
+  }
+  await cache.addBuildToActiveList(buildPath + '-' + buildNumber)
+  notification.buildStarted(buildPath + '-' + buildNumber, buildDetails)
 
-      // Now queue the tasks
-      const tasks = branchConfig.tasks
-      for (let tindex = 0; tindex < tasks.length; tindex++) {
-        const task = tasks[tindex]
+  // Now queue the tasks
+  const tasks = branchConfig.tasks
+  for (let tindex = 0; tindex < tasks.length; tindex++) {
+    const task = tasks[tindex]
 
-        const external_id = buildPath + '-' + buildNumber + '-' + task.id
+    const external_id = buildPath + '-' + buildNumber + '-' + task.id + '-' + tindex.toString()
+    const taskConfig = await taskDetail.taskConfig(task.id, repoConfig.branches, task, cache)
+    const started_at = new Date()
 
-        // store the initial task details
-        const taskDetails = {
-          owner: event.owner,
-          repository: event.repo,
-          buildNumber: buildNumber,
-          branch: event.branch,
-          branch_sha: event.sha,
-          config: branchConfig,
-          task: {
-            id: task.id,
-          },
-          status: 'queued',
-          buildID: buildPath + '-' + buildNumber,
-          external_id: external_id,
-          clone_url: event.cloneURL,
-          ssh_url: event.sshURL,
-        }
-        console.log(chalk.green('--- Creating task: ' + task.id))
-        await cache.addTaskToActiveList(buildPath + '-' + buildNumber, task.id)
-        const queue = taskQueue.createTaskQueue('stampede-' + task.id)
-        queue.add(taskDetails)
-        notification.taskStarted(external_id, taskDetails)
-      }
+    // store the initial task details
+    const taskDetails = {
+      owner: event.owner,
+      repository: event.repo,
+      buildNumber: buildNumber,
+      branch: event.branch,
+      branch_sha: event.sha,
+      config: taskConfig,
+      task: {
+        id: task.id,
+        number: tindex,
+      },
+      status: 'queued',
+      buildID: buildPath + '-' + buildNumber,
+      external_id: external_id,
+      clone_url: event.cloneURL,
+      ssh_url: event.sshURL,
+      started_at: started_at,
     }
+    console.log(chalk.green('--- Creating task: ' + task.id))
+    await cache.addTaskToActiveList(buildPath + '-' + buildNumber, task.id)
+    const queue = taskQueue.createTaskQueue('stampede-' + task.id)
+    queue.add(taskDetails)
+    notification.taskStarted(external_id, taskDetails)
   }
   return {status: 'branch tasks created'}
 }

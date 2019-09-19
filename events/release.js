@@ -6,6 +6,7 @@ const auth = require('../lib/auth')
 const config = require('../lib/config')
 const taskQueue = require('../lib/taskQueue')
 const notification = require('../lib/notification')
+const taskDetail = require('../lib/taskDetail')
 
 /**
  * handle event
@@ -101,7 +102,9 @@ async function handle(req, serverConf, cache) {
   for (let tindex = 0; tindex < tasks.length; tindex++) {
     const task = tasks[tindex]
 
-    const external_id = buildPath + '-' + buildNumber + '-' + task.id
+    const external_id = buildPath + '-' + buildNumber + '-' + task.id + '-' + tindex.toString()
+    const taskConfig = await taskDetail.taskConfig(task.id, releaseConfig, task, cache)
+    const started_at = new Date()
 
     // store the initial task details
     const taskDetails = {
@@ -111,15 +114,17 @@ async function handle(req, serverConf, cache) {
       release: event.release,
       tag: event.tag,
       release_sha: sha,
-      config: releaseConfig,
+      config: taskConfig,
       task: {
         id: task.id,
+        number: tindex,
       },
       status: 'queued',
       buildID: buildPath + '-' + buildNumber,
       external_id: external_id,
       clone_url: event.cloneURL,
       ssh_url: event.sshURL,
+      started_at: started_at,
     }
     console.log(chalk.green('--- Creating task: ' + task.id))
     await cache.addTaskToActiveList(buildPath + '-' + buildNumber, task.id)
