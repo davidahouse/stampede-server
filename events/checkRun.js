@@ -28,6 +28,7 @@ async function handle(req, serverConf, cache) {
     for (let index = 0; index < event.pullRequests.length; index++) {
       await checkRun.createCheckRun(event.owner, event.repo, event.sha,
         event.pullRequests[index], event.cloneURL, event.sshURL,
+        serverConf.stampedeFileName,
         octokit, cache)
     }
   } else {
