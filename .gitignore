@@ -7,6 +7,7 @@ yarn-error.log*
 .DS_Store
 .stampederc
 .stampedercgithub
+.vscode/
 
 # Runtime data
 pids

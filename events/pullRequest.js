@@ -22,6 +22,7 @@ async function handle(req, serverConf, cache) {
     const octokit = await auth.getAuthorizedOctokit(event.owner, event.repo, serverConf)
     await checkRun.createCheckRun(event.owner, event.repo, event.sha,
       event.pullRequest, event.cloneURL, event.sshURL,
+      serverConf.stampedeFileName,
       octokit, cache)
     return {status: 'pull request tasks created'}
   } else {
