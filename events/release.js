@@ -54,7 +54,7 @@ async function handle(req, serverConf, cache) {
   const sha = tagInfo.data.object.sha
   console.log(chalk.green('--- Found sha: ' + sha))
 
-  const repoConfig = await config.findRepoConfig(event.owner, event.repo, sha, serverConf.stampedeFileName, octokit, cache)
+  const repoConfig = await config.findRepoConfig(event.owner, event.repo, sha, serverConf.stampedeFileName, octokit, cache, serverConf)
   if (repoConfig == null) {
     console.log(chalk.red('--- Unable to determine config, no found in Redis or the project. Unable to continue'))
     return {status: 'config not found'}

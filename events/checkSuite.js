@@ -37,7 +37,7 @@ async function handle(req, serverConf, cache) {
     await checkRun.createCheckRun(event.owner, event.repo, event.sha,
       event.pullRequests[index], event.cloneURL, event.sshURL,
       serverConf.stampedeFileName,
-      octokit, cache)
+      octokit, cache, serverConf)
   }
   return {status: 'check runs created'}
 }
