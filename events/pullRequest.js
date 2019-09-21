@@ -23,7 +23,7 @@ async function handle(req, serverConf, cache) {
     await checkRun.createCheckRun(event.owner, event.repo, event.sha,
       event.pullRequest, event.cloneURL, event.sshURL,
       serverConf.stampedeFileName,
-      octokit, cache)
+      octokit, cache, serverConf)
     return {status: 'pull request tasks created'}
   } else {
     return {status: 'ignored, pull request not opened or reopened'}
