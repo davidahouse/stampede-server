@@ -5,6 +5,7 @@ const clear = require('clear')
 const figlet = require('figlet')
 const fs = require('fs')
 const cache = require('stampede-cache')
+const os = require('os')
 
 // Internal modules
 const web = require('../lib/web')
@@ -39,8 +40,22 @@ console.log(chalk.red('GitHub PEM Path: ' + conf.githubAppPEMPath))
 
 // Load up our key for this GitHub app. You get this key from GitHub
 // when you create the app.
-const pem = fs.readFileSync(conf.githubAppPEMPath, 'utf8')
-conf.githubAppPEM = pem
+if (conf.githubAppPEM == null) {
+  if (conf.githubAppPEMPath != null) {
+    const pem = fs.readFileSync(conf.githubAppPEMPath, 'utf8')
+    conf.githubAppPEM = pem
+  }
+} else {
+  conf.githubAppPEM = conf.githubAppPEM.replace(/\\n/g, os.EOL)
+}
+
+// Do some validation of config since we can't operate without our required
+// config
+console.log(conf.githubAppPEM)
+if (conf.githubAppID === 0 || conf.githubAppPEM == null || conf.githubHost == null) {
+  console.log(chalk.red('Stampede needs a GitHub APP ID, PEM certificate and host in order to operate. Not found in the config so unable to continue.'))
+  process.exit(1)
+}
 
 // Initialize our cache
 cache.startCache(conf)
