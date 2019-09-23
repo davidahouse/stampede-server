@@ -1,5 +1,7 @@
 ## Stampede server
 
+![npm](https://img.shields.io/npm/v/stampede-server?style=for-the-badge)
+
 A node.js workflow server.
 
 To install the server:
