@@ -51,7 +51,6 @@ if (conf.githubAppPEM == null) {
 
 // Do some validation of config since we can't operate without our required
 // config
-console.log(conf.githubAppPEM)
 if (conf.githubAppID === 0 || conf.githubAppPEM == null || conf.githubHost == null) {
   console.log(chalk.red('Stampede needs a GitHub APP ID, PEM certificate and host in order to operate. Not found in the config so unable to continue.'))
   process.exit(1)
