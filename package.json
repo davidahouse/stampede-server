@@ -4,7 +4,7 @@
   "description": "A distributed github task system",
   "main": "bin/stampede-server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "mocha",
     "lint": "eslint --ignore-path .gitignore .",
     "lint-fix": "eslint --fix --ignore-path .gitignore ."
   },
@@ -33,6 +33,9 @@
   },
   "devDependencies": {
     "eslint": "^6.3.0",
-    "eslint-config-strongloop": "^2.1.0"
+    "eslint-config-strongloop": "^2.1.0",
+    "chai": "^4.2.0",
+    "mocha": "^5.2.0",
+    "mock-require": "^3.0.3"
   }
 }
