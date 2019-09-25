@@ -4,12 +4,16 @@
   "description": "A distributed github task system",
   "main": "bin/stampede-server.js",
   "scripts": {
+    "start": "bin/stampede-server.js",
     "test": "mocha",
     "lint": "eslint --ignore-path .gitignore .",
     "lint-fix": "eslint --fix --ignore-path .gitignore ."
   },
   "bin": {
     "stampede-server": "bin/stampede-server.js"
+  },
+  "engines": {
+    "node": "8.11.4"
   },
   "author": "David House",
   "license": "MIT",
