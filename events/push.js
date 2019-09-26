@@ -127,8 +127,7 @@ function parseEvent(req) {
     created: req.body.created,
     deleted: req.body.deleted,
     branch: ref[ref.length - 1],
-    // TODO: Need to find the sha for this push
-    sha: '',
+    sha: req.body.after,
     cloneURL: req.body.repository.clone_url,
     sshURL: req.body.repository.ssh_url,
   }
