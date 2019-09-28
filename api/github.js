@@ -1,5 +1,6 @@
 'use strict'
 const chalk = require('chalk')
+const eventLog = require('../lib/eventLog')
 
 // Event handlers
 const checkSuiteEvent = require('../events/checkSuite')
@@ -16,6 +17,14 @@ const releaseEvent = require('../events/release')
  */
 async function handle(req, res, serverConf, cache) {
   console.log(chalk.green('--- github hook: ' + req.headers['x-github-event']))
+
+  if (serverConf.logEventPath != null) {
+    eventLog.save({
+      headers: req.headers,
+      payload: req.body,
+    }, serverConf.logEventPath)
+  }
+
   let response = {}
   if (req.headers['x-github-event'] === 'check_suite') {
     response = await checkSuiteEvent.handle(req, serverConf, cache)
