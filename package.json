@@ -1,6 +1,6 @@
 {
   "name": "stampede-server",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "description": "A distributed github task system",
   "main": "bin/stampede-server.js",
   "scripts": {
