@@ -10,7 +10,7 @@ const notification = require('../lib/notification')
  * @param {*} serverConf
  * @param {*} cache
  */
-async function handle(req, serverConf, cache) {
+async function handle(req, serverConf, cache, scm) {
 
   // Parse the incoming body into the parts we care about
   const event = parseEvent(req)
@@ -19,11 +19,12 @@ async function handle(req, serverConf, cache) {
   notification.repositoryEventReceived('pull_request', event)
 
   if ((event.action === 'opened') || (event.action === 'reopened')) {
-    const octokit = await auth.getAuthorizedOctokit(event.owner, event.repo, serverConf)
+    await scm.getAuthorizedToken(event.owner, event.repo, serverConf)
+//    const octokit = await auth.getAuthorizedOctokit(event.owner, event.repo, serverConf)
     await checkRun.createCheckRun(event.owner, event.repo, event.sha,
       event.pullRequest, event.cloneURL, event.sshURL,
       serverConf.stampedeFileName,
-      octokit, cache, serverConf)
+      scm, cache, serverConf)
     return {status: 'pull request tasks created'}
   } else {
     return {status: 'ignored, pull request not opened or reopened'}

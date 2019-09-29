@@ -29,6 +29,7 @@ const conf = require('rc')('stampede', {
   notificationQueues: '',
   stampedeFileName: '.stampede.yaml',
   logEventPath: null,
+  scm: 'github',
 })
 
 clear()
@@ -86,5 +87,16 @@ responseQueue.process(function(job) {
   return taskUpdate.handle(job, conf, cache)
 })
 
-web.startRESTApi(conf, cache)
+// Setup our scm based on what is configured
+let scm = {}
+if (conf.scm === 'github') {
+  scm = require('../scm/github')
+} else if (conf.scm === 'testMode') {
+  scm = require('../scm/testMode')
+} else {
+  console.error('Invalid scm specified in the config: ' + conf.scm + ', unable to continue')
+  process.exit(1)
+}
+
+web.startRESTApi(conf, cache, scm)
 config.initialize(conf, cache)
