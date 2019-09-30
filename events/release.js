@@ -2,7 +2,6 @@
 
 const chalk = require('chalk')
 
-const auth = require('../lib/auth')
 const config = require('../lib/config')
 const taskQueue = require('../lib/taskQueue')
 const notification = require('../lib/notification')
@@ -13,8 +12,9 @@ const taskDetail = require('../lib/taskDetail')
  * @param {*} req
  * @param {*} serverConf
  * @param {*} cache
+ * @param {*} scm
  */
-async function handle(req, serverConf, cache) {
+async function handle(req, serverConf, cache, scm) {
 
   // Parse the incoming body into the parts we care about
   const event = parseEvent(req)
@@ -27,8 +27,6 @@ async function handle(req, serverConf, cache) {
     return {status: 'not a created/published release, ignoring'}
   }
 
-  const octokit = await auth.getAuthorizedOctokit(event.owner, event.repo, serverConf)
-
   // Find the sha for this release based on the tag unless this is a draft PR. In that
   // case, we need to just try and find the sha from the target branch
   let ref = ''
@@ -40,12 +38,7 @@ async function handle(req, serverConf, cache) {
     ref = 'tags/' + event.tag
   }
 
-  const tagInfo = await octokit.git.getRef({
-    owner: event.owner,
-    repo: event.repo,
-    ref: ref,
-  })
-
+  const tagInfo = await scm.getTagInfo(event.owner, event.repo, ref, serverConf)
   if (tagInfo.data.object == null || tagInfo.data.object.sha == null) {
     console.log(chalk.red('--- Unable to find sha for tag, unlable to continue'))
     return {status: 'unable to find sha for this tag'}
@@ -54,7 +47,7 @@ async function handle(req, serverConf, cache) {
   const sha = tagInfo.data.object.sha
   console.log(chalk.green('--- Found sha: ' + sha))
 
-  const repoConfig = await config.findRepoConfig(event.owner, event.repo, sha, serverConf.stampedeFileName, octokit, cache, serverConf)
+  const repoConfig = await config.findRepoConfig(event.owner, event.repo, sha, serverConf.stampedeFileName, scm, cache, serverConf)
   if (repoConfig == null) {
     console.log(chalk.red('--- Unable to determine config, no found in Redis or the project. Unable to continue'))
     return {status: 'config not found'}
@@ -78,7 +71,8 @@ async function handle(req, serverConf, cache) {
     return {status: 'task list was empty'}
   }
 
-  const buildPath = event.owner + '-' + event.repo + '-' + event.release
+  const buildKey = event.release
+  const buildPath = event.owner + '-' + event.repo + '-' + buildKey
   console.log(chalk.green('--- Build path: ' + buildPath))
 
   // determine our build number
@@ -110,21 +104,29 @@ async function handle(req, serverConf, cache) {
     const taskDetails = {
       owner: event.owner,
       repository: event.repo,
+      buildKey: buildKey,
       buildNumber: buildNumber,
-      release: event.release,
-      tag: event.tag,
-      release_sha: sha,
-      config: taskConfig,
+      buildID: buildPath + '-' + buildNumber,
+      status: 'queued',
       task: {
         id: task.id,
         number: tindex,
       },
-      status: 'queued',
-      buildID: buildPath + '-' + buildNumber,
-      external_id: external_id,
-      clone_url: event.cloneURL,
-      ssh_url: event.sshURL,
-      started_at: started_at,
+      config: taskConfig,
+      scm: {
+        id: serverConf.scm,
+        release: {
+          name: event.release,
+          tag: event.tag,
+          sha: sha,
+        },
+        externalID: external_id,
+        cloneURL: event.cloneURL,
+        sshURL: event.sshURL,
+      },
+      stats: {
+        queuedAt: started_at,
+      },
     }
     console.log(chalk.green('--- Creating task: ' + task.id))
     await cache.addTaskToActiveList(buildPath + '-' + buildNumber, task.id)

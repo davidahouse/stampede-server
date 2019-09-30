@@ -28,7 +28,10 @@ const conf = require('rc')('stampede', {
   responseQueue: 'stampede-response',
   notificationQueues: '',
   stampedeFileName: '.stampede.yaml',
+  scm: 'github',
+  // Debug assist properties
   logEventPath: null,
+  testModeRepoConfigPath: null,
 })
 
 clear()
@@ -79,12 +82,23 @@ notification.setRedisConfig({
 })
 notification.setNotificationQueues(conf.notificationQueues.split(','))
 
+// Setup our scm based on what is configured
+let scm = {}
+if (conf.scm === 'github') {
+  scm = require('../scm/github')
+} else if (conf.scm === 'testMode') {
+  scm = require('../scm/testMode')
+} else {
+  console.error('Invalid scm specified in the config: ' + conf.scm + ', unable to continue')
+  process.exit(1)
+}
+
 // Start our own queue that listens for updates that need to get
 // made back into GitHub
 const responseQueue = taskQueue.createTaskQueue(conf.responseQueue)
 responseQueue.process(function(job) {
-  return taskUpdate.handle(job, conf, cache)
+  return taskUpdate.handle(job, conf, cache, scm)
 })
 
-web.startRESTApi(conf, cache)
+web.startRESTApi(conf, cache, scm)
 config.initialize(conf, cache)
