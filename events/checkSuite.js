@@ -2,7 +2,6 @@
 
 const chalk = require('chalk')
 
-const auth = require('../lib/auth')
 const checkRun = require('../lib/checkRun')
 const notification = require('../lib/notification')
 
@@ -13,7 +12,7 @@ const notification = require('../lib/notification')
  * @param {*} cache
  * @return {Object} response to the event
  */
-async function handle(req, serverConf, cache) {
+async function handle(req, serverConf, cache, scm) {
 
   // Parse the incoming body into the parts we care about
   const event = parseEvent(req)
@@ -31,13 +30,12 @@ async function handle(req, serverConf, cache) {
     return {status: 'ignored, not an action we respond to'}
   }
 
-  // Get an authorized octokit instance so we can create our check runs
-  const octokit = await auth.getAuthorizedOctokit(event.owner, event.repo, serverConf)
+  // Create the check runs
   for (let index = 0; index < event.pullRequests.length; index++) {
     await checkRun.createCheckRun(event.owner, event.repo, event.sha,
       event.pullRequests[index], event.cloneURL, event.sshURL,
       serverConf.stampedeFileName,
-      octokit, cache, serverConf)
+      scm, cache, serverConf)
   }
   return {status: 'check runs created'}
 }
