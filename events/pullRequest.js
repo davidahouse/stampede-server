@@ -1,6 +1,5 @@
 'use strict'
 
-const auth = require('../lib/auth')
 const checkRun = require('../lib/checkRun')
 const notification = require('../lib/notification')
 
@@ -19,8 +18,6 @@ async function handle(req, serverConf, cache, scm) {
   notification.repositoryEventReceived('pull_request', event)
 
   if ((event.action === 'opened') || (event.action === 'reopened')) {
-    await scm.getAuthorizedToken(event.owner, event.repo, serverConf)
-//    const octokit = await auth.getAuthorizedOctokit(event.owner, event.repo, serverConf)
     await checkRun.createCheckRun(event.owner, event.repo, event.sha,
       event.pullRequest, event.cloneURL, event.sshURL,
       serverConf.stampedeFileName,
