@@ -27,7 +27,7 @@ async function findRepoConfig(owner, repo, stampedeFile, sha, serverConf) {
  * createCheckRun
  * @param {*} check
  */
-async function createCheckRun(owner, repo, taskTitle, head_sha, external_id, 
+async function createCheckRun(owner, repo, taskTitle, head_sha, external_id,
   started_at, serverConf) {
   console.log('--- createCheckRun')
   return {

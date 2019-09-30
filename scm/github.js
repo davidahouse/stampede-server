@@ -5,6 +5,7 @@ const yaml = require('js-yaml')
 const { App } = require('@octokit/app')
 const Octokit = require('@octokit/rest')
 const chalk = require('chalk')
+const url = require('url')
 
 /**
  * getAuthorizedOctokit
@@ -156,7 +157,7 @@ async function getBearerToken(owner, repo, serverConf) {
  * createCheckRun
  * @param {*} check
  */
-async function createCheckRun(owner, repo, taskTitle, head_sha, external_id, 
+async function createCheckRun(owner, repo, taskTitle, head_sha, external_id,
   started_at, serverConf) {
   const authorizedOctokit = await getAuthorizedOctokit(owner, repo, serverConf)
   const checkRun = await authorizedOctokit.checks.create({

@@ -2,7 +2,6 @@
 
 const chalk = require('chalk')
 
-const auth = require('../lib/auth')
 const config = require('../lib/config')
 const taskQueue = require('../lib/taskQueue')
 const notification = require('../lib/notification')
