@@ -2,7 +2,6 @@
 
 const chalk = require('chalk')
 
-const auth = require('../lib/auth')
 const config = require('../lib/config')
 const taskQueue = require('../lib/taskQueue')
 const notification = require('../lib/notification')
@@ -14,7 +13,7 @@ const taskDetail = require('../lib/taskDetail')
  * @param {*} serverConf
  * @param {*} cache
  */
-async function handle(req, serverConf, cache) {
+async function handle(req, serverConf, cache, scm) {
 
   // Parse the incoming body into the parts we care about
   const event = parseEvent(req)
@@ -27,11 +26,9 @@ async function handle(req, serverConf, cache) {
     return {status: 'ignoring due to created or pushed'}
   }
 
-  const octokit = await auth.getAuthorizedOctokit(event.owner, event.repo, serverConf)
-
   const repoConfig = await config.findRepoConfig(event.owner, event.repo,
     event.sha, serverConf.stampedeFileName,
-    octokit, cache, serverConf)
+    scm, cache, serverConf)
   if (repoConfig == null) {
     console.log(chalk.red('--- Unable to determine config, no found in Redis or the project. Unable to continue'))
     return {status: 'no repo config found'}
@@ -45,7 +42,7 @@ async function handle(req, serverConf, cache) {
   console.dir(repoConfig.branches)
   const branchConfig = repoConfig.branches[event.branch]
   if (branchConfig == null) {
-    console.log(chalk.red('--- No branch config for this branch, skipping'))
+    console.log(chalk.red('--- No branch config for this branch: ' + event.branch + ', skipping'))
     return {status: 'branch not configured'}
   }
 
@@ -54,7 +51,8 @@ async function handle(req, serverConf, cache) {
     return {status: 'no tasks configured for the branch'}
   }
 
-  const buildPath = event.owner + '-' + event.repo + '-' + event.branch
+  const buildKey = event.branch
+  const buildPath = event.owner + '-' + event.repo + '-' + buildKey
   console.log(chalk.green('--- Build path: ' + buildPath))
 
   // determine our build number
@@ -86,20 +84,27 @@ async function handle(req, serverConf, cache) {
     const taskDetails = {
       owner: event.owner,
       repository: event.repo,
+      buildKey: buildKey,
       buildNumber: buildNumber,
-      branch: event.branch,
-      branch_sha: event.sha,
-      config: taskConfig,
+      buildID: buildPath + '-' + buildNumber,
+      status: 'queued',
       task: {
         id: task.id,
         number: tindex,
       },
-      status: 'queued',
-      buildID: buildPath + '-' + buildNumber,
-      external_id: external_id,
-      clone_url: event.cloneURL,
-      ssh_url: event.sshURL,
-      started_at: started_at,
+      config: taskConfig,
+      scm: {
+        branch: {
+          name: event.branch,
+          sha: event.sha,
+        },
+        externalID: external_id,
+        cloneURL: event.cloneURL,
+        sshURL: event.sshURL,
+      },
+      stats: {
+        queuedAt: started_at,
+      },
     }
     console.log(chalk.green('--- Creating task: ' + task.id))
     await cache.addTaskToActiveList(buildPath + '-' + buildNumber, task.id)

@@ -10,7 +10,7 @@ const notification = require('../lib/notification')
  * @param {*} serverConf
  * @param {*} cache
  */
-async function handle(req, serverConf, cache) {
+async function handle(req, serverConf, cache, scm) {
 
   // Parse the incoming body into the parts we care about
   const event = parseEvent(req)
@@ -23,13 +23,12 @@ async function handle(req, serverConf, cache) {
     return {status: 'ignored, not our app id'}
   }
 
-  const octokit = await auth.getAuthorizedOctokit(event.owner, event.repo, serverConf)
   if (event.action === 'rerequested') {
     for (let index = 0; index < event.pullRequests.length; index++) {
       await checkRun.createCheckRun(event.owner, event.repo, event.sha,
         event.pullRequests[index], event.cloneURL, event.sshURL,
         serverConf.stampedeFileName,
-        octokit, cache, serverConf)
+        scm, cache, serverConf)
     }
   } else {
     console.log('--- ignoring check run, not a rerequested one')
