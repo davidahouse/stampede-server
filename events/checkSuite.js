@@ -2,7 +2,6 @@
 
 const chalk = require('chalk')
 
-const auth = require('../lib/auth')
 const checkRun = require('../lib/checkRun')
 const notification = require('../lib/notification')
 
