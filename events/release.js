@@ -86,6 +86,7 @@ async function handle(req, serverConf, cache, scm) {
     repository: event.repo,
     sha: sha,
     release: event.release,
+    buildKey: buildKey,
     build: buildNumber,
   }
   await cache.addBuildToActiveList(buildPath + '-' + buildNumber)
