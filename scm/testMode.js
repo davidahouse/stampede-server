@@ -13,8 +13,9 @@ const yaml = require('js-yaml')
  */
 async function findRepoConfig(owner, repo, stampedeFile, sha, serverConf) {
   if (serverConf.testModeRepoConfigPath != null) {
-    console.log('--- loading repo config: ' + serverConf.testModeRepoConfigPath)
-    const testModeConfigFile = fs.readFileSync(serverConf.testModeRepoConfigPath)
+    const path = serverConf.testModeRepoConfigPath + owner + '/' + repo + '/.stampede.yaml'
+    console.log('--- loading repo config: ' + path)
+    const testModeConfigFile = fs.readFileSync(path)
     const config = yaml.safeLoad(testModeConfigFile)
     console.dir(config)
     return config
