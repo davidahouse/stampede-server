@@ -68,7 +68,7 @@ async function handle(req, serverConf, cache, scm) {
     },
   }
 
-  build.startBuild(buildDetails, scm, scmDetails, branchConfig, branchConfig.tasks, 
+  build.startBuild(buildDetails, scm, scmDetails, branchConfig, branchConfig.tasks,
     cache, serverConf)
   return {status: 'branch tasks created'}
 }
