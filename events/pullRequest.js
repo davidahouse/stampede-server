@@ -20,7 +20,6 @@ async function handle(req, serverConf, cache, scm) {
   if ((event.action === 'opened') || (event.action === 'reopened')) {
     await checkRun.createCheckRun(event.owner, event.repo, event.sha,
       event.pullRequest, event.cloneURL, event.sshURL,
-      serverConf.stampedeFileName,
       scm, cache, serverConf)
     return {status: 'pull request tasks created'}
   } else {
