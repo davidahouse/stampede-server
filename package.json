@@ -33,7 +33,7 @@
     "lynn-request": "^0.4.6",
     "morgan": "^1.9.1",
     "rc": "^1.2.8",
-    "stampede-cache": "^0.3.1"
+    "stampede-cache": "^0.4.0"
   },
   "devDependencies": {
     "eslint": "^6.3.0",
