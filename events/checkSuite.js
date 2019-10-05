@@ -21,12 +21,12 @@ async function handle(req, serverConf, cache, scm) {
   notification.repositoryEventReceived('check_suite', event)
 
   // Ignore check_suite events not for this app
-  if (event.appID != parseInt(serverConf.githubAppID)) {
+  if (event.appID !== parseInt(serverConf.githubAppID)) {
     return {status: 'ignored, not our app id'}
   }
 
   // Ignore actions we don't care about
-  if (event.action != 'requested' && event.action != 'rerequested') {
+  if (event.action !== 'requested' && event.action !== 'rerequested') {
     return {status: 'ignored, not an action we respond to'}
   }
 

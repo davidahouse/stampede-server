@@ -14,13 +14,12 @@ async function handle(req, serverConf, cache, scm) {
   // Parse the incoming body into the parts we care about
   const event = parseEvent(req)
   console.log('--- PullRequestEvent:')
-  console.dir(event)
+  //  console.dir(event)
   notification.repositoryEventReceived('pull_request', event)
 
   if ((event.action === 'opened') || (event.action === 'reopened')) {
     await checkRun.createCheckRun(event.owner, event.repo, event.sha,
       event.pullRequest, event.cloneURL, event.sshURL,
-      serverConf.stampedeFileName,
       scm, cache, serverConf)
     return {status: 'pull request tasks created'}
   } else {
