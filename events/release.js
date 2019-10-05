@@ -90,7 +90,7 @@ async function handle(req, serverConf, cache, scm) {
     },
   }
 
-  build.startBuild(buildDetails, scm, scmDetails, releaseConfig, releaseConfig.tasks,
+  build.startBuild(buildDetails, scm, scmDetails, repoConfig, releaseConfig, releaseConfig.tasks,
     cache, serverConf)
   return {status: 'tasks created for the release'}
 }
