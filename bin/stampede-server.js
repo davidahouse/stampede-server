@@ -96,6 +96,10 @@ if (conf.scm === 'github') {
 // Start our own queue that listens for updates that need to get
 // made back into GitHub
 const responseQueue = taskQueue.createTaskQueue(conf.responseQueue)
+responseQueue.on('error', function(error) {
+  console.log(chalk.red('Error from response queue: ' + error))
+})
+
 responseQueue.process(function(job) {
   return taskUpdate.handle(job, conf, cache, scm)
 })
