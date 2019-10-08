@@ -92,11 +92,24 @@ async function pullRequestEdit(owner, repo, sha, pullRequest, cloneURL, sshURL,
     return
   }
 
+  const pullRequestDetails = {
+    number: pullRequest.number,
+    title: pullRequest.title,
+    head: {
+      ref: pullRequest.head.ref,
+      sha: pullRequest.head.sha,
+    },
+    base: {
+      ref: pullRequest.base.ref,
+      sha: pullRequest.base.sha,
+    },
+  }
+
   const buildDetails = {
     owner: owner,
     repo: repo,
     sha: sha,
-    pullRequest: pullRequest,
+    pullRequest: pullRequestDetails,
     buildKey: 'pullrequest-' + pullRequest.number,
   }
 
@@ -104,7 +117,7 @@ async function pullRequestEdit(owner, repo, sha, pullRequest, cloneURL, sshURL,
     id: serverConf.scm,
     cloneURL: cloneURL,
     sshURL: sshURL,
-    pullRequest: pullRequest,
+    pullRequest: pullRequestDetails,
   }
 
   build.startBuild(buildDetails, scm, scmDetails, repoConfig, repoConfig.pullrequestedit,
