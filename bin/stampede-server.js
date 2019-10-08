@@ -32,6 +32,8 @@ const conf = require('rc')('stampede', {
   // Debug assist properties
   logEventPath: null,
   testModeRepoConfigPath: null,
+  // Heartbeat
+  heartbeatQueue: 'stampede-heartbeat',
 })
 
 clear()
@@ -102,6 +104,17 @@ responseQueue.on('error', function(error) {
 
 responseQueue.process(function(job) {
   return taskUpdate.handle(job, conf, cache, scm)
+})
+
+// Handle any heartbeat messages
+const heartbeatQueue = taskQueue.createTaskQueue(conf.heartbeatQueue)
+heartbeatQueue.on('error', function(error) {
+  console.log(chalk.red('Error from heartbeat queue: ' + error))
+})
+
+heartbeatQueue.process(function(heartbeat) {
+  cache.storeWorkerHeartbeat(heartbeat.data)
+  notification.workerHeartbeat(heartbeat.data)
 })
 
 web.startRESTApi(conf, cache, scm)
