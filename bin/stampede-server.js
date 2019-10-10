@@ -29,6 +29,7 @@ const conf = require('rc')('stampede', {
   notificationQueues: '',
   stampedeFileName: '.stampede.yaml',
   scm: 'github',
+  taskQueueDefault: 'stampede-tasks',
   // Debug assist properties
   logEventPath: null,
   testModeRepoConfigPath: null,
