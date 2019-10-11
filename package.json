@@ -1,6 +1,6 @@
 {
   "name": "stampede-server",
-  "version": "0.7.1",
+  "version": "0.7.2",
   "description": "A distributed github task system",
   "main": "bin/stampede-server.js",
   "scripts": {
@@ -33,7 +33,8 @@
     "lynn-request": "^0.4.6",
     "morgan": "^1.9.1",
     "rc": "^1.2.8",
-    "stampede-cache": "^0.6.0"
+    "stampede-cache": "^0.6.1",
+    "pkginfo": "^0.4.1"
   },
   "devDependencies": {
     "eslint": "^6.3.0",
