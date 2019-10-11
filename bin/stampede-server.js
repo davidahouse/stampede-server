@@ -6,6 +6,7 @@ const figlet = require('figlet')
 const fs = require('fs')
 const cache = require('stampede-cache')
 const os = require('os')
+require('pkginfo')(module)
 
 // Internal modules
 const web = require('../lib/web')
@@ -39,6 +40,7 @@ const conf = require('rc')('stampede', {
 
 clear()
 console.log(chalk.red(figlet.textSync('stampede', {horizontalLayout: 'full'})))
+console.log(chalk.yellow(module.exports.version))
 console.log(chalk.red('Redis Host: ' + conf.redisHost))
 console.log(chalk.red('Redis Port: ' + conf.redisPort))
 console.log(chalk.red('Web Port: ' + conf.webPort))
