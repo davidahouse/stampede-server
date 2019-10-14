@@ -21,9 +21,9 @@ async function handle(req, serverConf, cache, scm) {
   console.dir(event)
   notification.repositoryEventReceived('release', event)
 
-  if (event.action !== 'created' && event.action !== 'published') {
-    console.log('--- Ignoring as the release is not marked as created/published')
-    return {status: 'not a created/published release, ignoring'}
+  if (event.action !== 'published') {
+    console.log('--- Ignoring as the release is not marked as published')
+    return {status: 'not a published release, ignoring'}
   }
 
   // Find the sha for this release based on the tag unless this is a draft PR. In that
