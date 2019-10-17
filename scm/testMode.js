@@ -31,6 +31,14 @@ async function findRepoConfig(owner, repo, stampedeFile, sha, serverConf) {
 async function createCheckRun(owner, repo, taskTitle, head_sha, external_id,
   started_at, serverConf) {
   console.log('--- createCheckRun')
+  console.log('owner: ' + owner)
+  console.log('repo: ' + repo)
+  console.log('task: ' + taskTitle)
+  console.log('taskTitle: ' + taskTitle)
+  console.log('head_sha: ' + head_sha)
+  console.log('external_id: ' + external_id)
+  console.log('started_at: ' + started_at)
+  console.dir(serverConf)
   return {
     data: {
       id: '123',
