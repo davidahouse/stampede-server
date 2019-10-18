@@ -33,7 +33,7 @@
     "lynn-request": "^0.4.6",
     "morgan": "^1.9.1",
     "rc": "^1.2.8",
-    "stampede-cache": "^0.6.1",
+    "stampede-cache": "^0.8.0",
     "pkginfo": "^0.4.1"
   },
   "devDependencies": {
