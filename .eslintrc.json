@@ -7,7 +7,7 @@
     "env": {
         "es6": true
     },
-    "extends": "strongloop",
+    "extends": ["prettier"],
     "rules": {
         "semi": 0,
         "radix": [2, "as-needed"],
