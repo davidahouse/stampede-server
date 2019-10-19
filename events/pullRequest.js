@@ -1,11 +1,11 @@
-'use strict'
+'use strict';
 
-const chalk = require('chalk')
+const chalk = require('chalk');
 
-const checkRun = require('../lib/checkRun')
-const notification = require('../lib/notification')
-const config = require('../lib/config')
-const build = require('../lib/build')
+const checkRun = require('../lib/checkRun');
+const notification = require('../lib/notification');
+const config = require('../lib/config');
+const build = require('../lib/build');
 
 /**
  * handle event
@@ -14,23 +14,39 @@ const build = require('../lib/build')
  * @param {*} cache
  */
 async function handle(req, serverConf, cache, scm) {
-
   // Parse the incoming body into the parts we care about
-  const event = parseEvent(req)
-  console.log('--- PullRequestEvent:')
+  const event = parseEvent(req);
+  console.log('--- PullRequestEvent:');
   //  console.dir(event)
-  notification.repositoryEventReceived('pull_request', event)
+  notification.repositoryEventReceived('pull_request', event);
 
-  if ((event.action === 'opened') || (event.action === 'reopened')) {
-    await checkRun.createCheckRun(event.owner, event.repo, event.sha,
-      event.pullRequest, event.cloneURL, event.sshURL,
-      scm, cache, serverConf)
-    return {status: 'pull request tasks created'}
+  if (event.action === 'opened' || event.action === 'reopened') {
+    await checkRun.createCheckRun(
+      event.owner,
+      event.repo,
+      event.sha,
+      event.pullRequest,
+      event.cloneURL,
+      event.sshURL,
+      scm,
+      cache,
+      serverConf
+    );
+    return { status: 'pull request tasks created' };
   } else if (event.action === 'edited') {
-    await pullRequestEdit(event.owner, event.repo, event.sha, event.pullRequest,
-      event.cloneURL, event.sshURL, scm, cache, serverConf)
+    await pullRequestEdit(
+      event.owner,
+      event.repo,
+      event.sha,
+      event.pullRequest,
+      event.cloneURL,
+      event.sshURL,
+      scm,
+      cache,
+      serverConf
+    );
   } else {
-    return {status: 'ignored, pull request not opened or reopened'}
+    return { status: 'ignored, pull request not opened or reopened' };
   }
 }
 
@@ -40,10 +56,10 @@ async function handle(req, serverConf, cache, scm) {
  * @return {object} event
  */
 function parseEvent(req) {
-  const fullName = req.body.repository.full_name
-  const parts = fullName.split('/')
-  const owner = parts[0]
-  const repo = parts[1]
+  const fullName = req.body.repository.full_name;
+  const parts = fullName.split('/');
+  const owner = parts[0];
+  const repo = parts[1];
   return {
     owner: owner,
     repo: repo,
@@ -51,8 +67,8 @@ function parseEvent(req) {
     pullRequest: req.body.pull_request,
     sha: req.body.pull_request.head.sha,
     cloneURL: req.body.repository.clone_url,
-    sshURL: req.body.repository.ssh_url,
-  }
+    sshURL: req.body.repository.ssh_url
+  };
 }
 
 /**
@@ -67,29 +83,60 @@ function parseEvent(req) {
  * @param {*} cache
  * @param {*} serverConf
  */
-async function pullRequestEdit(owner, repo, sha, pullRequest, cloneURL, sshURL,
-  scm, cache, serverConf) {
-  console.log(chalk.green('--- Creating check run for ' + owner + ' ' +
-                          repo + ' PR ' + pullRequest.number))
+async function pullRequestEdit(
+  owner,
+  repo,
+  sha,
+  pullRequest,
+  cloneURL,
+  sshURL,
+  scm,
+  cache,
+  serverConf
+) {
+  console.log(
+    chalk.green(
+      '--- Creating check run for ' +
+        owner +
+        ' ' +
+        repo +
+        ' PR ' +
+        pullRequest.number
+    )
+  );
 
-  const repoConfig = await config.findRepoConfig(owner, repo, sha, serverConf.stampedeFileName,
-    scm, cache, serverConf)
-  console.dir(repoConfig)
+  const repoConfig = await config.findRepoConfig(
+    owner,
+    repo,
+    sha,
+    serverConf.stampedeFileName,
+    scm,
+    cache,
+    serverConf
+  );
+  console.dir(repoConfig);
   if (repoConfig == null) {
-    console.log(chalk.red('--- Unable to determine config, no found in Redis or the project. Unable to continue'))
-    return
+    console.log(
+      chalk.red(
+        '--- Unable to determine config, no found in Redis or the project. Unable to continue'
+      )
+    );
+    return;
   }
 
-  if (repoConfig.pullrequestedit == null || repoConfig.pullrequestedit.tasks == null) {
-    console.log(chalk.red('--- Unable to find tasks. Unable to continue.'))
-    return
+  if (
+    repoConfig.pullrequestedit == null ||
+    repoConfig.pullrequestedit.tasks == null
+  ) {
+    console.log(chalk.red('--- Unable to find tasks. Unable to continue.'));
+    return;
   }
 
-  console.dir(repoConfig.pullrequestedit)
-  console.dir(repoConfig.pullrequestedit.tasks)
+  console.dir(repoConfig.pullrequestedit);
+  console.dir(repoConfig.pullrequestedit.tasks);
   if (repoConfig.pullrequestedit.tasks.length === 0) {
-    console.log(chalk.red('--- Task list was empty. Unable to continue.'))
-    return
+    console.log(chalk.red('--- Task list was empty. Unable to continue.'));
+    return;
   }
 
   const pullRequestDetails = {
@@ -97,31 +144,39 @@ async function pullRequestEdit(owner, repo, sha, pullRequest, cloneURL, sshURL,
     title: pullRequest.title,
     head: {
       ref: pullRequest.head.ref,
-      sha: pullRequest.head.sha,
+      sha: pullRequest.head.sha
     },
     base: {
       ref: pullRequest.base.ref,
-      sha: pullRequest.base.sha,
-    },
-  }
+      sha: pullRequest.base.sha
+    }
+  };
 
   const buildDetails = {
     owner: owner,
     repo: repo,
     sha: sha,
     pullRequest: pullRequestDetails,
-    buildKey: 'pullrequest-' + pullRequest.number,
-  }
+    buildKey: 'pullrequest-' + pullRequest.number
+  };
 
   const scmDetails = {
     id: serverConf.scm,
     cloneURL: cloneURL,
     sshURL: sshURL,
-    pullRequest: pullRequestDetails,
-  }
+    pullRequest: pullRequestDetails
+  };
 
-  build.startBuild(buildDetails, scm, scmDetails, repoConfig, repoConfig.pullrequestedit,
-    repoConfig.pullrequestedit.tasks, cache, serverConf)
+  build.startBuild(
+    buildDetails,
+    scm,
+    scmDetails,
+    repoConfig,
+    repoConfig.pullrequestedit,
+    repoConfig.pullrequestedit.tasks,
+    cache,
+    serverConf
+  );
 }
 
-module.exports.handle = handle
+module.exports.handle = handle;
