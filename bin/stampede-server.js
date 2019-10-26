@@ -1,23 +1,23 @@
 #!/usr/bin/env node
-'use strict';
-const chalk = require('chalk');
-const clear = require('clear');
-const figlet = require('figlet');
-const fs = require('fs');
-const cache = require('stampede-cache');
-const os = require('os');
-require('pkginfo')(module);
+"use strict";
+const chalk = require("chalk");
+const clear = require("clear");
+const figlet = require("figlet");
+const fs = require("fs");
+const cache = require("stampede-cache");
+const os = require("os");
+require("pkginfo")(module);
 
 // Internal modules
-const web = require('../lib/web');
-const config = require('../lib/config');
-const taskQueue = require('../lib/taskQueue');
-const taskUpdate = require('../lib/taskUpdate');
-const notification = require('../lib/notification');
+const web = require("../lib/web");
+const config = require("../lib/config");
+const taskQueue = require("../lib/taskQueue");
+const taskUpdate = require("../lib/taskUpdate");
+const notification = require("../lib/notification");
 
-const conf = require('rc')('stampede', {
+const conf = require("rc")("stampede", {
   // defaults
-  redisHost: 'cache',
+  redisHost: "cache",
   redisPort: 6379,
   redisPassword: null,
   webPort: 7766,
@@ -26,36 +26,36 @@ const conf = require('rc')('stampede', {
   githubAppPEM: null,
   githubHost: null,
   stampedeConfigPath: null,
-  responseQueue: 'stampede-response',
-  notificationQueues: '',
-  stampedeFileName: '.stampede.yaml',
-  scm: 'github',
-  taskQueueDefault: 'stampede-tasks',
+  responseQueue: "stampede-response",
+  notificationQueues: "",
+  stampedeFileName: ".stampede.yaml",
+  scm: "github",
+  taskQueueDefault: "stampede-tasks",
   // Debug assist properties
   logEventPath: null,
   testModeRepoConfigPath: null,
   // Heartbeat
-  heartbeatQueue: 'stampede-heartbeat'
+  heartbeatQueue: "stampede-heartbeat"
 });
 
 clear();
 console.log(
-  chalk.red(figlet.textSync('stampede', { horizontalLayout: 'full' }))
+  chalk.red(figlet.textSync("stampede", { horizontalLayout: "full" }))
 );
 console.log(chalk.yellow(module.exports.version));
-console.log(chalk.red('Redis Host: ' + conf.redisHost));
-console.log(chalk.red('Redis Port: ' + conf.redisPort));
-console.log(chalk.red('Web Port: ' + conf.webPort));
-console.log(chalk.red('Config Path: ' + conf.stampedeConfigPath));
-console.log(chalk.red('SCM: ' + conf.scm));
-console.log(chalk.red('GitHub APP ID: ' + conf.githubAppID));
-console.log(chalk.red('GitHub PEM Path: ' + conf.githubAppPEMPath));
+console.log(chalk.red("Redis Host: " + conf.redisHost));
+console.log(chalk.red("Redis Port: " + conf.redisPort));
+console.log(chalk.red("Web Port: " + conf.webPort));
+console.log(chalk.red("Config Path: " + conf.stampedeConfigPath));
+console.log(chalk.red("SCM: " + conf.scm));
+console.log(chalk.red("GitHub APP ID: " + conf.githubAppID));
+console.log(chalk.red("GitHub PEM Path: " + conf.githubAppPEMPath));
 
 // Load up our key for this GitHub app. You get this key from GitHub
 // when you create the app.
 if (conf.githubAppPEM == null) {
   if (conf.githubAppPEMPath != null) {
-    const pem = fs.readFileSync(conf.githubAppPEMPath, 'utf8');
+    const pem = fs.readFileSync(conf.githubAppPEMPath, "utf8");
     conf.githubAppPEM = pem;
   }
 } else {
@@ -71,7 +71,7 @@ if (
 ) {
   console.log(
     chalk.red(
-      'Stampede needs a GitHub APP ID, PEM certificate and host in order to operate. Not found in the config so unable to continue.'
+      "Stampede needs a GitHub APP ID, PEM certificate and host in order to operate. Not found in the config so unable to continue."
     )
   );
   process.exit(1);
@@ -97,17 +97,17 @@ notification.setRedisConfig({
     password: conf.redisPassword
   }
 });
-notification.setNotificationQueues(conf.notificationQueues.split(','));
+notification.setNotificationQueues(conf.notificationQueues.split(","));
 
 // Setup our scm based on what is configured
 let scm = {};
-if (conf.scm === 'github') {
-  scm = require('../scm/github');
-} else if (conf.scm === 'testMode') {
-  scm = require('../scm/testMode');
+if (conf.scm === "github") {
+  scm = require("../scm/github");
+} else if (conf.scm === "testMode") {
+  scm = require("../scm/testMode");
 } else {
   console.error(
-    'Invalid scm specified in the config: ' + conf.scm + ', unable to continue'
+    "Invalid scm specified in the config: " + conf.scm + ", unable to continue"
   );
   process.exit(1);
 }
@@ -115,8 +115,8 @@ if (conf.scm === 'github') {
 // Start our own queue that listens for updates that need to get
 // made back into GitHub
 const responseQueue = taskQueue.createTaskQueue(conf.responseQueue);
-responseQueue.on('error', function(error) {
-  console.log(chalk.red('Error from response queue: ' + error));
+responseQueue.on("error", function(error) {
+  console.log(chalk.red("Error from response queue: " + error));
 });
 
 responseQueue.process(function(job) {
@@ -125,11 +125,12 @@ responseQueue.process(function(job) {
 
 // Handle any heartbeat messages
 const heartbeatQueue = taskQueue.createTaskQueue(conf.heartbeatQueue);
-heartbeatQueue.on('error', function(error) {
-  console.log(chalk.red('Error from heartbeat queue: ' + error));
+heartbeatQueue.on("error", function(error) {
+  console.log(chalk.red("Error from heartbeat queue: " + error));
 });
 
 heartbeatQueue.process(function(heartbeat) {
+  console.dir(heartbeat.data);
   cache.storeWorkerHeartbeat(heartbeat.data);
   notification.workerHeartbeat(heartbeat.data);
 });
