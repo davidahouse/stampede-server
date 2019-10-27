@@ -17,7 +17,7 @@ const notification = require("../lib/notification");
 
 const conf = require("rc")("stampede", {
   // defaults
-  redisHost: "cache",
+  redisHost: "localhost",
   redisPort: 6379,
   redisPassword: null,
   webPort: 7766,
