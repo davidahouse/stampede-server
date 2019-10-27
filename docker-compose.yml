@@ -1,6 +1,6 @@
 redis:
   image: redis
-  container_name: cache
+  container_name: stampede-redis
   expose:
     - 6379
 
@@ -10,13 +10,7 @@ app:
     - ./:/var/www/app
   ports:
     - 7766:7766
-  environment:
-    - NODE_ENV=development
-    - PORT=7766
-  command:
-    sh -c 'npm i && node ./bin/stampede-server.js'
   links:
     - redis
   environment:
-    - REDIS_URL=redis://cache
-
+    stampede_redisHost: stampede-redis
