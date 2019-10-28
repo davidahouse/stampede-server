@@ -1,6 +1,6 @@
 redis:
   image: redis
-  container_name: stampede-redis
+  container_name: stampede-server-redis
   expose:
     - 6379
 
@@ -13,4 +13,4 @@ app:
   links:
     - redis
   environment:
-    stampede_redisHost: stampede-redis
+    stampede_redisHost: stampede-server-redis
