@@ -1,0 +1,3 @@
+buildtest:
+  command: docker build --build-arg configpath=/Users/E136586/Projects/davidahouse/stampede-server-test/config -t stampede-server .
+  description: Test building docker container

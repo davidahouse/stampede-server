@@ -1,7 +1,9 @@
 # Dockerfile
-FROM node:10
-# Or whatever Node version/image you want
-WORKDIR '/var/www/app'
+
+# Node version
+FROM node:8
+# Working directory
+WORKDIR /var/stampede
 # install app dependencies
 COPY package*.json ./
 RUN npm install
