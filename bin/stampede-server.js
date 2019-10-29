@@ -130,7 +130,6 @@ heartbeatQueue.on("error", function(error) {
 });
 
 heartbeatQueue.process(function(heartbeat) {
-  console.dir(heartbeat.data);
   cache.storeWorkerHeartbeat(heartbeat.data);
   notification.workerHeartbeat(heartbeat.data);
 });
