@@ -26,16 +26,16 @@ const conf = require("rc")("stampede", {
   githubAppPEM: null,
   githubHost: null,
   stampedeConfigPath: null,
-  responseQueue: "stampede-response",
+  responseQueue: "response",
   notificationQueues: "",
   stampedeFileName: ".stampede.yaml",
   scm: "github",
-  taskQueueDefault: "stampede-tasks",
+  taskQueueDefault: "tasks",
   // Debug assist properties
   logEventPath: null,
   testModeRepoConfigPath: null,
   // Heartbeat
-  heartbeatQueue: "stampede-heartbeat"
+  heartbeatQueue: "heartbeat"
 });
 
 clear();
@@ -114,7 +114,9 @@ if (conf.scm === "github") {
 
 // Start our own queue that listens for updates that need to get
 // made back into GitHub
-const responseQueue = taskQueue.createTaskQueue(conf.responseQueue);
+const responseQueue = taskQueue.createTaskQueue(
+  "stampede-" + conf.responseQueue
+);
 responseQueue.on("error", function(error) {
   console.log(chalk.red("Error from response queue: " + error));
 });
@@ -124,7 +126,9 @@ responseQueue.process(function(job) {
 });
 
 // Handle any heartbeat messages
-const heartbeatQueue = taskQueue.createTaskQueue(conf.heartbeatQueue);
+const heartbeatQueue = taskQueue.createTaskQueue(
+  "stampede-" + conf.heartbeatQueue
+);
 heartbeatQueue.on("error", function(error) {
   console.log(chalk.red("Error from heartbeat queue: " + error));
 });
