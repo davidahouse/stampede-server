@@ -138,5 +138,23 @@ heartbeatQueue.process(function(heartbeat) {
   notification.workerHeartbeat(heartbeat.data);
 });
 
+/**
+ * Handle shutdown gracefully
+ */
+process.on("SIGINT", function() {
+  gracefulShutdown();
+});
+
+/**
+ * gracefulShutdown
+ */
+async function gracefulShutdown() {
+  console.log("Closing queues");
+  await responseQueue.close();
+  await heartbeatQueue.close();
+  await cache.stopCache();
+  process.exit(0);
+}
+
 web.startRESTApi(conf, cache, scm);
 config.initialize(conf, cache);
