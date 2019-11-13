@@ -152,6 +152,7 @@ async function gracefulShutdown() {
   console.log("Closing queues");
   await responseQueue.close();
   await heartbeatQueue.close();
+  await cache.stopCache();
   process.exit(0);
 }
 
