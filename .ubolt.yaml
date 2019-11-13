@@ -4,5 +4,5 @@ newversion:
     - npm install
   description: Update the package.json with a new version
 version:
-  command: npm view stampede-portal version
+  command: npm view stampede-server version
   description: Show the current version of the package
