@@ -1,3 +1,8 @@
-buildtest:
-  command: docker build --build-arg configpath=/Users/E136586/Projects/davidahouse/stampede-server-test/config -t stampede-server .
-  description: Test building docker container
+newversion:
+  commands:
+    - npm --no-git-tag-version version $1
+    - npm install
+  description: Update the package.json with a new version
+version:
+  command: npm view stampede-portal version
+  description: Show the current version of the package
