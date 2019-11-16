@@ -33,9 +33,7 @@ const conf = require("rc")("stampede", {
   taskQueueDefault: "tasks",
   // Debug assist properties
   logEventPath: null,
-  testModeRepoConfigPath: null,
-  // Heartbeat
-  heartbeatQueue: "heartbeat"
+  testModeRepoConfigPath: null
 });
 
 clear();
@@ -89,7 +87,7 @@ taskQueue.setRedisConfig({
   }
 });
 
-// Setup the notification queue
+// Setup the notification queue(s)
 notification.setRedisConfig({
   redis: {
     port: conf.redisPort,
@@ -122,20 +120,13 @@ responseQueue.on("error", function(error) {
 });
 
 responseQueue.process(function(job) {
-  return taskUpdate.handle(job, conf, cache, scm);
-});
-
-// Handle any heartbeat messages
-const heartbeatQueue = taskQueue.createTaskQueue(
-  "stampede-" + conf.heartbeatQueue
-);
-heartbeatQueue.on("error", function(error) {
-  console.log(chalk.red("Error from heartbeat queue: " + error));
-});
-
-heartbeatQueue.process(function(heartbeat) {
-  cache.storeWorkerHeartbeat(heartbeat.data);
-  notification.workerHeartbeat(heartbeat.data);
+  console.log("--- response: " + job.data.response);
+  if (job.data.response === "taskUpdate") {
+    return taskUpdate.handle(job.data.payload, conf, cache, scm);
+  } else if (job.data.response === "heartbeat") {
+    cache.storeWorkerHeartbeat(job.data.payload);
+    notification.workerHeartbeat(job.data.payload);
+  }
 });
 
 /**
@@ -151,7 +142,6 @@ process.on("SIGINT", function() {
 async function gracefulShutdown() {
   console.log("Closing queues");
   await responseQueue.close();
-  await heartbeatQueue.close();
   await cache.stopCache();
   process.exit(0);
 }
