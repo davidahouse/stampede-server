@@ -7,7 +7,8 @@
     "start": "bin/stampede-server.js",
     "test": "mocha",
     "lint": "eslint --ignore-path .gitignore .",
-    "lint-fix": "eslint --fix --ignore-path .gitignore ."
+    "lint-fix": "eslint --fix --ignore-path .gitignore .",
+    "dev": "nodemon bin/stampede-portal.js"
   },
   "bin": {
     "stampede-server": "bin/stampede-server.js"
