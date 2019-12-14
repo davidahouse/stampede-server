@@ -25,7 +25,6 @@ const conf = require("rc")("stampede", {
   githubAppPEMPath: null,
   githubAppPEM: null,
   githubHost: null,
-  stampedeConfigPath: null,
   responseQueue: "response",
   notificationQueues: "",
   stampedeFileName: ".stampede.yaml",
@@ -44,7 +43,6 @@ console.log(chalk.yellow(module.exports.version));
 console.log(chalk.red("Redis Host: " + conf.redisHost));
 console.log(chalk.red("Redis Port: " + conf.redisPort));
 console.log(chalk.red("Web Port: " + conf.webPort));
-console.log(chalk.red("Config Path: " + conf.stampedeConfigPath));
 console.log(chalk.red("SCM: " + conf.scm));
 console.log(chalk.red("GitHub APP ID: " + conf.githubAppID));
 console.log(chalk.red("GitHub PEM Path: " + conf.githubAppPEMPath));
