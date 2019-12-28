@@ -13,6 +13,7 @@ const web = require("../lib/web");
 const config = require("../lib/config");
 const taskQueue = require("../lib/taskQueue");
 const taskUpdate = require("../lib/taskUpdate");
+const taskExecute = require("../lib/taskExecute");
 const notification = require("../lib/notification");
 
 const conf = require("rc")("stampede", {
@@ -123,6 +124,8 @@ responseQueue.process(function(job) {
   } else if (job.data.response === "heartbeat") {
     cache.storeWorkerHeartbeat(job.data.payload);
     notification.workerHeartbeat(job.data.payload);
+  } else if (job.data.response === "executeTask") {
+    return taskExecute.handle(job.data.payload, conf, cache, scm);
   }
 });
 
