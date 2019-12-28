@@ -36,7 +36,7 @@
     "morgan": "^1.9.1",
     "pkginfo": "^0.4.1",
     "rc": "^1.2.8",
-    "stampede-cache": "^0.9.0"
+    "stampede-cache": "^0.12.4"
   },
   "devDependencies": {
     "eslint": "^6.3.0",
