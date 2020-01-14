@@ -1,11 +1,11 @@
-'use strict';
+"use strict";
 
-const chalk = require('chalk');
+const chalk = require("chalk");
 
-const checkRun = require('../lib/checkRun');
-const notification = require('../lib/notification');
-const config = require('../lib/config');
-const build = require('../lib/build');
+const checkRun = require("../lib/checkRun");
+const notification = require("../lib/notification");
+const config = require("../lib/config");
+const build = require("../lib/build");
 
 /**
  * handle event
@@ -16,11 +16,11 @@ const build = require('../lib/build');
 async function handle(req, serverConf, cache, scm) {
   // Parse the incoming body into the parts we care about
   const event = parseEvent(req);
-  console.log('--- PullRequestEvent:');
+  console.log("--- PullRequestEvent:");
   //  console.dir(event)
-  notification.repositoryEventReceived('pull_request', event);
+  notification.repositoryEventReceived("pull_request", event);
 
-  if (event.action === 'opened' || event.action === 'reopened') {
+  if (event.action === "opened" || event.action === "reopened") {
     await checkRun.createCheckRun(
       event.owner,
       event.repo,
@@ -32,8 +32,8 @@ async function handle(req, serverConf, cache, scm) {
       cache,
       serverConf
     );
-    return { status: 'pull request tasks created' };
-  } else if (event.action === 'edited') {
+    return { status: "pull request tasks created" };
+  } else if (event.action === "edited") {
     await pullRequestEdit(
       event.owner,
       event.repo,
@@ -46,7 +46,7 @@ async function handle(req, serverConf, cache, scm) {
       serverConf
     );
   } else {
-    return { status: 'ignored, pull request not opened or reopened' };
+    return { status: "ignored, pull request not opened or reopened" };
   }
 }
 
@@ -57,7 +57,7 @@ async function handle(req, serverConf, cache, scm) {
  */
 function parseEvent(req) {
   const fullName = req.body.repository.full_name;
-  const parts = fullName.split('/');
+  const parts = fullName.split("/");
   const owner = parts[0];
   const repo = parts[1];
   return {
@@ -66,8 +66,14 @@ function parseEvent(req) {
     action: req.body.action,
     pullRequest: req.body.pull_request,
     sha: req.body.pull_request.head.sha,
-    cloneURL: req.body.repository.clone_url,
-    sshURL: req.body.repository.ssh_url
+    cloneURL:
+      req.body.pull_request.head.repo.clone_url != null
+        ? req.body.pull_request.head.repo.clone_url
+        : req.body.repository.clone_url,
+    sshURL:
+      req.body.pull_request.head.repo.ssh_url != null
+        ? req.body.pull_request.head.repo.ssh_url
+        : req.body.repository.ssh_url
   };
 }
 
@@ -96,11 +102,11 @@ async function pullRequestEdit(
 ) {
   console.log(
     chalk.green(
-      '--- Creating check run for ' +
+      "--- Creating check run for " +
         owner +
-        ' ' +
+        " " +
         repo +
-        ' PR ' +
+        " PR " +
         pullRequest.number
     )
   );
@@ -118,7 +124,7 @@ async function pullRequestEdit(
   if (repoConfig == null) {
     console.log(
       chalk.red(
-        '--- Unable to determine config, no found in Redis or the project. Unable to continue'
+        "--- Unable to determine config, no found in Redis or the project. Unable to continue"
       )
     );
     return;
@@ -128,14 +134,14 @@ async function pullRequestEdit(
     repoConfig.pullrequestedit == null ||
     repoConfig.pullrequestedit.tasks == null
   ) {
-    console.log(chalk.red('--- Unable to find tasks. Unable to continue.'));
+    console.log(chalk.red("--- Unable to find tasks. Unable to continue."));
     return;
   }
 
   console.dir(repoConfig.pullrequestedit);
   console.dir(repoConfig.pullrequestedit.tasks);
   if (repoConfig.pullrequestedit.tasks.length === 0) {
-    console.log(chalk.red('--- Task list was empty. Unable to continue.'));
+    console.log(chalk.red("--- Task list was empty. Unable to continue."));
     return;
   }
 
@@ -157,7 +163,7 @@ async function pullRequestEdit(
     repo: repo,
     sha: sha,
     pullRequest: pullRequestDetails,
-    buildKey: 'pullrequest-' + pullRequest.number
+    buildKey: "pullrequest-" + pullRequest.number
   };
 
   const scmDetails = {
