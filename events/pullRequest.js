@@ -20,7 +20,11 @@ async function handle(req, serverConf, cache, scm) {
   //  console.dir(event)
   notification.repositoryEventReceived("pull_request", event);
 
-  if (event.action === "opened" || event.action === "reopened") {
+  if (
+    event.action === "opened" ||
+    event.action === "reopened" ||
+    event.action === "synchronize"
+  ) {
     await checkRun.createCheckRun(
       event.owner,
       event.repo,
