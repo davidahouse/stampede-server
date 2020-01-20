@@ -1,7 +1,7 @@
-'use strict';
+"use strict";
 
-const checkRun = require('../lib/checkRun');
-const notification = require('../lib/notification');
+const checkRun = require("../lib/checkRun");
+const notification = require("../lib/notification");
 
 /**
  * handle event
@@ -12,16 +12,16 @@ const notification = require('../lib/notification');
 async function handle(req, serverConf, cache, scm) {
   // Parse the incoming body into the parts we care about
   const event = parseEvent(req);
-  console.log('--- CheckRunEvent:');
+  console.log("--- CheckRunEvent:");
   console.dir(event);
-  notification.repositoryEventReceived('check_run', event);
+  notification.repositoryEventReceived("check_run", event);
 
   // Ignore check_suite events not for this app
   if (event.appID !== parseInt(serverConf.githubAppID)) {
-    return { status: 'ignored, not our app id' };
+    return { status: "ignored, not our app id" };
   }
 
-  if (event.action === 'rerequested') {
+  if (event.action === "rerequested") {
     for (let index = 0; index < event.pullRequests.length; index++) {
       await checkRun.createCheckRun(
         event.owner,
@@ -30,17 +30,16 @@ async function handle(req, serverConf, cache, scm) {
         event.pullRequests[index],
         event.cloneURL,
         event.sshURL,
-        serverConf.stampedeFileName,
         scm,
         cache,
         serverConf
       );
     }
   } else {
-    console.log('--- ignoring check run, not a rerequested one');
-    return { status: 'check run ignored as it was not a rerequested check' };
+    console.log("--- ignoring check run, not a rerequested one");
+    return { status: "check run ignored as it was not a rerequested check" };
   }
-  return { status: 'check runs created' };
+  return { status: "check runs created" };
 }
 
 /**
@@ -50,7 +49,7 @@ async function handle(req, serverConf, cache, scm) {
  */
 function parseEvent(req) {
   const fullName = req.body.repository.full_name;
-  const parts = fullName.split('/');
+  const parts = fullName.split("/");
   const owner = parts[0];
   const repo = parts[1];
   return {
