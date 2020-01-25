@@ -1,22 +1,15 @@
-const Queue = require("bull");
+const taskExecute = require("../../lib/taskExecute");
 
 /**
  * handle executeTaskSelection
  * @param {*} req
  * @param {*} res
- * @param {*} cache
- * @param {*} db
- * @param {*} path
+ * @param {*} dependencies
  */
-async function handle(req, res, cache, db, path, redisConfig, conf) {
+async function handle(req, res, dependencies) {
   const owner = req.body.owner;
   const repository = req.body.repository;
-  const taskDetails = await cache.fetchTaskConfig(req.body.task);
-
-  const responseQueue = new Queue(
-    "stampede-" + conf.responseQueue,
-    redisConfig
-  );
+  const taskDetails = await dependencies.cache.fetchTaskConfig(req.body.task);
 
   const taskConfig = {};
   if (taskDetails.config != null) {
@@ -63,14 +56,15 @@ async function handle(req, res, cache, db, path, redisConfig, conf) {
     taskQueue: req.body.taskQueue
   };
 
-  responseQueue.add(
-    { response: "executeTask", payload: execute },
-    { removeOnComplete: true, removeOnFail: true }
+  taskExecute.handle(
+    execute,
+    dependencies.serverConfig,
+    dependencies.cache,
+    dependencies.scm,
+    dependencies.db
   );
 
-  responseQueue.close();
-
-  res.render(path + "repositories/executeTask", {
+  res.render(dependencies.viewsPath + "repositories/executeTask", {
     owner: req.body.owner,
     repository: req.body.repository
   });
