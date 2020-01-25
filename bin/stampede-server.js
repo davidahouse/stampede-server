@@ -7,6 +7,7 @@ const fs = require("fs");
 const cache = require("stampede-cache");
 const os = require("os");
 require("pkginfo")(module);
+const viewsPath = __dirname + "/../views/";
 
 // Internal modules
 const web = require("../lib/web");
@@ -86,23 +87,20 @@ if (
 // Initialize our cache
 cache.startCache(conf);
 
-// Start the webhook listener
-taskQueue.setRedisConfig({
+// Setup a redis config for our Queue system
+const redisConfig = {
   redis: {
     port: conf.redisPort,
     host: conf.redisHost,
     password: conf.redisPassword
   }
-});
+};
+
+// Start the webhook listener
+taskQueue.setRedisConfig(redisConfig);
 
 // Setup the notification queue(s)
-notification.setRedisConfig({
-  redis: {
-    port: conf.redisPort,
-    host: conf.redisHost,
-    password: conf.redisPassword
-  }
-});
+notification.setRedisConfig(redisConfig);
 notification.setNotificationQueues(conf.notificationQueues.split(","));
 
 // Setup our scm based on what is configured
@@ -160,4 +158,14 @@ async function gracefulShutdown() {
 }
 
 db.start(conf);
-web.startRESTApi(conf, cache, scm, db);
+
+const dependencies = {
+  serverConfig: conf,
+  cache: cache,
+  scm: scm,
+  db: db,
+  redisConfig: redisConfig,
+  viewsPath: viewsPath
+};
+
+web.startRESTApi(dependencies);

@@ -37,8 +37,10 @@ async function handle(req, res, cache, db, path) {
       taskQueue = uploadDetails.taskQueue;
     }
   } else {
-    for (let index = 0; index < taskDetails.config.length; index++) {
-      config.push({ key: taskDetails.config[index].key, value: "" });
+    if (taskDetails.config != null) {
+      for (let index = 0; index < taskDetails.config.length; index++) {
+        config.push({ key: taskDetails.config[index].key, value: "" });
+      }
     }
   }
 
