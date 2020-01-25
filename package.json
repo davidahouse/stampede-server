@@ -6,7 +6,7 @@
   "scripts": {
     "start": "bin/stampede-server.js",
     "test": "mocha",
-    "lint": "eslint --ignore-path .gitignore .",
+    "lint": "eslint --ignore-path .gitignore $(find . -name \"*.js\" -not -path \"./node_modules/*\" -not -path \"./public/*\")",
     "lint-fix": "eslint --fix --ignore-path .gitignore .",
     "dev": "nodemon bin/stampede-portal.js"
   },
