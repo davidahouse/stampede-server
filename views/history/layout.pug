@@ -1,0 +1,30 @@
+doctype html
+html
+
+  include ../components/navigationBar
+  include ../components/sideBar
+
+  head
+    title Stampede Portal
+
+    link(href="/css/styles.css", rel="stylesheet")
+    link(href="https://use.fontawesome.com/releases/v5.3.1/css/all.css", rel="stylesheet")
+    script(src="/js/jquery-3.3.1.js")
+    script(src="/js/Chart.bundle.js")
+  body(class="bg-gray-100 leading-normal tracking-normal mt-16")
+
+    //- Navigation bar
+    +navigationBar
+
+    //- Main content area
+    div(class="flex flex-col md:flex-row")
+
+      //- Sidebar
+      +sideBar('History')
+
+      //- Content area
+      div(class="main-content flex-1 bg-gray-100 mt-12 md:mt-2 pb-24 md:pb-5")
+          block content
+
+    script
+      include ../datahref.js

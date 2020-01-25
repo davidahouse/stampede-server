@@ -1,0 +1,15 @@
+extends ../layout
+include ../components/titleBar
+include ../components/tableHeader
+include ../components/tableCell
+include ../components/tableRow
+
+block content
+
+  +titleBar([{title: 'Repositories', href: '/repositories/activeBuilds'}, 
+    {title: build.owner + ' ' + build.repository, href: '/repositories/repositoryDetails?owner=' + build.owner + '&repository=' + build.repository},
+    {title: build.owner + '' + build.repository + ' #' + build.build, href: '/repositories/buildDetails?buildID=' + build.build_id},
+    {title: task.task}])
+  div(class="flex flex-wrap m-4")
+
+  h5 Task Requeued

@@ -1,0 +1,57 @@
+extends ../layout
+include ../components/titleBar
+include ../components/tableHeader
+include ../components/tableCell
+include ../components/tableRow
+include ../components/tableCellButton
+
+block content
+
+  +titleBar([{title: 'Active Builds', href: '/monitor/activeBuilds'}, {title: build.owner + '' + build.repository + ' #' + build.build}])
+  div(class="flex flex-wrap m-4")
+
+  div(class="w-full p-3")
+      div(class="bg-white border-transparent rounded-lg shadow-lg")
+        div(class="bg-gray-400 uppercase text-gray-800 border-b-2 border-gray-500 rounded-tl-lg rounded-tr-lg p-2")
+          h5(class="font-bold uppercase text-gray-600") Build Information
+        div(class="p-5")
+          table(class="table-auto w-full")
+            tbody
+              +tableRow()
+                +tableCell('Owner')
+                +tableCell(build.owner)
+              +tableRow()
+                +tableCell('Repository')
+                +tableCell(build.repository)
+              +tableRow()
+                +tableCell('Build Key')
+                +tableCell(build.build_key)
+              +tableRow()
+                +tableCell('Build #')
+                +tableCell(build.build)
+              +tableRow()
+                +tableCell('Status')
+                +tableCell(build.status)
+              +tableRow()
+                +tableCell('Started At')
+                +tableCell(build.started_at)
+
+  div(class="w-full p-3")
+      div(class="bg-white border-transparent rounded-lg shadow-lg")
+        div(class="bg-gray-400 uppercase text-gray-800 border-b-2 border-gray-500 rounded-tl-lg rounded-tr-lg p-2")
+          h5(class="font-bold uppercase text-gray-600") Tasks
+        div(class="p-5")
+          table(class="table-auto w-full")
+            thead
+              +tableHeader('Task ID')
+              +tableHeader('Title')
+              +tableHeader('Status')
+              +tableHeader('Duration')
+            tbody
+              each task, i in tasks
+                +tableRow(`/monitor/buildTaskDetails?taskID=` + task.task_id)
+                  +tableCell(task.task)
+                  +tableCell(task.title)
+                  +tableCell(task.status)
+                  +tableCell(prettyMilliseconds(task.duration))
+                  

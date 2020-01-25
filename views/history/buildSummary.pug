@@ -1,0 +1,55 @@
+extends layout
+include ../components/titleBar
+include ../components/tableRow
+include ../components/tableCell
+
+block content
+
+  +titleBar([{title: 'Build Summary'}])
+  div(class="flex flex-wrap m-4")
+
+    div(class="chart-container w-full")
+      canvas(id="buildSummary" height="100")
+        script.
+          var chartData = JSON.parse('!{JSON.stringify(data)}');
+          var ctx = document.getElementById('buildSummary').getContext('2d');
+          var myChart = new Chart(ctx, {
+          type: 'bar',
+          data: chartData,
+          options: {
+            responsive: true,
+              scales: {
+                  xAxes: [{
+                    stacked: true
+                  }],
+                  yAxes: [{
+                      ticks: {
+                          beginAtZero: true,
+                          stepSize: 1
+                      },
+                      stacked: true
+                  }]
+              }
+          }
+          });
+
+    table(class="table-auto w-full mt-4")
+      tbody
+        +tableRow()
+          +tableCell('# of Executions')
+          +tableCell(summary.total)
+        +tableRow()
+          +tableCell('# Success')
+          +tableCell(summary.success)
+        +tableRow()
+          +tableCell('# Failure')
+          +tableCell(summary.failure)
+        +tableRow()
+          +tableCell('Avg Duration (s)')
+          +tableCell(summary.avgDuration)
+        +tableRow()
+          +tableCell('Min Duration (s)')
+          +tableCell(summary.minDuration)
+        +tableRow()
+          +tableCell('Max Duration (s)')
+          +tableCell(summary.maxDuration)

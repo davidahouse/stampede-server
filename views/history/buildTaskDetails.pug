@@ -1,0 +1,63 @@
+extends ../layout
+include ../components/titleBar
+include ../components/tableHeader
+include ../components/tableCell
+include ../components/tableRow
+include ../components/infoCard
+include ../components/tableCellButton
+
+block content
+
+    +titleBar([{title: 'Builds', href: '/history/builds'}, 
+    {title: build.owner + '' + build.repository + ' #' + build.build, href: '/history/buildDetails?buildID=' + build.build_id},
+    {title: task.task}])
+    div(class="flex flex-wrap m-4")
+
+    +infoCard('Task Information')
+        table(class="table-auto w-full")
+            tbody
+              +tableRow()
+                +tableCell('Task')
+                +tableCell(task.task)
+              +tableRow()
+                +tableCell('Conclusion')
+                +tableCell(task.conclusion)
+              +tableRow()
+                +tableCell('Node')
+                +tableCell(task.node)
+              +tableRow()
+                +tableCellButton('Requeue', '/history/requeueTask?taskID=' + task.task_id)
+                +tableCell('')
+
+
+    +infoCard('Task Config')
+        table(class="table-auto w-full")
+            thead
+              +tableHeader('Config Parameter')
+              +tableHeader('Source')
+              +tableHeader('Value')
+            tbody
+                each config, i in configValues
+                    +tableRow()
+                        +tableCell(config.key)
+                        +tableCell(config.source)
+                        +tableCell(config.value)
+
+
+    if taskDetails.details.result
+        +infoCard('Task Results')
+            table(class="table-auto w-full")
+                tbody
+                    +tableRow()
+                        +tableCell('Conclusion')
+                        +tableCell(taskDetails.details.result.conclusion)
+                    +tableRow()
+                        +tableCell('Title')
+                        +tableCell(taskDetails.details.result.title)
+                    +tableRow()
+                        +tableCell('Summary')
+                        +tableCell(taskDetails.details.result.summary)
+                    +tableRow()
+                        +tableCell('Text')
+                        +tableCell(taskDetails.details.result.text)
+                        

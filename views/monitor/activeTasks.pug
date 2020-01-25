@@ -1,0 +1,28 @@
+extends ../layout
+include ../components/titleBar
+include ../components/tableHeader
+include ../components/tableCell
+include ../components/tableRow
+
+block content
+
+  +titleBar([{title: 'Active Tasks'}])
+  div(class="flex flex-wrap m-4")
+
+    table(class="table-auto w-full")
+      thead
+        +tableHeader('Owner')
+        +tableHeader('Repo')
+        +tableHeader('Build')
+        +tableHeader('Task ID')
+        +tableHeader('Status')
+        +tableHeader('Duration')
+      tbody
+        each task, i in tasks
+          +tableRow(`/monitor/buildDetails?buildID=` + task.build_id)
+            +tableCell(task.owner)
+            +tableCell(task.repository)
+            +tableCell(task.build_key + ' ' + task.build)
+            +tableCell(task.task)
+            +tableCell(task.status)
+            +tableCell(prettyMilliseconds(task.duration))

@@ -10,22 +10,32 @@ require("pkginfo")(module);
 
 // Internal modules
 const web = require("../lib/web");
-const config = require("../lib/config");
 const taskQueue = require("../lib/taskQueue");
 const taskUpdate = require("../lib/taskUpdate");
 const taskExecute = require("../lib/taskExecute");
 const notification = require("../lib/notification");
+const db = require("../lib/db");
 
 const conf = require("rc")("stampede", {
-  // defaults
+  // redis
   redisHost: "localhost",
   redisPort: 6379,
   redisPassword: null,
+  // web
   webPort: 7766,
+  // Github
   githubAppID: 0,
   githubAppPEMPath: null,
   githubAppPEM: null,
   githubHost: null,
+  // Postgres
+  dbHost: "localhost",
+  dbDatabase: "stampede",
+  dbUser: "postgres",
+  dbPassword: null,
+  dbPort: 54320,
+  dbCert: null,
+  // Misc
   responseQueue: "response",
   notificationQueues: "",
   stampedeFileName: ".stampede.yaml",
@@ -120,11 +130,13 @@ responseQueue.on("error", function(error) {
 responseQueue.process(function(job) {
   console.log("--- response: " + job.data.response);
   if (job.data.response === "taskUpdate") {
-    return taskUpdate.handle(job.data.payload, conf, cache, scm);
+    return taskUpdate.handle(job.data.payload, conf, cache, scm, db);
   } else if (job.data.response === "heartbeat") {
     cache.storeWorkerHeartbeat(job.data.payload);
     notification.workerHeartbeat(job.data.payload);
   } else if (job.data.response === "executeTask") {
+    // REFACTOR:
+    // This can be removed since we will handle this directly
     return taskExecute.handle(job.data.payload, conf, cache, scm);
   }
 });
@@ -142,9 +154,10 @@ process.on("SIGINT", function() {
 async function gracefulShutdown() {
   console.log("Closing queues");
   await responseQueue.close();
+  await db.stop();
   await cache.stopCache();
   process.exit(0);
 }
 
-web.startRESTApi(conf, cache, scm);
-config.initialize(conf, cache);
+db.start(conf);
+web.startRESTApi(conf, cache, scm, db);
