@@ -1,9 +1,9 @@
-'use strict';
+"use strict";
 
-const chalk = require('chalk');
+const chalk = require("chalk");
 
-const checkRun = require('../lib/checkRun');
-const notification = require('../lib/notification');
+const checkRun = require("../lib/checkRun");
+const notification = require("../lib/notification");
 
 /**
  * handle event
@@ -12,21 +12,21 @@ const notification = require('../lib/notification');
  * @param {*} cache
  * @return {Object} response to the event
  */
-async function handle(req, serverConf, cache, scm) {
+async function handle(req, serverConf, cache, scm, db) {
   // Parse the incoming body into the parts we care about
   const event = parseEvent(req);
-  console.log(chalk.green('--- CheckSuiteEvent:'));
+  console.log(chalk.green("--- CheckSuiteEvent:"));
   console.dir(event);
-  notification.repositoryEventReceived('check_suite', event);
+  notification.repositoryEventReceived("check_suite", event);
 
   // Ignore check_suite events not for this app
   if (event.appID !== parseInt(serverConf.githubAppID)) {
-    return { status: 'ignored, not our app id' };
+    return { status: "ignored, not our app id" };
   }
 
   // Ignore actions we don't care about
-  if (event.action !== 'requested' && event.action !== 'rerequested') {
-    return { status: 'ignored, not an action we respond to' };
+  if (event.action !== "requested" && event.action !== "rerequested") {
+    return { status: "ignored, not an action we respond to" };
   }
 
   // Create the check runs
@@ -40,10 +40,11 @@ async function handle(req, serverConf, cache, scm) {
       event.sshURL,
       scm,
       cache,
-      serverConf
+      serverConf,
+      db
     );
   }
-  return { status: 'check runs created' };
+  return { status: "check runs created" };
 }
 
 /**
@@ -53,7 +54,7 @@ async function handle(req, serverConf, cache, scm) {
  */
 function parseEvent(req) {
   const fullName = req.body.repository.full_name;
-  const parts = fullName.split('/');
+  const parts = fullName.split("/");
   const owner = parts[0];
   const repo = parts[1];
   return {

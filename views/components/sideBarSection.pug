@@ -1,0 +1,9 @@
+include sideBarItem
+
+mixin sideBarSection(title, icon, items)
+    li(class="mr-3 flex-1") 
+        span(class="pb-1 md:pb-0 md:text-base text-gray-600 md:text-gray-400 block md:inline-block")= title
+
+        ul(class="list-reset flex flex-row md:flex-col py-0 px-4 md:px-2 text-center md:text-left")
+        each item, i in items
+            +sideBarItem(item)

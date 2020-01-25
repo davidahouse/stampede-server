@@ -1,0 +1,67 @@
+extends ../layout
+include ../components/titleBar
+include ../components/tableHeader
+include ../components/tableCell
+include ../components/tableRow
+include ../components/infoCard
+
+block content
+
+  +titleBar([{title: 'Workers', href: '/monitor/workers'}, {title: worker.workerName}])
+  div(class="flex flex-wrap m-4")
+
+  +infoCard('Worker Information')
+    table(class="table-auto w-full")
+      tbody
+        +tableRow()
+          +tableCell('Timestamp')
+          +tableCell(worker.timestamp)
+        +tableRow()
+          +tableCell('Node')
+          +tableCell(worker.node)
+        +tableRow()
+          +tableCell('Name')
+          +tableCell(worker.workerName)
+        +tableRow()
+          +tableCell('Version')
+          +tableCell(worker.version)
+        +tableRow()
+          +tableCell('Status')
+          +tableCell(worker.status)
+        +tableRow()
+          +tableCell('Task Queue')
+          +tableCell(worker.taskQueue)
+
+  if worker.lastTask
+    +infoCard('Task Info')
+      table(class="table-auto w-full")
+        tbody
+          +tableRow()
+            +tableCell('Owner')
+            +tableCell(worker.lastTask.owner)
+          +tableRow()
+            +tableCell('Repository')
+            +tableCell(worker.lastTask.repository)
+          +tableRow()
+            +tableCell('Task ID')
+            +tableCell(worker.lastTask.taskID)
+          +tableRow()
+            +tableCell('Status')
+            +tableCell(worker.lastTask.status)
+
+  if worker.lastTask.result
+    +infoCard('Task Result')
+      table(class="table-auto w-full")
+        tbody
+          +tableRow()
+            +tableCell('Conclusion')
+            +tableCell(worker.lastTask.result.conclusion)
+          +tableRow()
+            +tableCell('Title')
+            +tableCell(worker.lastTask.result.title)
+          +tableRow()
+            +tableCell('Summary')
+            +tableCell(worker.lastTask.result.summary)
+          +tableRow()
+            +tableCell('Text')
+            +tableCell(worker.lastTask.result.text)

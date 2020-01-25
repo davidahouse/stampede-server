@@ -1,0 +1,18 @@
+extends ../layout
+include ../components/titleBar
+include ../components/tableHeader
+include ../components/tableCell
+include ../components/tableRow
+include ../components/tableCellButton
+include ../components/formSelect
+include ../components/formInput
+include ../components/formHidden
+
+block content
+
+  +titleBar([{title: 'Repositories', href: '/repositories'},
+  {title: owner + ' ' + repository, href: '/repositories/repositoryDetails?owner=' + owner + '&repository=' + repository},
+  {title: "Execute Task Confirmation"}])
+  div(class="flex flex-wrap m-4")
+
+    p Task submitted for execution

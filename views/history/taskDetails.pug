@@ -1,0 +1,91 @@
+extends ../layout
+include ../components/titleBar
+include ../components/tableHeader
+include ../components/tableCell
+include ../components/tableRow
+include ../components/infoCard
+
+block content
+
+  +titleBar([{title: 'Tasks', href: '/history/tasks'}, {title: task.task}])
+  div(class="flex flex-wrap m-4")
+
+    +infoCard('Task Information')
+        table(class="table-auto w-full")
+            tbody
+              +tableRow()
+                +tableCell('Task')
+                +tableCell(task.task)
+              +tableRow()
+                +tableCell('Conclusion')
+                +tableCell(task.conclusion)
+              +tableRow()
+                +tableCell('Node')
+                +tableCell(task.node)
+              +tableRow()
+                +tableCell('Started')
+                +tableCell(task.started_at)
+              +tableRow()
+                +tableCell('Finished')
+                +tableCell(task.finished_at)
+
+    +infoCard('Build Information')
+        table(class="table-auto w-full")
+          tbody
+            +tableRow()
+              +tableCell('Owner')
+              +tableCell(build.owner)
+            +tableRow()
+              +tableCell('Repository')
+              +tableCell(build.repository)
+            +tableRow()
+              +tableCell('Build Key')
+              +tableCell(build.build_key)
+            +tableRow()
+              +tableCell('Build #')
+              +tableCell(build.build)
+            +tableRow()
+              +tableCell('Status')
+              +tableCell(build.status)
+            +tableRow()
+              +tableCell('Started At')
+              +tableCell(build.started_at)
+
+    +infoCard('Task Config')
+        table(class="table-auto w-full")
+            thead
+              +tableHeader('Config Parameter')
+              +tableHeader('Source')
+              +tableHeader('Value')
+            tbody
+                each config, i in configValues
+                    +tableRow()
+                        +tableCell(config.key)
+                        +tableCell(config.source)
+                        +tableCell(config.value)
+
+
+    if taskDetails.details.result
+        +infoCard('Task Results')
+            table(class="table-auto w-full")
+                tbody
+                    +tableRow()
+                        +tableCell('Conclusion')
+                        +tableCell(taskDetails.details.result.conclusion)
+                    +tableRow()
+                        +tableCell('Title')
+                        +tableCell(taskDetails.details.result.title)
+
+        +infoCard('Summary')
+          div(id="task-result-summary")
+          script.
+            document.getElementById('task-result-summary').innerHTML =
+              marked('!{summary}', {gfm: true});
+
+        +infoCard('Text')
+          div(id="task-result-text")
+          data(id="task-result-text-data")
+            = text
+          script.
+            document.getElementById('task-result-text').innerHTML =
+              marked(document.getElementById('task-result-text-data'), {gfm: true});

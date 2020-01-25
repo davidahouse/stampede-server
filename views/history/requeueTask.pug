@@ -1,0 +1,14 @@
+extends ../layout
+include ../components/titleBar
+include ../components/tableHeader
+include ../components/tableCell
+include ../components/tableRow
+
+block content
+
+  +titleBar([{title: 'Builds', href: '/history/builds'}, 
+    {title: build.owner + '' + build.repository + ' #' + build.build, href: '/history/buildDetails?buildID=' + build.build_id},
+    {title: task.task}])
+  div(class="flex flex-wrap m-4")
+
+  h5 Task Requeued

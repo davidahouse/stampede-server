@@ -1,0 +1,4 @@
+mixin sideBarItem(item)
+
+  li(class=`mr-2 flex-1 ` + item.class)
+    a(class="block px-4 pl-1 align-middle text-white no-underline hover:text-white hover:text-red-500" href=`` + item.href)= item.title
