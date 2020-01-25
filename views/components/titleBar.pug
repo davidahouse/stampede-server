@@ -1,0 +1,10 @@
+mixin titleBar(breadcrumbs)
+
+    div(class="bg-blue-800 p-2 shadow text-xl text-white flex")
+        each crumb, i in breadcrumbs
+            if i < breadcrumbs.length-1
+                h3(class="font-bold pl-2 underline")
+                    a(href=`` + crumb.href)= `` + crumb.title
+                p= ` > `
+            else
+                h3(class="font-bold pl-2")= crumb.title

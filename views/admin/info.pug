@@ -1,0 +1,17 @@
+extends ../layout
+
+include ../components/titleBar
+include ../components/tableHeader
+include ../components/tableCell
+include ../components/tableRow
+
+block content
+
+  +titleBar([{title: 'Info'}])
+  div(class="flex flex-wrap m-4")
+
+  table(class="table-auto w-full")
+      tbody
+        +tableRow()
+          +tableCell('Version')
+          +tableCell(version)

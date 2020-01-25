@@ -1,0 +1,39 @@
+doctype html
+html
+  head
+    title Stampede Portal
+
+    link(href="/css/bootstrap.min.css", rel="stylesheet")
+    link(href="/css/styles.css", rel="stylesheet")
+    script(src="/js/jquery-3.3.1.js")
+    script(src="/js/popper.min.js")
+    script(src="/js/bootstrap.min.js")
+  body
+    nav(class="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow")
+      a(class="navbar-brand col-sm-3 col-md-2 mr-0" href="/") Stampede Portal
+      ul(class="navbar-nav px-3")
+        li(class="nav-item text-nowrap")
+          a(class="nav-link text-light" href="/logout")
+            =`Logout`
+
+    div(class="container-fluid")
+      div(class="row")
+        nav(class="col-md-2 d-none d-md-block bg-light sidebar")
+          div(class="sidebar-sticky")
+            ul(class="nav flex-column")
+              li(class="nav-item active")
+                a(class="nav-link" href="/repositories")
+                  =`> Repositories`
+              li(class="nav-item")
+                a(class="nav-link" href="/monitor")
+                  =`Monitor`
+              li(class="nav-item")                
+                a(class="nav-link" href="/history")
+                  =`History`
+              li(class="nav-item")                
+                a(class="nav-link" href="/admin")
+                  =`Admin`
+
+        main(class="col-md-9 ml-sm-auto col-lg-10 px-4" role="main")
+          br
+          block content

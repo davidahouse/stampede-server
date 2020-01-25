@@ -9,7 +9,7 @@ const notification = require("../lib/notification");
  * @param {*} serverConf
  * @param {*} cache
  */
-async function handle(req, serverConf, cache, scm) {
+async function handle(req, serverConf, cache, scm, db) {
   // Parse the incoming body into the parts we care about
   const event = parseEvent(req);
   console.log("--- CheckRunEvent:");
@@ -32,7 +32,8 @@ async function handle(req, serverConf, cache, scm) {
         event.sshURL,
         scm,
         cache,
-        serverConf
+        serverConf,
+        db
       );
     }
   } else {

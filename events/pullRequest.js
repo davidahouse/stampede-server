@@ -13,7 +13,7 @@ const build = require("../lib/build");
  * @param {*} serverConf
  * @param {*} cache
  */
-async function handle(req, serverConf, cache, scm) {
+async function handle(req, serverConf, cache, scm, db) {
   // Parse the incoming body into the parts we care about
   const event = parseEvent(req);
   console.log("--- PullRequestEvent:");
@@ -34,7 +34,8 @@ async function handle(req, serverConf, cache, scm) {
       event.sshURL,
       scm,
       cache,
-      serverConf
+      serverConf,
+      db
     );
     return { status: "pull request tasks created" };
   } else if (event.action === "edited") {
@@ -47,7 +48,8 @@ async function handle(req, serverConf, cache, scm) {
       event.sshURL,
       scm,
       cache,
-      serverConf
+      serverConf,
+      db
     );
   } else {
     return { status: "ignored, pull request not opened or reopened" };
@@ -92,6 +94,7 @@ function parseEvent(req) {
  * @param {*} scm
  * @param {*} cache
  * @param {*} serverConf
+ * @param {*} db
  */
 async function pullRequestEdit(
   owner,
@@ -102,7 +105,8 @@ async function pullRequestEdit(
   sshURL,
   scm,
   cache,
-  serverConf
+  serverConf,
+  db
 ) {
   console.log(
     chalk.green(
@@ -185,7 +189,8 @@ async function pullRequestEdit(
     repoConfig.pullrequestedit,
     repoConfig.pullrequestedit.tasks,
     cache,
-    serverConf
+    serverConf,
+    db
   );
 }
 

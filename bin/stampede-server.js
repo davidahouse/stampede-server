@@ -7,25 +7,36 @@ const fs = require("fs");
 const cache = require("stampede-cache");
 const os = require("os");
 require("pkginfo")(module);
+const viewsPath = __dirname + "/../views/";
 
 // Internal modules
 const web = require("../lib/web");
-const config = require("../lib/config");
 const taskQueue = require("../lib/taskQueue");
 const taskUpdate = require("../lib/taskUpdate");
 const taskExecute = require("../lib/taskExecute");
 const notification = require("../lib/notification");
+const db = require("../lib/db");
 
 const conf = require("rc")("stampede", {
-  // defaults
+  // redis
   redisHost: "localhost",
   redisPort: 6379,
   redisPassword: null,
+  // web
   webPort: 7766,
+  // Github
   githubAppID: 0,
   githubAppPEMPath: null,
   githubAppPEM: null,
   githubHost: null,
+  // Postgres
+  dbHost: "localhost",
+  dbDatabase: "stampede",
+  dbUser: "postgres",
+  dbPassword: null,
+  dbPort: 54320,
+  dbCert: null,
+  // Misc
   responseQueue: "response",
   notificationQueues: "",
   stampedeFileName: ".stampede.yaml",
@@ -76,23 +87,20 @@ if (
 // Initialize our cache
 cache.startCache(conf);
 
-// Start the webhook listener
-taskQueue.setRedisConfig({
+// Setup a redis config for our Queue system
+const redisConfig = {
   redis: {
     port: conf.redisPort,
     host: conf.redisHost,
     password: conf.redisPassword
   }
-});
+};
+
+// Start the webhook listener
+taskQueue.setRedisConfig(redisConfig);
 
 // Setup the notification queue(s)
-notification.setRedisConfig({
-  redis: {
-    port: conf.redisPort,
-    host: conf.redisHost,
-    password: conf.redisPassword
-  }
-});
+notification.setRedisConfig(redisConfig);
 notification.setNotificationQueues(conf.notificationQueues.split(","));
 
 // Setup our scm based on what is configured
@@ -120,11 +128,13 @@ responseQueue.on("error", function(error) {
 responseQueue.process(function(job) {
   console.log("--- response: " + job.data.response);
   if (job.data.response === "taskUpdate") {
-    return taskUpdate.handle(job.data.payload, conf, cache, scm);
+    return taskUpdate.handle(job.data.payload, conf, cache, scm, db);
   } else if (job.data.response === "heartbeat") {
     cache.storeWorkerHeartbeat(job.data.payload);
     notification.workerHeartbeat(job.data.payload);
   } else if (job.data.response === "executeTask") {
+    // REFACTOR:
+    // This can be removed since we will handle this directly
     return taskExecute.handle(job.data.payload, conf, cache, scm);
   }
 });
@@ -142,9 +152,20 @@ process.on("SIGINT", function() {
 async function gracefulShutdown() {
   console.log("Closing queues");
   await responseQueue.close();
+  await db.stop();
   await cache.stopCache();
   process.exit(0);
 }
 
-web.startRESTApi(conf, cache, scm);
-config.initialize(conf, cache);
+db.start(conf);
+
+const dependencies = {
+  serverConfig: conf,
+  cache: cache,
+  scm: scm,
+  db: db,
+  redisConfig: redisConfig,
+  viewsPath: viewsPath
+};
+
+web.startRESTApi(dependencies);

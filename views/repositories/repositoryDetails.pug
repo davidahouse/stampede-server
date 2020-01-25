@@ -1,0 +1,82 @@
+extends ../layout
+include ../components/titleBar
+include ../components/tableHeader
+include ../components/tableCell
+include ../components/tableRow
+include ../components/tableCellButton
+
+block content
+
+  +titleBar([{title: 'Repositories', href: '/repositories'},
+  {title: owner + ' ' + repository}])
+  div(class="flex flex-wrap m-4")
+
+  div(class="w-full p-3")
+      div(class="bg-white border-transparent rounded-lg shadow-lg")
+        div(class="bg-gray-400 uppercase text-gray-800 border-b-2 border-gray-500 rounded-tl-lg rounded-tr-lg p-2")
+          h5(class="font-bold uppercase text-gray-600") Repository Information
+        div(class="p-5")
+          table(class="table-auto w-full")
+            tbody
+              +tableRow()
+                +tableCell('Next Build Number')
+                +tableCell(nextBuildNumber)
+                +tableCellButton("Change", "/repositories")
+              +tableRow()
+                +tableCell('Config Source')
+                +tableCell(configSource)
+                +tableCellButton(configSourceAction, `/repositories/` + configSourceDestination + `?owner=` + owner + `&repository=` + repository + `&configSource=` + configSource)
+              +tableRow()
+                +tableCell('Org Config Defaults')
+                +tableCell(orgDefaultStatus)
+                +tableCellButton("View", `/repositories/viewOrgConfigDefaults` + `?owner=` + owner + `&repository=` + repository)
+              +tableRow()
+                +tableCell('Org Config Overrides')
+                +tableCell(orgOverrideStatus)
+                +tableCellButton("View", `/repositories/viewOrgConfigOverrides` + `?owner=` + owner + `&repository=` + repository)
+              +tableRow()
+                +tableCell('Repository Config Defaults')
+                +tableCell(repoDefaultStatus)
+                +tableCellButton("View", `/repositories/viewRepoConfigDefaults` + `?owner=` + owner + `&repository=` + repository)
+              +tableRow()
+                +tableCell('Repository Config Overrides')
+                +tableCell(repoOverrideStatus)
+                +tableCellButton("View", `/repositories/viewRepoConfigOverrides` + `?owner=` + owner + `&repository=` + repository)
+              +tableRow()
+                +tableCell('Manually Execute Task')
+                +tableCell('')
+                +tableCellButton("Start", `/repositories/executeTaskSelection?owner=` + owner + `&repository=` + repository)
+
+  div(class="w-full p-3")
+      div(class="bg-white border-transparent rounded-lg shadow-lg")
+        div(class="bg-gray-400 uppercase text-gray-800 border-b-2 border-gray-500 rounded-tl-lg rounded-tr-lg p-2")
+          h5(class="font-bold uppercase text-gray-600") Active Builds
+        div(class="p-5")
+          table(class="table-auto w-full")
+              thead
+                +tableHeader('Build')
+                +tableHeader('Build #')
+                +tableHeader('Started At')
+              each build, i in activeBuilds
+                tbody
+                  +tableRow(`/repositories/buildDetails?buildID=` + build.build_id)
+                    +tableCell(build.build_key)
+                    +tableCell(build.build)
+                    +tableCell(build.started_at)
+
+  div(class="w-full p-3")
+      div(class="bg-white border-transparent rounded-lg shadow-lg")
+        div(class="bg-gray-400 uppercase text-gray-800 border-b-2 border-gray-500 rounded-tl-lg rounded-tr-lg p-2")
+          h5(class="font-bold uppercase text-gray-600") Recent Builds
+        div(class="p-5")
+          table(class="table-auto w-full")
+              thead
+                +tableHeader('Build')
+                +tableHeader('Build #')
+                +tableHeader('Completed At')
+              each build, i in recentBuilds
+                tbody
+                  +tableRow(`/repositories/buildDetails?buildID=` + build.build_id)
+                    +tableCell(build.build_key)
+                    +tableCell(build.build)
+                    +tableCell(build.completed_at)

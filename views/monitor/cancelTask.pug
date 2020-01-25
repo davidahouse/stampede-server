@@ -1,0 +1,15 @@
+extends ../layout
+include ../components/titleBar
+include ../components/tableHeader
+include ../components/tableCell
+include ../components/tableRow
+
+block content
+
+  +titleBar([{title: 'Active Builds', href: '/monitor/activeBuilds'},
+  {title: build.owner + '' + build.repository + ' #' + build.build, href: '/monitor/buildDetails?buildID=' + build.build_id},
+  {title: task.task_id}
+  ])
+  div(class="flex flex-wrap m-4")
+
+  h5 Task Cancelled

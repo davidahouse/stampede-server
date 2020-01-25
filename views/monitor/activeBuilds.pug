@@ -1,0 +1,27 @@
+extends ../layout
+include ../components/titleBar
+include ../components/tableHeader
+include ../components/tableCell
+include ../components/tableRow
+
+block content
+
+  +titleBar([{title: 'Active Builds'}])
+  div(class="flex flex-wrap m-4")
+
+    table(class="table-auto w-full")
+      thead
+        tr
+          +tableHeader('Owner')
+          +tableHeader('Repository')
+          +tableHeader('Build Key')
+          +tableHeader('Build #')
+          +tableHeader('Duration')
+      tbody
+        each build, i in builds
+          +tableRow(`/monitor/buildDetails?buildID=` + build.build_id)
+            +tableCell(build.owner)
+            +tableCell(build.repository)
+            +tableCell(build.build_key)
+            +tableCell(build.build)
+            +tableCell(prettyMilliseconds(new Date() - build.started_at))
