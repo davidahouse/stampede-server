@@ -1,0 +1,21 @@
+extends ../layout
+include ../components/titleBar
+include ../components/tableHeader
+include ../components/tableCell
+include ../components/tableRow
+
+block content
+
+  +titleBar([{title: 'Queues'}])
+  div(class="flex flex-wrap m-4")
+
+    table(class="table-auto w-full")
+      thead
+        tr
+          +tableHeader('Queue')
+          +tableHeader('Tasks Waiting')
+      tbody
+        each queue, i in queues
+          +tableRow()
+            +tableCell(queue.queue)
+            +tableCell(queue.stats.waiting.toString())

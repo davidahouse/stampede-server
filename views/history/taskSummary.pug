@@ -1,0 +1,76 @@
+extends layout
+include ../components/titleBar
+include ../components/formSelect
+include ../components/infoCard
+include ../components/tableRow
+include ../components/tableCell
+
+block content
+
+  +titleBar([{title: 'Task Summary'}])
+
+  div(class="flex flex-wrap m-4")
+      form(class="w-full m-4" method="GET" action="/history/taskSummary")
+        div(class="flex -mx-3 mb-6")
+          div(class="w-1/2 px-3 mb-6 md:mb-0")
+            +formSelect("Time", "time", timeFilterList, timeFilter)
+          div(class="w-1/2 px-3 mb-6 md:mb-0")
+            +formSelect("Repository", "repository", repositoryList, repositoryFilter)
+        div(class="w-1/4 px-3 mb-6 md:mb-0")
+          button(class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded") Filter
+
+  hr
+
+  div(class="flex flex-wrap m-4")
+
+    each graph, i in graphs
+
+      +infoCard(graph.task)
+        if graph.summary.total > 0
+          div(class="chart-container w-full")
+            canvas(id=``+graph.task height="100")
+              script.
+                var chartData = JSON.parse('!{JSON.stringify(graph.data)}');
+                var ctx = document.getElementById('!{graph.task}').getContext('2d');
+                var myChart = new Chart(ctx, {
+                type: 'bar',
+                data: chartData,
+                options: {
+                  responsive: true,
+                    scales: {
+                        xAxes: [{
+                          ticks: {
+                            display: false //this will remove only the label
+                          }
+                        }],
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true,
+                            }
+                        }]
+                    }
+                }
+                });
+
+          table(class="table-auto w-full mt-4")
+            tbody
+              +tableRow()
+                +tableCell('# of Executions')
+                +tableCell(graph.summary.total)
+              +tableRow()
+                +tableCell('# Success')
+                +tableCell(graph.summary.success)
+              +tableRow()
+                +tableCell('# Failure')
+                +tableCell(graph.summary.failure)
+              +tableRow()
+                +tableCell('Avg Duration (s)')
+                +tableCell(graph.summary.avgDuration)
+              +tableRow()
+                +tableCell('Min Duration (s)')
+                +tableCell(graph.summary.minDuration)
+              +tableRow()
+                +tableCell('Max Duration (s)')
+                +tableCell(graph.summary.maxDuration)
+        else
+          p No task executions found with this filter criteria

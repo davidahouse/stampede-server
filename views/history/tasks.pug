@@ -1,0 +1,49 @@
+extends ../layout
+include ../components/titleBar
+include ../components/tableHeader
+include ../components/tableCell
+include ../components/tableRow
+include ../components/tableCellButton
+include ../components/formSelect
+
+block content
+
+  +titleBar([{title: 'Tasks'}])
+
+  div(class="flex flex-wrap m-4")
+    form(class="w-full m-4" method="GET" action="/history/tasks")
+      div(class="flex -mx-3 mb-6")
+        div(class="w-1/5 px-3 mb-6 md:mb-0")
+          +formSelect("Time", "time", timeFilterList, timeFilter)
+        div(class="w-1/5 px-3 mb-6 md:mb-0")
+          +formSelect("Task", "task", taskList, taskFilter)
+        div(class="w-1/5 px-3 mb-6 md:mb-0")
+          +formSelect("Repository", "repository", repositoryList, repositoryFilter)
+        div(class="w-1/5 px-3 mb-6 md:mb-0")
+          +formSelect("Conclusion", "conclusion", conclusionList, conclusionFilter)
+        div(class="w-1/5 px-3 mb-6 md:mb-0")
+          +formSelect("Node", "node", nodeList, nodeFilter)
+        div(class="w-1/5 px-3 mb-6 md:mb-0")
+          +formSelect("Sort", "sorted", sortList, sorted)
+      div(class="w-1/4 px-3 mb-6 md:mb-0")
+        button(class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded") Filter
+
+  hr
+
+  div(class="flex flex-wrap m-4")
+    table(class="table-auto w-full")
+      thead
+        tr
+          +tableHeader('Owner')
+          +tableHeader('Repository')
+          +tableHeader('Task')
+          +tableHeader('Conclusion')
+          +tableHeader('Node')
+      tbody
+        each task, i in tasks
+          +tableRow(`/history/taskDetails?taskID=` + task.task_id)
+            +tableCell(task.owner)
+            +tableCell(task.repository)
+            +tableCell(task.task)
+            +tableCell(task.conclusion)
+            +tableCell(task.node)

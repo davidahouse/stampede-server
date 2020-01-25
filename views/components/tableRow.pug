@@ -1,0 +1,7 @@
+mixin tableRow(href)
+    if href != null
+        tr(class="hover:bg-gray-300" data-href=`` + href)
+            block
+    else
+        tr(class="")
+            block

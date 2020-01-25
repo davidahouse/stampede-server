@@ -1,0 +1,86 @@
+extends layout
+include ../components/titleBar
+include ../components/formSelect
+include ../components/infoCard
+include ../components/infoCardPair
+include ../components/tableRow
+include ../components/tableCell
+
+block content
+
+  +titleBar([{title: 'Daily Summary'}])
+
+  div(class="flex flex-wrap m-4")
+    +infoCardPair('Yesterday')
+      table(class="table-auto w-full")
+        tbody
+          +tableRow()
+            +tableCell('Build(s)')
+            +tableCell(yesterdayBuilds)
+          +tableRow()
+            +tableCell('Task(s)')
+            +tableCell(yesterdayTasks)
+
+    +infoCardPair('Today')
+      table(class="table-auto w-full")
+        tbody
+          +tableRow()
+            +tableCell('Build(s)')
+            +tableCell(todayBuilds)
+          +tableRow()
+            +tableCell('Task(s)')
+            +tableCell(todayTasks)
+  
+  div(class="flex flex-wrap m-4")
+    +infoCard("Builds")
+      div(class="chart-container w-full")
+        canvas(id="builds-chart" height="100")
+          script.
+            var chartData = JSON.parse('!{JSON.stringify(builds)}');
+            var ctx = document.getElementById('builds-chart').getContext('2d');
+            var myChart = new Chart(ctx, {
+            type: 'bar',
+            data: chartData,
+            options: {
+              responsive: true,
+                scales: {
+                    xAxes: [{
+                      ticks: {
+                        display: false //this will remove only the label
+                      }
+                    }],
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true,
+                        }
+                    }]
+                }
+            }
+            });
+
+  div(class="flex flex-wrap m-4")
+    +infoCard("Tasks")
+      div(class="chart-container w-full")
+        canvas(id="tasks-chart" height="100")
+          script.
+            var chartData = JSON.parse('!{JSON.stringify(tasks)}');
+            var ctx = document.getElementById('tasks-chart').getContext('2d');
+            var myChart = new Chart(ctx, {
+            type: 'bar',
+            data: chartData,
+            options: {
+              responsive: true,
+                scales: {
+                    xAxes: [{
+                      ticks: {
+                        display: false //this will remove only the label
+                      }
+                    }],
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true,
+                        }
+                    }]
+                }
+            }
+            });

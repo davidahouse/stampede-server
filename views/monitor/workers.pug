@@ -1,0 +1,27 @@
+extends ../layout
+include ../components/titleBar
+include ../components/tableHeader
+include ../components/tableCell
+include ../components/tableRow
+
+block content
+
+  +titleBar([{title: 'Workers'}])
+  div(class="flex flex-wrap m-4")
+
+    table(class="table-auto w-full")
+      thead
+        tr
+          +tableHeader('Node')
+          +tableHeader('Worker Name')
+          +tableHeader('Status')
+          +tableHeader('Task Queue')
+          +tableHeader('Last Status')
+      tbody
+        each worker, i in workers
+          +tableRow(`/monitor/workerDetails?workerID=` + worker.workerID)
+            +tableCell(worker.node)
+            +tableCell(worker.workerName)
+            +tableCell(worker.status)
+            +tableCell(worker.taskQueue)
+            +tableCell(prettyMilliseconds(new Date() - Date.parse(worker.timestamp)))
