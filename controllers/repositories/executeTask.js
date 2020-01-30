@@ -29,10 +29,14 @@ async function handle(req, res, dependencies) {
     scmConfig.pullRequest = {
       number: req.body["pr number"],
       title: req.body["pr title"],
-      headRef: req.body["head ref"],
-      headSha: req.body["head sha"],
-      baseRef: req.body["base ref"],
-      baseSha: req.body["base sha"]
+      head: {
+        ref: req.body["head ref"],
+        sha: req.body["head sha"]
+      },
+      base: {
+        ref: req.body["base ref"],
+        sha: req.body["base sha"]
+      }
     };
   } else if (req.body.buildType === "Branch") {
     scmConfig.branch = {
