@@ -25,7 +25,7 @@ async function handle(req, serverConf, cache, scm, db) {
   }
 
   // Ignore actions we don't care about
-  if (event.action !== "requested" && event.action !== "rerequested") {
+  if (event.action !== "rerequested") {
     return { status: "ignored, not an action we respond to" };
   }
 
