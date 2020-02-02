@@ -7,12 +7,9 @@
  * @param {*} path
  */
 async function handle(req, res, cache, db, path) {
-  const success = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-  const failure = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+  const total = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
   const summary = {
     total: 0,
-    success: 0,
-    failure: 0,
     totalDuration: 0.0,
     avgDuration: 0.0,
     minDuration: 99999.99,
@@ -24,15 +21,8 @@ async function handle(req, res, cache, db, path) {
   for (let index = 0; index < recentBuilds.length; index++) {
     const ageInMs = Date.now() - recentBuilds[index].completed_at;
     const ageInHours = Math.round(ageInMs / 1000 / 60 / 60);
-    if (recentBuilds[index].status === "completed") {
-      success[success.length - 1 - ageInHours] =
-        success[success.length - 1 - ageInHours] + 1;
-      summary.success = summary.success + 1;
-    } else {
-      failure[failure.length - 1 - ageInHours] =
-        failure[failure.length - 1 - ageInHours] + 1;
-      summary.failure = summary.failure + 1;
-    }
+    total[total.length - 1 - ageInHours] =
+      total[total.length - 1 - ageInHours] + 1;
     summary.total = summary.total + 1;
     summary.totalDuration = summary.totalDuration + ageInMs / 1000.0;
     summary.avgDuration = summary.totalDuration / summary.total;
@@ -48,14 +38,9 @@ async function handle(req, res, cache, db, path) {
     labels: ["11", "10", "9", "8", "7", "6", "5", "4", "3", "2", "1", "0"],
     datasets: [
       {
-        label: "Sucess",
-        data: success,
+        label: "Total",
+        data: total,
         backgroundColor: "rgba(0, 255, 0, 0.6)"
-      },
-      {
-        label: "Failed",
-        data: failure,
-        backgroundColor: "rgba(255, 0, 0, 0.6)"
       }
     ]
   };
