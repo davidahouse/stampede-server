@@ -1,7 +1,7 @@
-'use strict'
+"use strict";
 
-const fs = require('fs')
-const yaml = require('js-yaml')
+const fs = require("fs");
+const yaml = require("js-yaml");
 
 /**
  * findRepoConfig
@@ -13,14 +13,23 @@ const yaml = require('js-yaml')
  */
 async function findRepoConfig(owner, repo, stampedeFile, sha, serverConf) {
   if (serverConf.testModeRepoConfigPath != null) {
-    const path = serverConf.testModeRepoConfigPath + owner + '/' + repo + '/.stampede.yaml'
-    console.log('--- loading repo config: ' + path)
-    const testModeConfigFile = fs.readFileSync(path)
-    const config = yaml.safeLoad(testModeConfigFile)
-    console.dir(config)
-    return config
+    try {
+      const path =
+        serverConf.testModeRepoConfigPath +
+        owner +
+        "/" +
+        repo +
+        "/.stampede.yaml";
+      console.log("--- loading repo config: " + path);
+      const testModeConfigFile = fs.readFileSync(path);
+      const config = yaml.safeLoad(testModeConfigFile);
+      console.dir(config);
+      return config;
+    } catch (e) {
+      return null;
+    }
   } else {
-    return null
+    return null;
   }
 }
 
@@ -28,22 +37,29 @@ async function findRepoConfig(owner, repo, stampedeFile, sha, serverConf) {
  * createCheckRun
  * @param {*} check
  */
-async function createCheckRun(owner, repo, taskTitle, head_sha, external_id,
-  started_at, serverConf) {
-  console.log('--- createCheckRun')
-  console.log('owner: ' + owner)
-  console.log('repo: ' + repo)
-  console.log('task: ' + taskTitle)
-  console.log('taskTitle: ' + taskTitle)
-  console.log('head_sha: ' + head_sha)
-  console.log('external_id: ' + external_id)
-  console.log('started_at: ' + started_at)
-  console.dir(serverConf)
+async function createCheckRun(
+  owner,
+  repo,
+  taskTitle,
+  head_sha,
+  external_id,
+  started_at,
+  serverConf
+) {
+  console.log("--- createCheckRun");
+  console.log("owner: " + owner);
+  console.log("repo: " + repo);
+  console.log("task: " + taskTitle);
+  console.log("taskTitle: " + taskTitle);
+  console.log("head_sha: " + head_sha);
+  console.log("external_id: " + external_id);
+  console.log("started_at: " + started_at);
+  console.dir(serverConf);
   return {
     data: {
-      id: '123',
-    },
-  }
+      id: "123"
+    }
+  };
 }
 
 /**
@@ -56,10 +72,10 @@ async function getTagInfo(owner, repo, ref, serverConf) {
   return {
     data: {
       object: {
-        sha: '123',
-      },
-    },
-  }
+        sha: "123"
+      }
+    }
+  };
 }
 
 /**
@@ -70,10 +86,10 @@ async function getTagInfo(owner, repo, ref, serverConf) {
  * @param {*} update
  */
 async function updateCheck(owner, repo, serverConf, update) {
-  console.log('--- updateCheck')
+  console.log("--- updateCheck");
 }
 
-module.exports.findRepoConfig = findRepoConfig
-module.exports.createCheckRun = createCheckRun
-module.exports.getTagInfo = getTagInfo
-module.exports.updateCheck = updateCheck
+module.exports.findRepoConfig = findRepoConfig;
+module.exports.createCheckRun = createCheckRun;
+module.exports.getTagInfo = getTagInfo;
+module.exports.updateCheck = updateCheck;
