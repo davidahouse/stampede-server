@@ -11,7 +11,7 @@ block content
 
     table(class="table-auto w-full")
       thead
-        +tableHeader('Owner')
+        +tableHeader('Node')
         +tableHeader('Repo')
         +tableHeader('Build')
         +tableHeader('Task ID')
@@ -20,7 +20,7 @@ block content
       tbody
         each task, i in tasks
           +tableRow(`/monitor/buildDetails?buildID=` + task.build_id)
-            +tableCell(task.owner)
+            +tableCell(task.node)
             +tableCell(task.repository)
             +tableCell(task.build_key + ' ' + task.build)
             +tableCell(task.task)
