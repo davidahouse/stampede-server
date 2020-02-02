@@ -10,8 +10,22 @@ const prettyMilliseconds = require("pretty-ms");
  */
 async function handle(req, res, cache, db, path) {
   const workers = await cache.fetchActiveWorkers();
+  const sortedWorkers = workers.sort(function(a, b) {
+    if (a.node < b.node) {
+      return -1;
+    } else if (a.node > b.node) {
+      return 1;
+    } else {
+      if (a.workerName < b.workerName) {
+        return -1;
+      } else if (a.workerName > b.workerName) {
+        return 1;
+      }
+    }
+    return 0;
+  });
   res.render(path + "monitor/workers", {
-    workers: workers,
+    workers: sortedWorkers,
     prettyMilliseconds: ms => (ms != null ? prettyMilliseconds(ms) : "")
   });
 }
