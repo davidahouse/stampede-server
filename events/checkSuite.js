@@ -24,6 +24,8 @@ async function handle(req, serverConf, cache, scm, db) {
     return { status: "ignored, not our app id" };
   }
 
+  await db.storeRepository(event.owner, event.repo);
+
   // Ignore actions we don't care about
   if (event.action !== "rerequested") {
     return { status: "ignored, not an action we respond to" };

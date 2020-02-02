@@ -20,6 +20,8 @@ async function handle(req, serverConf, cache, scm, db) {
   console.dir(event);
   notification.repositoryEventReceived("release", event);
 
+  await db.storeRepository(event.owner, event.repo);
+
   if (event.action !== "published") {
     console.log("--- Ignoring as the release is not marked as published");
     return { status: "not a published release, ignoring" };
