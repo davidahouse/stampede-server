@@ -20,6 +20,8 @@ async function handle(req, serverConf, cache, scm, db) {
   //  console.dir(event)
   notification.repositoryEventReceived("pull_request", event);
 
+  await db.storeRepository(event.owner, event.repo);
+
   if (
     event.action === "opened" ||
     event.action === "reopened" ||
