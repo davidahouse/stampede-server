@@ -21,6 +21,8 @@ async function handle(req, serverConf, cache, scm, db) {
     return { status: "ignored, not our app id" };
   }
 
+  await db.storeRepository(event.owner, event.repo);
+
   if (event.action === "rerequested") {
     for (let index = 0; index < event.pullRequests.length; index++) {
       await checkRun.createCheckRun(
