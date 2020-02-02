@@ -23,9 +23,18 @@ async function handle(req, res, cache, db, path) {
         : new Date() - task.queued_at;
     tasks.push(task);
   }
+  const sortedTasks = tasks.sort(function(a, b) {
+    if (a.node < b.node) {
+      return -1;
+    } else if (a.node > b.node) {
+      return 1;
+    } else {
+      return 0;
+    }
+  });
 
   res.render(path + "monitor/activeTasks", {
-    tasks: tasks,
+    tasks: sortedTasks,
     prettyMilliseconds: ms => (ms != null ? prettyMilliseconds(ms) : "")
   });
 }
