@@ -1,6 +1,7 @@
 "use strict";
 
 const chalk = require("chalk");
+const sanitize = require("sanitize-filename");
 
 const config = require("../lib/config");
 const build = require("../lib/build");
@@ -100,7 +101,7 @@ async function handle(req, serverConf, cache, scm, db) {
     repo: event.repo,
     sha: event.sha,
     release: event.release,
-    buildKey: event.release
+    buildKey: safeBuildKey(event.release)
   };
 
   const scmDetails = {
@@ -152,6 +153,17 @@ function parseEvent(req) {
     draft: req.body.release.draft,
     target: req.body.release.target_commitish
   };
+}
+
+/**
+ * safeBuildKey
+ * Create a safe build key, replacing any characters that would be
+ * unsafe to use when creating the working folder
+ * @param {*} release
+ */
+function safeBuildKey(release) {
+  const spacesRemoved = release.replace(/ /g, "_");
+  return sanitize(spacesRemoved);
 }
 
 module.exports.handle = handle;
