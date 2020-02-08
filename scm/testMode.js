@@ -4,6 +4,12 @@ const fs = require("fs");
 const yaml = require("js-yaml");
 
 /**
+ * verifyCredentials
+ * @param {*} serverConf
+ */
+async function verifyCredentials(serverConf) {}
+
+/**
  * findRepoConfig
  * @param {*} owner
  * @param {*} repo
@@ -89,7 +95,20 @@ async function updateCheck(owner, repo, serverConf, update) {
   console.log("--- updateCheck");
 }
 
+/**
+ * createStampedeCheck
+ */
+async function createStampedeCheck(
+  owner,
+  repo,
+  head_sha,
+  buildKey,
+  serverConf
+) {}
+
+module.exports.verifyCredentials = verifyCredentials;
 module.exports.findRepoConfig = findRepoConfig;
 module.exports.createCheckRun = createCheckRun;
 module.exports.getTagInfo = getTagInfo;
 module.exports.updateCheck = updateCheck;
+module.exports.createStampedeCheck = createStampedeCheck;

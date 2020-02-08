@@ -23,6 +23,7 @@ const conf = require("rc")("stampede", {
   redisPort: 6379,
   redisPassword: null,
   // web
+  webURL: "http://localhost:7766",
   webPort: 7766,
   // Github
   githubAppID: 0,
@@ -115,6 +116,7 @@ if (conf.scm === "github") {
   );
   process.exit(1);
 }
+scm.verifyCredentials(conf);
 
 // Start our own queue that listens for updates that need to get
 // made back into GitHub
