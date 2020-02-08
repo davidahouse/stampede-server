@@ -21,7 +21,7 @@
   "dependencies": {
     "@octokit/app": "^4.1.0",
     "@octokit/request": "^5.0.2",
-    "@octokit/rest": "^16.28.7",
+    "@octokit/rest": "^16.43.1",
     "body-parser": "^1.18.3",
     "bull": "^3.10.0",
     "chalk": "^2.4.2",
