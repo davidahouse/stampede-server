@@ -22,7 +22,7 @@ async function handle(req, res, cache, db, path) {
   const configSource =
     repoConfig != null ? "Cache" : "Repository .stampede.yaml";
   const configSourceDestination =
-    repoConfig != null ? "viewCachedConfig" : "toggleConfigSource";
+    repoConfig != null ? "viewCachedConfig" : "selectConfigSource";
   const configSourceAction = repoConfig != null ? "View" : "Upload";
 
   // Org and repo defaults and overrides
