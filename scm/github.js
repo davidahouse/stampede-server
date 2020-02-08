@@ -7,6 +7,27 @@ const { Octokit } = require("@octokit/rest");
 const chalk = require("chalk");
 const url = require("url");
 
+async function verifyCredentials(serverConf) {
+  const app = new App({
+    id: serverConf.githubAppID,
+    privateKey: serverConf.githubAppPEM,
+    baseUrl: serverConf.githubHost
+  });
+  const jwt = app.getSignedJsonWebToken();
+  const octokit = Octokit({
+    auth: "Bearer " + jwt,
+    userAgent: "octokit/rest.js v1.2.3",
+    baseUrl: serverConf.githubHost,
+    log: {
+      debug: () => {},
+      info: () => {},
+      warn: console.warn,
+      error: console.error
+    }
+  });
+  console.log("Github connection verified");
+}
+
 /**
  * getAuthorizedOctokit
  * @param {*} owner
@@ -21,7 +42,7 @@ async function getAuthorizedOctokit(owner, repo, serverConf) {
     baseUrl: serverConf.githubHost
   });
   const jwt = app.getSignedJsonWebToken();
-  const octokit = new Octokit({
+  const octokit = Octokit({
     auth: "Bearer " + jwt,
     userAgent: "octokit/rest.js v1.2.3",
     baseUrl: serverConf.githubHost,
@@ -42,7 +63,7 @@ async function getAuthorizedOctokit(owner, repo, serverConf) {
   const accessToken = await app.getInstallationAccessToken({
     installationId: installID
   });
-  const authorizedOctokit = new Octokit({
+  const authorizedOctokit = Octokit({
     auth: "token " + accessToken,
     userAgent: "octokit/rest.js v1.2.3",
     baseUrl: serverConf.githubHost,
@@ -71,13 +92,16 @@ async function findRepoConfig(owner, repo, stampedeFile, sha, serverConf) {
       repo,
       serverConf
     );
+    console.log(
+      "searching for stampede file " + stampedeFile + " with sha " + sha
+    );
     const contents = await authorizedOctokit.repos.getContents({
       owner: owner,
       repo: repo,
       path: stampedeFile,
       ref: sha
     });
-    console.log(contents);
+    console.dir(contents);
     if (contents != null) {
       const configFile = await downloadStampedeFile(
         contents.data.download_url,
@@ -95,6 +119,7 @@ async function findRepoConfig(owner, repo, stampedeFile, sha, serverConf) {
     }
     return null;
   } catch (e) {
+    console.log("exception trying to find config: " + e);
     return null;
   }
 }
@@ -229,7 +254,50 @@ async function updateCheck(owner, repo, serverConf, update) {
   });
 }
 
+/**
+ * createStampedeCheck
+ */
+async function createStampedeCheck(
+  owner,
+  repo,
+  head_sha,
+  buildKey,
+  serverConf
+) {
+  const welcomeString =
+    "### Welcome to the Stampede Continous Automation System!\n" +
+    "Your check runs are starting and you can check on their status by clicking the link below:\n" +
+    "[" +
+    buildKey +
+    "](" +
+    serverConf.webURL +
+    "/history/buildDetails?buildID=" +
+    buildKey +
+    ")";
+
+  const authorizedOctokit = await getAuthorizedOctokit(owner, repo, serverConf);
+  const checkRun = await authorizedOctokit.checks.create({
+    owner: owner,
+    repo: repo,
+    name: "Stampede Build",
+    head_sha: head_sha,
+    status: "completed",
+    external_id: buildKey,
+    started_at: new Date(),
+    completed_at: new Date(),
+    conclusion: "neutral",
+    output: {
+      title: "Stampede Build",
+      summary: welcomeString,
+      text: ""
+    }
+  });
+  return checkRun;
+}
+
+module.exports.verifyCredentials = verifyCredentials;
 module.exports.findRepoConfig = findRepoConfig;
 module.exports.createCheckRun = createCheckRun;
 module.exports.updateCheck = updateCheck;
 module.exports.getTagInfo = getTagInfo;
+module.exports.createStampedeCheck = createStampedeCheck;
