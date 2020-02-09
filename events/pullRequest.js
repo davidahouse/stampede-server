@@ -191,6 +191,7 @@ async function pullRequestEdit(
     repoConfig,
     repoConfig.pullrequestedit,
     repoConfig.pullrequestedit.tasks,
+    [],
     cache,
     serverConf,
     db

@@ -93,6 +93,7 @@ async function handle(req, serverConf, cache, scm, db) {
     repoConfig,
     branchConfig,
     branchConfig.tasks,
+    [],
     cache,
     serverConf,
     db

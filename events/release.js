@@ -122,6 +122,7 @@ async function handle(req, serverConf, cache, scm, db) {
     repoConfig,
     releaseConfig,
     releaseConfig.tasks,
+    [],
     cache,
     serverConf,
     db

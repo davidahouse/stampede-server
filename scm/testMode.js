@@ -104,6 +104,7 @@ async function createStampedeCheck(
   repo,
   head_sha,
   buildKey,
+  actions,
   serverConf
 ) {}
 
