@@ -29,10 +29,11 @@ async function findRepoConfig(owner, repo, stampedeFile, sha, serverConf) {
       console.log("--- loading repo config: " + path);
       const testModeConfigFile = fs.readFileSync(path);
       const config = yaml.safeLoad(testModeConfigFile);
+      console.log("stampede file:");
       console.dir(config);
       return config;
     } catch (e) {
-      return null;
+      return {};
     }
   } else {
     return null;

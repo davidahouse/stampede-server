@@ -111,9 +111,13 @@ async function findRepoConfig(owner, repo, stampedeFile, sha, serverConf) {
       );
       if (configFile != null) {
         console.log(configFile.body);
-        const stampedeConfig = yaml.safeLoad(configFile.body);
-        if (stampedeConfig != null) {
-          return stampedeConfig;
+        try {
+          const stampedeConfig = yaml.safeLoad(configFile.body);
+          if (stampedeConfig != null) {
+            return stampedeConfig;
+          }
+        } catch (e) {
+          return {};
         }
       }
     }
@@ -264,25 +268,38 @@ async function createStampedeCheck(
   buildKey,
   serverConf
 ) {
-  const welcomeString =
-    "### Welcome to the Stampede Continous Automation System!\n" +
-    "Your check runs are starting and you can check on their status by clicking the link below:\n" +
-    "[" +
-    buildKey +
-    "](" +
-    serverConf.webURL +
-    "/history/buildDetails?buildID=" +
-    buildKey +
-    ")";
+  let welcomeString =
+    "### Welcome to the Stampede Continous Automation System!\n";
+  if (buildKey != null) {
+    welcomeString +=
+      "Your check runs are starting and you can check on their status by clicking the link below:\n" +
+      "[" +
+      serverConf.webURL +
+      "/history/buildDetails?buildID=" +
+      buildKey +
+      "](" +
+      serverConf.webURL +
+      "/history/buildDetails?buildID=" +
+      buildKey +
+      ")";
+  } else {
+    welcomeString +=
+      "No tasks were found either in your .stampede.yaml file or the cached config.\n";
+    welcomeString +=
+      "Double check the syntax of your config as it might be invalid.\n";
+  }
+
+  let externalID = buildKey != null ? buildKey : "stampede";
 
   const authorizedOctokit = await getAuthorizedOctokit(owner, repo, serverConf);
+  console.log("Creating Stampede check run");
   const checkRun = await authorizedOctokit.checks.create({
     owner: owner,
     repo: repo,
     name: "Stampede Build",
     head_sha: head_sha,
     status: "completed",
-    external_id: buildKey,
+    external_id: externalID,
     started_at: new Date(),
     completed_at: new Date(),
     conclusion: "neutral",
