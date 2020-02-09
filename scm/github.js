@@ -266,6 +266,7 @@ async function createStampedeCheck(
   repo,
   head_sha,
   buildKey,
+  actions,
   serverConf
 ) {
   let welcomeString =
@@ -291,6 +292,21 @@ async function createStampedeCheck(
 
   let externalID = buildKey != null ? buildKey : "stampede";
 
+  let actionsList = [];
+
+  if (actions.length > 0) {
+    welcomString +=
+      "\nSome additional tasks are available for you to execute. You can trigger them from one of the buttons above.\n";
+  }
+
+  for (let index = 0; index < actions.length; index++) {
+    actionsList.push({
+      label: actions[index].id,
+      description: actions[index].id,
+      identifier: index.toString()
+    });
+  }
+
   const authorizedOctokit = await getAuthorizedOctokit(owner, repo, serverConf);
   console.log("Creating Stampede check run");
   const checkRun = await authorizedOctokit.checks.create({
@@ -307,7 +323,8 @@ async function createStampedeCheck(
       title: "Stampede Build",
       summary: welcomeString,
       text: ""
-    }
+    },
+    actions: actionsList
   });
   return checkRun;
 }
