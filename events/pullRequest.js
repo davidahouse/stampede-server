@@ -130,6 +130,7 @@ async function pullRequestEdit(
     cache,
     serverConf
   );
+  console.log("Found stampede config:");
   console.dir(repoConfig);
   if (repoConfig == null) {
     console.log(
