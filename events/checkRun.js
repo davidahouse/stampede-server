@@ -38,6 +38,23 @@ async function handle(req, serverConf, cache, scm, db) {
         db
       );
     }
+  } else if (event.action === "requested_action") {
+    for (let index = 0; index < event.pullRequests.length; index++) {
+      await checkRun.createCheckRunForAction(
+        event.owner,
+        event.repo,
+        event.sha,
+        event.pullRequests[index],
+        event.cloneURL,
+        event.sshURL,
+        event.actionID,
+        event.externalID,
+        scm,
+        cache,
+        serverConf,
+        db
+      );
+    }
   } else {
     console.log("--- ignoring check run, not a rerequested one");
     return { status: "check run ignored as it was not a rerequested check" };
@@ -55,6 +72,12 @@ function parseEvent(req) {
   const parts = fullName.split("/");
   const owner = parts[0];
   const repo = parts[1];
+
+  let actionID = null;
+  if (req.body.requested_action != null) {
+    actionID = req.body.requested_action.identifier;
+  }
+
   return {
     appID: req.body.check_run.app.id,
     owner: owner,
@@ -68,7 +91,8 @@ function parseEvent(req) {
     cloneURL: req.body.repository.clone_url,
     sshURL: req.body.repository.ssh_url,
     checkRunID: req.body.check_run.id,
-    externalID: req.body.check_run.external_id
+    externalID: req.body.check_run.external_id,
+    actionID: actionID
   };
 }
 
