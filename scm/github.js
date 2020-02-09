@@ -301,8 +301,14 @@ async function createStampedeCheck(
 
   for (let index = 0; index < actions.length; index++) {
     actionsList.push({
-      label: actions[index].id,
-      description: actions[index].id,
+      label:
+        actions[index].title != null
+          ? actions[index].title.substring(0, 20)
+          : actions[index].id.substring(0, 20),
+      description:
+        actions[index].description != null
+          ? actions[index].description.substring(0, 30)
+          : actions[index].id.substring(0, 30),
       identifier: index.toString()
     });
   }
