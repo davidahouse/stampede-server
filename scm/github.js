@@ -295,7 +295,7 @@ async function createStampedeCheck(
   let actionsList = [];
 
   if (actions.length > 0) {
-    welcomString +=
+    welcomeString +=
       "\nSome additional tasks are available for you to execute. You can trigger them from one of the buttons above.\n";
   }
 
