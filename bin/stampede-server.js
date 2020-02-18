@@ -17,6 +17,7 @@ const taskExecute = require("../lib/taskExecute");
 const notification = require("../lib/notification");
 const db = require("../lib/db");
 
+const fiveMinuteInterval = 1000 * 60 * 5;
 const conf = require("rc")("stampede", {
   // redis
   redisHost: "localhost",
@@ -160,6 +161,15 @@ async function gracefulShutdown() {
 }
 
 db.start(conf);
+
+setInterval(buildSchedule, fiveMinuteInterval);
+
+function buildSchedule() {
+  console.log("Checking for any builds that need to be started");
+  // loop through any scheduled builds defined in the system
+  // check the last run date and if a different date then check time
+  // if we have passed the time to start the build, start it!
+}
 
 const dependencies = {
   serverConfig: conf,
