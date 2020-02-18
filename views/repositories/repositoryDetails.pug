@@ -67,6 +67,21 @@ block content
   div(class="w-full p-3")
       div(class="bg-white border-transparent rounded-lg shadow-lg")
         div(class="bg-gray-400 uppercase text-gray-800 border-b-2 border-gray-500 rounded-tl-lg rounded-tr-lg p-2")
+          h5(class="font-bold uppercase text-gray-600") Repository Builds
+        div(class="p-5")
+          table(class="table-auto w-full")
+              thead
+                +tableHeader('Build')
+                +tableHeader('Scheduled At')
+              each build, i in repositoryBuilds
+                tbody
+                  +tableRow(`/repositories/repositoryBuildDetails?buildID=` + build.build_id)
+                    +tableCell(build.id)
+                    +tableCell(build.scheduled_at)
+
+  div(class="w-full p-3")
+      div(class="bg-white border-transparent rounded-lg shadow-lg")
+        div(class="bg-gray-400 uppercase text-gray-800 border-b-2 border-gray-500 rounded-tl-lg rounded-tr-lg p-2")
           h5(class="font-bold uppercase text-gray-600") Recent Builds
         div(class="p-5")
           table(class="table-auto w-full")

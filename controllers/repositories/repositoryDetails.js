@@ -68,7 +68,15 @@ async function handle(req, res, cache, db, path) {
     orgDefaultStatus: orgDefaultStatus,
     repoDefaultStatus: repoDefaultStatus,
     orgOverrideStatus: orgOverrideStatus,
-    repoOverrideStatus: repoOverrideStatus
+    repoOverrideStatus: repoOverrideStatus,
+    repositoryBuilds: [
+      {
+        owner: "davidahouse",
+        repository: "stampede-server",
+        id: "daily-build",
+        scheduled_at: "10am"
+      }
+    ]
   });
 }
 
