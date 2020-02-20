@@ -56,6 +56,11 @@ async function handle(req, res, cache, db, path) {
       ? "Has Overrides"
       : "No Overrides Found";
 
+  const repositoryBuilds = await cache.repositoryBuilds.fetchRepositoryBuilds(
+    owner,
+    repository
+  );
+
   res.render(path + "repositories/repositoryDetails", {
     owner: owner,
     repository: repository,
@@ -69,14 +74,7 @@ async function handle(req, res, cache, db, path) {
     repoDefaultStatus: repoDefaultStatus,
     orgOverrideStatus: orgOverrideStatus,
     repoOverrideStatus: repoOverrideStatus,
-    repositoryBuilds: [
-      {
-        owner: "davidahouse",
-        repository: "stampede-server",
-        id: "daily-build",
-        scheduled_at: "10am"
-      }
-    ]
+    repositoryBuilds: repositoryBuilds
   });
 }
 

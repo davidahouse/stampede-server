@@ -16,8 +16,9 @@ const taskUpdate = require("../lib/taskUpdate");
 const taskExecute = require("../lib/taskExecute");
 const notification = require("../lib/notification");
 const db = require("../lib/db");
+const repositoryBuild = require("../lib/repositoryBuild");
 
-const fiveMinuteInterval = 1000 * 60 * 5;
+const fiveMinuteInterval = 1000 * 60 * 1;
 const conf = require("rc")("stampede", {
   // redis
   redisHost: "localhost",
@@ -60,30 +61,32 @@ console.log(chalk.red("SCM: " + conf.scm));
 console.log(chalk.red("GitHub APP ID: " + conf.githubAppID));
 console.log(chalk.red("GitHub PEM Path: " + conf.githubAppPEMPath));
 
-// Load up our key for this GitHub app. You get this key from GitHub
-// when you create the app.
-if (conf.githubAppPEM == null) {
-  if (conf.githubAppPEMPath != null) {
-    const pem = fs.readFileSync(conf.githubAppPEMPath, "utf8");
-    conf.githubAppPEM = pem;
+if (conf.scm === "github") {
+  // Load up our key for this GitHub app. You get this key from GitHub
+  // when you create the app.
+  if (conf.githubAppPEM == null) {
+    if (conf.githubAppPEMPath != null) {
+      const pem = fs.readFileSync(conf.githubAppPEMPath, "utf8");
+      conf.githubAppPEM = pem;
+    }
+  } else {
+    conf.githubAppPEM = conf.githubAppPEM.replace(/\\n/g, os.EOL);
   }
-} else {
-  conf.githubAppPEM = conf.githubAppPEM.replace(/\\n/g, os.EOL);
-}
 
-// Do some validation of config since we can't operate without our required
-// config
-if (
-  conf.githubAppID === 0 ||
-  conf.githubAppPEM == null ||
-  conf.githubHost == null
-) {
-  console.log(
-    chalk.red(
-      "Stampede needs a GitHub APP ID, PEM certificate and host in order to operate. Not found in the config so unable to continue."
-    )
-  );
-  process.exit(1);
+  // Do some validation of config since we can't operate without our required
+  // config
+  if (
+    conf.githubAppID === 0 ||
+    conf.githubAppPEM == null ||
+    conf.githubHost == null
+  ) {
+    console.log(
+      chalk.red(
+        "Stampede needs a GitHub APP ID, PEM certificate and host in order to operate. Not found in the config so unable to continue."
+      )
+    );
+    process.exit(1);
+  }
 }
 
 // Initialize our cache
@@ -129,7 +132,6 @@ responseQueue.on("error", function(error) {
 });
 
 responseQueue.process(function(job) {
-  console.log("--- response: " + job.data.response);
   if (job.data.response === "taskUpdate") {
     return taskUpdate.handle(job.data.payload, conf, cache, scm, db);
   } else if (job.data.response === "heartbeat") {
@@ -164,11 +166,62 @@ db.start(conf);
 
 setInterval(buildSchedule, fiveMinuteInterval);
 
-function buildSchedule() {
+async function buildSchedule() {
   console.log("Checking for any builds that need to be started");
   // loop through any scheduled builds defined in the system
   // check the last run date and if a different date then check time
   // if we have passed the time to start the build, start it!
+  const repositories = await db.fetchRepositories();
+  for (let index = 0; index < repositories.rows.length; index++) {
+    const repositoryBuilds = await cache.repositoryBuilds.fetchRepositoryBuilds(
+      repositories.rows[index].owner,
+      repositories.rows[index].repository
+    );
+    if (repositoryBuilds != null) {
+      console.dir(repositoryBuilds);
+      for (
+        let buildIndex = 0;
+        buildIndex < repositoryBuilds.length;
+        buildIndex++
+      ) {
+        const buildInfo = await cache.repositoryBuilds.fetchRepositoryBuild(
+          repositories.rows[index].owner,
+          repositories.rows[index].repository,
+          repositoryBuilds[buildIndex]
+        );
+        console.dir(buildInfo);
+        const currentDate = new Date();
+        if (
+          (buildInfo.schedule != null && buildInfo.lastExecuteDate == null) ||
+          new Date(buildInfo.lastExecuteDate).getDate() !=
+            currentDate.getDate() ||
+          new Date(buildInfo.lastExecuteDate).getMonth() !=
+            currentDate.getMonth() ||
+          new Date(buildInfo.lastExecuteDate).getFullYear() !=
+            currentDate.getFullYear()
+        ) {
+          if (
+            currentDate.getHours() >= buildInfo.schedule.hour &&
+            currentDate.getMinutes() >= buildInfo.schedule.minute
+          ) {
+            buildInfo.lastExecuteDate = currentDate;
+            await cache.repositoryBuilds.updateRepositoryBuild(
+              repositories.rows[index].owner,
+              repositories.rows[index].repository,
+              buildInfo
+            );
+            repositoryBuild.execute(
+              repositories.rows[index].owner,
+              repositories.rows[index].repository,
+              repositoryBuilds[buildIndex],
+              buildInfo,
+              dependencies
+            );
+          }
+        }
+      }
+    }
+  }
 }
 
 const dependencies = {

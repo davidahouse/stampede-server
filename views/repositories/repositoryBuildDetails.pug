@@ -8,8 +8,8 @@ include ../components/tableCellButton
 block content
 
   +titleBar([{title: 'Repositories', href: '/repositories'}, 
-  {title: build.owner + ' ' + build.repository, href: '/repositories/repositoryDetails?owner=' + build.owner + '&repository=' + build.repository},
-  {title: build.owner + '' + build.repository + ' #' + build.id}])
+  {title: owner + ' ' + repository, href: '/repositories/repositoryDetails?owner=' + owner + '&repository=' + repository},
+  {title: owner + '' + repository + ' #' + buildID}])
   div(class="flex flex-wrap m-4")
 
   div(class="w-full p-3")
@@ -21,14 +21,20 @@ block content
             tbody
               +tableRow()
                 +tableCell('Owner')
-                +tableCell(build.owner)
+                +tableCell(owner)
               +tableRow()
                 +tableCell('Repository')
-                +tableCell(build.repository)
+                +tableCell(repository)
               +tableRow()
                 +tableCell('Build')
-                +tableCell(build.id)
+                +tableCell(buildID)
               +tableRow()
                 +tableCell('Scheduled At')
                 +tableCell(build.scheduled_at)              
+              +tableRow()
+                +tableCell('Remove Build')
+                +tableCellButton("Remove", `/repositories/removeRepositoryBuild` + `?owner=` + owner + `&repository=` + repository + `&build=` + buildID)
+              +tableRow()
+                +tableCell('Execute Build')
+                +tableCellButton("Execute", `/repositories/executeRepositoryBuild` + `?owner=` + owner + `&repository=` + repository + `&build=` + buildID)
 

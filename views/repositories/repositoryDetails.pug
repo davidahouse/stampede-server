@@ -74,12 +74,10 @@ block content
           table(class="table-auto w-full")
               thead
                 +tableHeader('Build')
-                +tableHeader('Scheduled At')
               each build, i in repositoryBuilds
                 tbody
-                  +tableRow(`/repositories/repositoryBuildDetails?buildID=` + build.build_id)
-                    +tableCell(build.id)
-                    +tableCell(build.scheduled_at)
+                  +tableRow(`/repositories/repositoryBuildDetails?owner=` + owner + `&repository=` + repository + `&build=` + build)
+                    +tableCell(build)
 
         div(class="p-5")
           form(class="w-full m-4" method="POST" action="/repositories/uploadRepositoryBuild" encType="multipart/form-data")

@@ -9,13 +9,20 @@ const prettyMilliseconds = require("pretty-ms");
  * @param {*} path
  */
 async function handle(req, res, cache, db, path) {
+  const owner = req.query.owner;
+  const repository = req.query.repository;
+  const buildID = req.query.build;
+  const build = await cache.repositoryBuilds.fetchRepositoryBuild(
+    owner,
+    repository,
+    buildID
+  );
+
   res.render(path + "repositories/repositoryBuildDetails", {
-    build: {
-      owner: "davidahouse",
-      repository: "stampede-server",
-      id: "daily-build",
-      scheduled_at: "10am"
-    },
+    owner: owner,
+    repository: repository,
+    buildID: buildID,
+    build: build,
     prettyMilliseconds: ms => (ms != null ? prettyMilliseconds(ms) : "")
   });
 }
