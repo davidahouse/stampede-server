@@ -18,7 +18,7 @@ const notification = require("../lib/notification");
 const db = require("../lib/db");
 const repositoryBuild = require("../lib/repositoryBuild");
 
-const fiveMinuteInterval = 1000 * 60 * 1;
+const fiveMinuteInterval = 1000 * 60 * 5;
 const conf = require("rc")("stampede", {
   // redis
   redisHost: "localhost",
@@ -167,7 +167,13 @@ db.start(conf);
 setInterval(buildSchedule, fiveMinuteInterval);
 
 async function buildSchedule() {
-  console.log("Checking for any builds that need to be started");
+  const currentDate = new Date();
+  console.log(
+    "Checking for any builds that need to be started at hour " +
+      currentDate.getHours() +
+      " minute " +
+      currentDate.getMinutes()
+  );
   // loop through any scheduled builds defined in the system
   // check the last run date and if a different date then check time
   // if we have passed the time to start the build, start it!
@@ -178,7 +184,6 @@ async function buildSchedule() {
       repositories.rows[index].repository
     );
     if (repositoryBuilds != null) {
-      console.dir(repositoryBuilds);
       for (
         let buildIndex = 0;
         buildIndex < repositoryBuilds.length;
@@ -189,8 +194,6 @@ async function buildSchedule() {
           repositories.rows[index].repository,
           repositoryBuilds[buildIndex]
         );
-        console.dir(buildInfo);
-        const currentDate = new Date();
         if (
           (buildInfo.schedule != null && buildInfo.lastExecuteDate == null) ||
           new Date(buildInfo.lastExecuteDate).getDate() !=
@@ -204,6 +207,8 @@ async function buildSchedule() {
             currentDate.getHours() >= buildInfo.schedule.hour &&
             currentDate.getMinutes() >= buildInfo.schedule.minute
           ) {
+            console.log("Executing a repository build:");
+            console.dir(buildInfo);
             buildInfo.lastExecuteDate = currentDate;
             await cache.repositoryBuilds.updateRepositoryBuild(
               repositories.rows[index].owner,
