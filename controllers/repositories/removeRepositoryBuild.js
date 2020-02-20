@@ -9,17 +9,15 @@ const yaml = require("js-yaml");
  * @param {*} path
  */
 async function handle(req, res, cache, db, path) {
-  const owner = req.body.owner;
-  const repository = req.body.repository;
-  const uploadData = req.files.uploadFile;
-  const buildInfo = yaml.safeLoad(uploadData.data);
-  if (buildInfo != null) {
-    await cache.repositoryBuilds.updateRepositoryBuild(
-      owner,
-      repository,
-      buildInfo
-    );
-  }
+  const owner = req.query.owner;
+  const repository = req.query.repository;
+  const buildID = req.query.build;
+
+  await cache.repositoryBuilds.removeRepositoryBuild(
+    owner,
+    repository,
+    buildID
+  );
 
   res.writeHead(301, {
     Location:
