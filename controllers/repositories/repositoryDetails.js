@@ -56,6 +56,11 @@ async function handle(req, res, cache, db, path) {
       ? "Has Overrides"
       : "No Overrides Found";
 
+  const repositoryBuilds = await cache.repositoryBuilds.fetchRepositoryBuilds(
+    owner,
+    repository
+  );
+
   res.render(path + "repositories/repositoryDetails", {
     owner: owner,
     repository: repository,
@@ -68,7 +73,8 @@ async function handle(req, res, cache, db, path) {
     orgDefaultStatus: orgDefaultStatus,
     repoDefaultStatus: repoDefaultStatus,
     orgOverrideStatus: orgOverrideStatus,
-    repoOverrideStatus: repoOverrideStatus
+    repoOverrideStatus: repoOverrideStatus,
+    repositoryBuilds: repositoryBuilds
   });
 }
 
