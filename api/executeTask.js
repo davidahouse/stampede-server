@@ -2,15 +2,26 @@
 const taskExecute = require("../lib/taskExecute");
 
 /**
+ * The url path this handler will serve
+ */
+function path() {
+  return "/api/executeTask";
+}
+
+/**
+ * The http method this handler will serve
+ */
+function method() {
+  return "post";
+}
+
+/**
  * handle
  * @param {*} req
  * @param {*} res
- * @param {*} serverConf
- * @param {*} cache
- * @param {*} scm
- * @param {*} db
+ * @param {*} dependencies
  */
-async function handle(req, res, serverConf, cache, scm, db) {
+async function handle(req, res, dependencies) {
   // Expected body:
   // owner: ""
   // repository: "",
@@ -38,18 +49,26 @@ async function handle(req, res, serverConf, cache, scm, db) {
   //    tag
   //    sha
   // taskQueue: ""
-  const taskDetails = await cache.fetchTaskConfig(req.body.task);
+  const taskDetails = await dependencies.cache.fetchTaskConfig(req.body.task);
   console.log("got task details for task: " + req.body.task);
   console.dir(taskDetails);
   if (taskDetails != null) {
     const executeConfig = req.body;
     executeConfig.task = taskDetails;
 
-    taskExecute.handle(executeConfig, serverConf, cache, scm, db);
+    taskExecute.handle(
+      executeConfig,
+      dependencies.serverConfig,
+      dependencies.cache,
+      dependencies.scm,
+      dependencies.db
+    );
     res.send({ status: "ok" });
   } else {
     res.send({ status: "task not found" });
   }
 }
 
+module.exports.path = path;
+module.exports.method = method;
 module.exports.handle = handle;
