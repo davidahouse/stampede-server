@@ -1,18 +1,23 @@
 "use strict";
 
 /**
+ * The url path this handler will serve
+ */
+function path() {
+  return "/api/activeTasks";
+}
+
+/**
  * handle activeTasks
  * @param {*} req
  * @param {*} res
- * @param {*} serverConf
- * @param {*} cache
- * @param {*} db
+ * @param {*} dependencies
  */
-async function handle(req, res, serverConf, cache, db) {
-  const activeTasks = await db.activeTasks();
+async function handle(req, res, dependencies) {
+  const activeTasks = await dependencies.db.activeTasks();
   const tasks = [];
   for (let index = 0; index < activeTasks.rows.length; index++) {
-    const taskDetails = await cache.fetchTaskConfig(
+    const taskDetails = await dependencies.cache.fetchTaskConfig(
       activeTasks.rows[index].task
     );
     const task = activeTasks.rows[index];
@@ -26,4 +31,5 @@ async function handle(req, res, serverConf, cache, db) {
   res.send(tasks);
 }
 
+module.exports.path = path;
 module.exports.handle = handle;
