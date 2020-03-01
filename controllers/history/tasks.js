@@ -1,12 +1,17 @@
 /**
+ * path this handler will serve
+ */
+function path() {
+  return "/history/tasks";
+}
+
+/**
  * handle tasks
  * @param {*} req
  * @param {*} res
- * @param {*} cache
- * @param {*} db
- * @param {*} path
+ * @param {*} dependencies
  */
-async function handle(req, res, cache, db, path) {
+async function handle(req, res, dependencies) {
   let timeFilter = "Last 8 hours";
   if (req.query.time != null) {
     timeFilter = req.query.time;
@@ -17,7 +22,7 @@ async function handle(req, res, cache, db, path) {
     taskFilter = req.query.task;
   }
 
-  const taskList = await cache.fetchTasks();
+  const taskList = await dependencies.cache.fetchTasks();
   const sortedTasks = taskList.sort();
   sortedTasks.unshift("All");
 
@@ -26,7 +31,7 @@ async function handle(req, res, cache, db, path) {
     repositoryFilter = req.query.repository;
   }
 
-  const repositoriesRows = await db.fetchRepositories();
+  const repositoriesRows = await dependencies.db.fetchRepositories();
   const repositories = [];
   repositories.push("All");
   for (let index = 0; index < repositoriesRows.rows.length; index++) {
@@ -61,14 +66,14 @@ async function handle(req, res, cache, db, path) {
     nodeFilter = req.query.node;
   }
 
-  const nodesRows = await db.fetchNodes();
+  const nodesRows = await dependencies.db.fetchNodes();
   const nodeList = [];
   nodeList.push("All");
   for (let index = 0; index < nodesRows.rows.length; index++) {
     nodeList.push(nodesRows.rows[index].node);
   }
 
-  const tasks = await db.recentTasks(
+  const tasks = await dependencies.db.recentTasks(
     timeFilter,
     taskFilter,
     repositoryFilter,
@@ -77,7 +82,7 @@ async function handle(req, res, cache, db, path) {
     sorted
   );
 
-  res.render(path + "history/tasks", {
+  res.render(dependencies.viewsPath + "history/tasks", {
     tasks: tasks.rows,
     timeFilter: timeFilter,
     timeFilterList: ["Last 8 hours", "Today", "Yesterday"],
@@ -94,4 +99,5 @@ async function handle(req, res, cache, db, path) {
   });
 }
 
+module.exports.path = path;
 module.exports.handle = handle;

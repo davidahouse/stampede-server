@@ -1,12 +1,17 @@
 /**
+ * path this handler will serve
+ */
+function path() {
+  return "/history/buildSummary";
+}
+
+/**
  * handle buildSummary
  * @param {*} req
  * @param {*} res
- * @param {*} cache
- * @param {*} db
- * @param {*} path
+ * @param {*} dependencies
  */
-async function handle(req, res, cache, db, path) {
+async function handle(req, res, dependencies) {
   const total = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
   const summary = {
     total: 0,
@@ -16,7 +21,7 @@ async function handle(req, res, cache, db, path) {
     maxDuration: 0.0
   };
 
-  const builds = await db.recentBuilds(12, 50);
+  const builds = await dependencies.db.recentBuilds(12, 50);
   const recentBuilds = builds.rows;
   for (let index = 0; index < recentBuilds.length; index++) {
     const ageInMs = Date.now() - recentBuilds[index].completed_at;
@@ -44,7 +49,11 @@ async function handle(req, res, cache, db, path) {
       }
     ]
   };
-  res.render(path + "history/buildSummary", { data: data, summary: summary });
+  res.render(dependencies.viewsPath + "history/buildSummary", {
+    data: data,
+    summary: summary
+  });
 }
 
+module.exports.path = path;
 module.exports.handle = handle;

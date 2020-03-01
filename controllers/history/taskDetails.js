@@ -1,15 +1,20 @@
 /**
+ * path this handler will serve
+ */
+function path() {
+  return "/history/taskDetails";
+}
+
+/**
  * handle taskDetails
  * @param {*} req
  * @param {*} res
- * @param {*} cache
- * @param {*} db
- * @param {*} path
+ * @param {*} dependencies
  */
-async function handle(req, res, cache, db, path) {
-  const taskRows = await db.fetchTask(req.query.taskID);
+async function handle(req, res, dependencies) {
+  const taskRows = await dependencies.db.fetchTask(req.query.taskID);
   const task = taskRows.rows[0];
-  const detailsRows = await db.fetchTaskDetails(req.query.taskID);
+  const detailsRows = await dependencies.db.fetchTaskDetails(req.query.taskID);
   const taskDetails = detailsRows.rows[0];
   const configValues = [];
   Object.keys(
@@ -21,7 +26,7 @@ async function handle(req, res, cache, db, path) {
       source: taskDetails.details.config[key].source
     });
   });
-  const buildRows = await db.fetchBuild(task.build_id);
+  const buildRows = await dependencies.db.fetchBuild(task.build_id);
   const build = buildRows.rows[0];
   const summary =
     taskDetails.details.result != null &&
@@ -34,7 +39,7 @@ async function handle(req, res, cache, db, path) {
       ? taskDetails.details.result.text
       : "";
 
-  res.render(path + "history/taskDetails", {
+  res.render(dependencies.viewsPath + "history/taskDetails", {
     task: task,
     build: build,
     taskDetails: taskDetails,
@@ -44,4 +49,5 @@ async function handle(req, res, cache, db, path) {
   });
 }
 
+module.exports.path = path;
 module.exports.handle = handle;
