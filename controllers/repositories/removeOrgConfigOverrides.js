@@ -1,17 +1,29 @@
 const yaml = require("js-yaml");
 
 /**
+ * path this handler will serve
+ */
+function path() {
+  return "/repositories/removeOrgConfigOverrides";
+}
+
+/**
+ * http method this handler will serve
+ */
+function method() {
+  return "post";
+}
+
+/**
  * handle index
  * @param {*} req
  * @param {*} res
- * @param {*} cache
- * @param {*} db
- * @param {*} path
+ * @param {*} dependencies
  */
-async function handle(req, res, cache, db, path) {
+async function handle(req, res, dependencies) {
   const owner = req.body.owner;
   const repository = req.body.repository;
-  await cache.orgConfigOverrides.removeOverrides(owner);
+  await dependencies.cache.orgConfigOverrides.removeOverrides(owner);
   res.writeHead(301, {
     Location:
       "/repositories/viewOrgConfigOverrides?owner=" +
@@ -22,4 +34,6 @@ async function handle(req, res, cache, db, path) {
   res.end();
 }
 
+module.exports.path = path;
+module.exports.method = method;
 module.exports.handle = handle;

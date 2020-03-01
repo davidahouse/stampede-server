@@ -1,15 +1,20 @@
 "use strict";
 
 /**
+ * The url path this handler will serve
+ */
+function path() {
+  return "/api/recentBuilds";
+}
+
+/**
  * handle recentBuilds
  * @param {*} req
  * @param {*} res
- * @param {*} serverConf
- * @param {*} cache
- * @param {*} db
+ * @param {*} dependencies
  */
-async function handle(req, res, serverConf, cache, db) {
-  const recentBuilds = await db.recentBuilds(
+async function handle(req, res, dependencies) {
+  const recentBuilds = await dependencies.db.recentBuilds(
     8,
     50,
     req.query.owner,
@@ -19,8 +24,8 @@ async function handle(req, res, serverConf, cache, db) {
   if (recentBuilds != null) {
     for (let index = 0; index < recentBuilds.rows.length; index++) {
       const buildID = recentBuilds.rows[index].build_id;
-      const buildDetails = await db.fetchBuild(buildID);
-      const tasks = await db.fetchBuildTasks(buildID);
+      const buildDetails = await dependencies.db.fetchBuild(buildID);
+      const tasks = await dependencies.db.fetchBuildTasks(buildID);
       builds.push({
         buildID: buildID,
         buildDetails:
@@ -34,4 +39,5 @@ async function handle(req, res, serverConf, cache, db) {
   res.send(builds);
 }
 
+module.exports.path = path;
 module.exports.handle = handle;

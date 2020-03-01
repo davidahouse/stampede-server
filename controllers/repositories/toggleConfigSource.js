@@ -1,12 +1,17 @@
 /**
+ * path this handler will serve
+ */
+function path() {
+  return "/repositories/toggleConfigSource";
+}
+
+/**
  * handle index
  * @param {*} req
  * @param {*} res
- * @param {*} cache
- * @param {*} db
- * @param {*} path
+ * @param {*} dependencies
  */
-async function handle(req, res, cache, db, path) {
+async function handle(req, res, dependencies) {
   let owner = req.query.owner;
   let repository = req.query.repository;
 
@@ -16,7 +21,7 @@ async function handle(req, res, cache, db, path) {
     configSource = req.body.configSource;
   }
 
-  await cache.removeRepoConfig(owner, repository);
+  await dependencies.cache.removeRepoConfig(owner, repository);
   res.writeHead(301, {
     Location:
       "/repositories/repositoryDetails?owner=" +
@@ -27,4 +32,5 @@ async function handle(req, res, cache, db, path) {
   res.end();
 }
 
+module.exports.path = path;
 module.exports.handle = handle;

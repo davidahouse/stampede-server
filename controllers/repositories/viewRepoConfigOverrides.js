@@ -1,17 +1,22 @@
 const yaml = require("js-yaml");
 
 /**
+ * path this handler will serve
+ */
+function path() {
+  return "/repositories/viewRepoConfigOverrides";
+}
+
+/**
  * handle index
  * @param {*} req
  * @param {*} res
- * @param {*} cache
- * @param {*} db
- * @param {*} path
+ * @param {*} dependencies
  */
-async function handle(req, res, cache, db, path) {
+async function handle(req, res, dependencies) {
   const owner = req.query.owner;
   const repository = req.query.repository;
-  const orgOverrides = await cache.repoConfigOverrides.fetchOverrides(
+  const orgOverrides = await dependencies.cache.repoConfigOverrides.fetchOverrides(
     owner,
     repository
   );
@@ -24,11 +29,12 @@ async function handle(req, res, cache, db, path) {
       });
     });
   }
-  res.render(path + "repositories/viewRepoConfigOverrides", {
+  res.render(dependencies.viewsPath + "repositories/viewRepoConfigOverrides", {
     owner: owner,
     repository: repository,
     overrides: configOverrides
   });
 }
 
+module.exports.path = path;
 module.exports.handle = handle;

@@ -1,17 +1,22 @@
 const yaml = require("js-yaml");
 
 /**
+ * path this handler will serve
+ */
+function path() {
+  return "/repositories/viewRepoConfigDefaults";
+}
+
+/**
  * handle index
  * @param {*} req
  * @param {*} res
- * @param {*} cache
- * @param {*} db
- * @param {*} path
+ * @param {*} dependencies
  */
-async function handle(req, res, cache, db, path) {
+async function handle(req, res, dependencies) {
   const owner = req.query.owner;
   const repository = req.query.repository;
-  const orgDefaults = await cache.repoConfigDefaults.fetchDefaults(
+  const orgDefaults = await dependencies.cache.repoConfigDefaults.fetchDefaults(
     owner,
     repository
   );
@@ -24,11 +29,12 @@ async function handle(req, res, cache, db, path) {
       });
     });
   }
-  res.render(path + "repositories/viewRepoConfigDefaults", {
+  res.render(dependencies.viewsPath + "repositories/viewRepoConfigDefaults", {
     owner: owner,
     repository: repository,
     defaults: configDefaults
   });
 }
 
+module.exports.path = path;
 module.exports.handle = handle;

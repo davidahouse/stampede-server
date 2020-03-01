@@ -1,26 +1,43 @@
 const yaml = require("js-yaml");
 
 /**
+ * path this handler will serve
+ */
+function path() {
+  return "/admin/uploadTask";
+}
+
+/**
+ * http method this handler will serve
+ */
+function method() {
+  return "post";
+}
+
+/**
  * handle tasks
  * @param {*} req
  * @param {*} res
- * @param {*} cache
- * @param {*} db
- * @param {*} path
+ * @param {*} dependencies
  */
-async function handle(req, res, cache, db, path) {
-  const uploadData = req.files.uploadFile;
-  const taskConfig = yaml.safeLoad(uploadData.data);
-  if (taskConfig != null) {
-    if (taskConfig.id != null) {
-      await cache.storeTask(taskConfig.id);
-      await cache.storeTaskConfig(taskConfig.id, taskConfig);
+async function handle(req, res, dependencies) {
+  if (req.files != null) {
+    const uploadData = req.files.uploadFile;
+    const taskConfig = yaml.safeLoad(uploadData.data);
+    if (taskConfig != null) {
+      if (taskConfig.id != null) {
+        await dependencies.cache.storeTask(taskConfig.id);
+        await dependencies.cache.storeTaskConfig(taskConfig.id, taskConfig);
+      }
     }
   }
+
   res.writeHead(301, {
     Location: "/admin/tasks"
   });
   res.end();
 }
 
+module.exports.path = path;
+module.exports.method = method;
 module.exports.handle = handle;

@@ -10,37 +10,83 @@ const pushEvent = require("../events/push");
 const releaseEvent = require("../events/release");
 
 /**
+ * The url path this handler will serve
+ */
+function path() {
+  return "/github";
+}
+
+/**
+ * The http method this handler will serve
+ */
+function method() {
+  return "post";
+}
+
+/**
  * handle github hook
  * @param {*} req
  * @param {*} res
- * @param {*} cache
+ * @param {*} dependencies
  */
-async function handle(req, res, serverConf, cache, scm, db) {
+async function handle(req, res, dependencies) {
   console.log(chalk.green("--- github hook: " + req.headers["x-github-event"]));
 
-  if (serverConf.logEventPath != null) {
+  if (dependencies.serverConfig.logEventPath != null) {
     eventLog.save(
       {
         headers: req.headers,
         payload: req.body
       },
-      serverConf.logEventPath
+      dependencies.serverConfig.logEventPath
     );
   }
 
   let response = {};
   if (req.headers["x-github-event"] === "check_suite") {
-    response = await checkSuiteEvent.handle(req, serverConf, cache, scm, db);
+    response = await checkSuiteEvent.handle(
+      req,
+      dependencies.serverConfig,
+      dependencies.cache,
+      dependencies.scm,
+      dependencies.db
+    );
   } else if (req.headers["x-github-event"] === "check_run") {
-    response = await checkRunEvent.handle(req, serverConf, cache, scm, db);
+    response = await checkRunEvent.handle(
+      req,
+      dependencies.serverConfig,
+      dependencies.cache,
+      dependencies.scm,
+      dependencies.db
+    );
   } else if (req.headers["x-github-event"] === "pull_request") {
-    response = await pullRequestEvent.handle(req, serverConf, cache, scm, db);
+    response = await pullRequestEvent.handle(
+      req,
+      dependencies.serverConfig,
+      dependencies.cache,
+      dependencies.scm,
+      dependencies.db
+    );
   } else if (req.headers["x-github-event"] === "push") {
-    response = await pushEvent.handle(req, serverConf, cache, scm, db);
+    response = await pushEvent.handle(
+      req,
+      dependencies.serverConfig,
+      dependencies.cache,
+      dependencies.scm,
+      dependencies.db
+    );
   } else if (req.headers["x-github-event"] === "release") {
-    response = await releaseEvent.handle(req, serverConf, cache, scm, db);
+    response = await releaseEvent.handle(
+      req,
+      dependencies.serverConfig,
+      dependencies.cache,
+      dependencies.scm,
+      dependencies.db
+    );
   }
   res.send(response);
 }
 
+module.exports.path = path;
+module.exports.method = method;
 module.exports.handle = handle;

@@ -1,13 +1,20 @@
 /**
+ * path this handler will serve
+ */
+function path() {
+  return "/admin/taskConfig";
+}
+
+/**
  * handle tasks
  * @param {*} req
  * @param {*} res
- * @param {*} cache
- * @param {*} db
- * @param {*} path
+ * @param {*} dependencies
  */
-async function handle(req, res, cache, db, path) {
-  const taskDetails = await cache.fetchTaskConfig(req.query.taskID);
+async function handle(req, res, dependencies) {
+  const taskDetails = await dependencies.cache.fetchTaskConfig(
+    req.query.taskID
+  );
   console.dir(taskDetails);
   const workerConfig = [];
   if (taskDetails.worker != null) {
@@ -25,7 +32,7 @@ async function handle(req, res, cache, db, path) {
     }
   }
 
-  res.render(path + "admin/taskConfig", {
+  res.render(dependencies.viewsPath + "admin/taskConfig", {
     taskID: req.query.taskID,
     taskDetails: taskDetails,
     config: taskDetails.config != null ? taskDetails.config : [],
@@ -34,4 +41,5 @@ async function handle(req, res, cache, db, path) {
   });
 }
 
+module.exports.path = path;
 module.exports.handle = handle;

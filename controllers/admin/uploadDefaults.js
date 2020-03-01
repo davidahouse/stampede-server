@@ -1,21 +1,35 @@
 const yaml = require("js-yaml");
 
 /**
+ * path this handler will serve
+ */
+function path() {
+  return "/admin/uploadDefaults";
+}
+
+/**
+ * http method this handler will serve
+ */
+function method() {
+  return "post";
+}
+
+/**
  * handle uploadDefaults
  * @param {*} req
  * @param {*} res
- * @param {*} cache
- * @param {*} db
- * @param {*} path
+ * @param {*} dependencies
  */
-async function handle(req, res, cache, db, path) {
-  const uploadDefaultsData = req.files.uploadFile;
-  const uploadDefaults = yaml.safeLoad(uploadDefaultsData.data);
-  if (uploadDefaults != null) {
-    await cache.storeSystemDefaults(uploadDefaults);
+async function handle(req, res, dependencies) {
+  if (req.files != null) {
+    const uploadDefaultsData = req.files.uploadFile;
+    const uploadDefaults = yaml.safeLoad(uploadDefaultsData.data);
+    if (uploadDefaults != null) {
+      await cache.storeSystemDefaults(uploadDefaults);
+    }
   }
 
-  const defaults = await cache.fetchSystemDefaults();
+  const defaults = await dependencies.cache.fetchSystemDefaults();
   const configDefaults = [];
   if (defaults != null && defaults.defaults != null) {
     Object.keys(defaults.defaults).forEach(function(key) {
@@ -25,7 +39,11 @@ async function handle(req, res, cache, db, path) {
       });
     });
   }
-  res.render(path + "admin/defaults", { defaults: configDefaults });
+  res.render(dependencies.viewsPath + "admin/defaults", {
+    defaults: configDefaults
+  });
 }
 
+module.exports.path = path;
+module.exports.method = method;
 module.exports.handle = handle;

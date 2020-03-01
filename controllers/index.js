@@ -1,13 +1,19 @@
 /**
+ * path this handler will serve
+ */
+function path() {
+  return "/";
+}
+
+/**
  * handle index
  * @param {*} req
  * @param {*} res
- * @param {*} cache
- * @param {*} db
- * @param {*} path
+ * @param {*} dependencies
  */
-async function handle(req, res, cache, db, path) {
-  res.render(path + 'index', {})
+async function handle(req, res, dependencies) {
+  res.render(dependencies.viewsPath + "index", {});
 }
 
-module.exports.handle = handle
+module.exports.path = path;
+module.exports.handle = handle;

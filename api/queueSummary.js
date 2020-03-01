@@ -2,22 +2,27 @@
 const Queue = require("bull");
 
 /**
+ * The url path this handler will serve
+ */
+function path() {
+  return "/api/queueSummary";
+}
+
+/**
  * handle queueSummary
  * @param {*} req
  * @param {*} res
- * @param {*} serverConf
- * @param {*} cache
- * @param {*} db
+ * @param {*} dependencies
  */
-async function handle(req, res, serverConf, cache, db) {
+async function handle(req, res, dependencies) {
   const redisConfig = {
     redis: {
-      port: serverConf.redisPort,
-      host: serverConf.redisHost,
-      password: serverConf.redisPassword
+      port: dependencies.serverConfig.redisPort,
+      host: dependencies.serverConfig.redisHost,
+      password: dependencies.serverConfig.redisPassword
     }
   };
-  const queueList = await cache.systemQueues.fetchSystemQueues();
+  const queueList = await dependencies.cache.systemQueues.fetchSystemQueues();
   const queues = [];
 
   for (let index = 0; index < queueList.length; index++) {
@@ -31,4 +36,5 @@ async function handle(req, res, serverConf, cache, db) {
   res.send(queues);
 }
 
+module.exports.path = path;
 module.exports.handle = handle;
