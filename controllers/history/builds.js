@@ -1,15 +1,23 @@
 /**
+ * path this handler will serve
+ */
+function path() {
+  return "/history/builds";
+}
+
+/**
  * handle tasks
  * @param {*} req
  * @param {*} res
- * @param {*} cache
- * @param {*} db
- * @param {*} path
+ * @param {*} dependencies
  */
-async function handle(req, res, cache, db, path) {
-  const builds = await db.recentBuilds(8, 50);
+async function handle(req, res, dependencies) {
+  const builds = await dependencies.db.recentBuilds(8, 50);
   console.dir(builds);
-  res.render(path + "history/builds", { builds: builds.rows });
+  res.render(dependencies.viewsPath + "history/builds", {
+    builds: builds.rows
+  });
 }
 
+module.exports.path = path;
 module.exports.handle = handle;

@@ -1,37 +1,42 @@
 /**
+ * path this handler will serve
+ */
+function path() {
+  return "/history/dailySummary";
+}
+
+/**
  * handle dailySummary
  * @param {*} req
  * @param {*} res
- * @param {*} cache
- * @param {*} db
- * @param {*} path
+ * @param {*} dependencies
  */
-async function handle(req, res, cache, db, path) {
+async function handle(req, res, dependencies) {
   let todayBuildsCount = "";
-  const todayBuilds = await db.countRecentBuilds("Today");
+  const todayBuilds = await dependencies.db.countRecentBuilds("Today");
   if (todayBuilds.rows.length > 0) {
     todayBuildsCount = todayBuilds.rows[0].count;
   }
 
   let yesterdayBuildsCount = "";
-  const yesterdayBuilds = await db.countRecentBuilds("Yesterday");
+  const yesterdayBuilds = await dependencies.db.countRecentBuilds("Yesterday");
   if (yesterdayBuilds.rows.length > 0) {
     yesterdayBuildsCount = yesterdayBuilds.rows[0].count;
   }
 
   let todayTasksCount = "";
-  const todayTasks = await db.countRecentTasks("Today");
+  const todayTasks = await dependencies.db.countRecentTasks("Today");
   if (todayTasks.rows.length > 0) {
     todayTasksCount = todayTasks.rows[0].count;
   }
 
   let yesterdayTasksCount = "";
-  const yesterdayTasks = await db.countRecentTasks("Yesterday");
+  const yesterdayTasks = await dependencies.db.countRecentTasks("Yesterday");
   if (yesterdayTasks.rows.length > 0) {
     yesterdayTasksCount = yesterdayTasks.rows[0].count;
   }
 
-  const buildSummary = await db.summarizeRecentBuilds();
+  const buildSummary = await dependencies.db.summarizeRecentBuilds();
   const buildLabels = [];
   const buildData = [];
   for (let index = 0; index < buildSummary.rows.length; index++) {
@@ -50,7 +55,7 @@ async function handle(req, res, cache, db, path) {
     ]
   };
 
-  const taskSummary = await db.summarizeRecentTasks();
+  const taskSummary = await dependencies.db.summarizeRecentTasks();
 
   const taskLabels = [];
   const taskData = [];
@@ -69,7 +74,7 @@ async function handle(req, res, cache, db, path) {
     ]
   };
 
-  res.render(path + "history/dailySummary", {
+  res.render(dependencies.viewsPath + "history/dailySummary", {
     yesterdayBuilds: yesterdayBuildsCount,
     yesterdayTasks: yesterdayTasksCount,
     todayBuilds: todayBuildsCount,
@@ -79,4 +84,5 @@ async function handle(req, res, cache, db, path) {
   });
 }
 
+module.exports.path = path;
 module.exports.handle = handle;

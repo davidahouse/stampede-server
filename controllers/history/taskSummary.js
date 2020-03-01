@@ -1,12 +1,17 @@
 /**
+ * path this handler will serve
+ */
+function path() {
+  return "/history/taskSummary";
+}
+
+/**
  * handle buildSummary
  * @param {*} req
  * @param {*} res
- * @param {*} cache
- * @param {*} db
- * @param {*} path
+ * @param {*} dependencies
  */
-async function handle(req, res, cache, db, path) {
+async function handle(req, res, dependencies) {
   let timeFilter = "Last 8 hours";
   if (req.query.time != null) {
     timeFilter = req.query.time;
@@ -17,7 +22,7 @@ async function handle(req, res, cache, db, path) {
     repositoryFilter = req.query.repository;
   }
 
-  const repositoriesRows = await db.fetchRepositories();
+  const repositoriesRows = await dependencies.db.fetchRepositories();
   const repositories = [];
   repositories.push("All");
   for (let index = 0; index < repositoriesRows.rows.length; index++) {
@@ -28,12 +33,12 @@ async function handle(req, res, cache, db, path) {
     );
   }
 
-  const taskList = await cache.fetchTasks();
+  const taskList = await dependencies.cache.fetchTasks();
   const sortedTasks = taskList.sort();
 
   const graphs = [];
   for (let index = 0; index < sortedTasks.length; index++) {
-    const tasks = await db.recentTasks(
+    const tasks = await dependencies.db.recentTasks(
       timeFilter,
       sortedTasks[index],
       repositoryFilter,
@@ -106,7 +111,7 @@ async function handle(req, res, cache, db, path) {
     });
   }
 
-  res.render(path + "history/taskSummary", {
+  res.render(dependencies.viewsPath + "history/taskSummary", {
     graphs: graphs,
     timeFilter: timeFilter,
     timeFilterList: ["Last 8 hours", "Today", "Yesterday"],
@@ -115,4 +120,5 @@ async function handle(req, res, cache, db, path) {
   });
 }
 
+module.exports.path = path;
 module.exports.handle = handle;
