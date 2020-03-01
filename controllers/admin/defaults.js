@@ -1,13 +1,18 @@
 /**
+ * path this handler will serve
+ */
+function path() {
+  return "/admin/defaults";
+}
+
+/**
  * handle tasks
  * @param {*} req
  * @param {*} res
- * @param {*} cache
- * @param {*} db
- * @param {*} path
+ * @param {*} dependencies
  */
-async function handle(req, res, cache, db, path) {
-  const defaults = await cache.fetchSystemDefaults();
+async function handle(req, res, dependencies) {
+  const defaults = await dependencies.cache.fetchSystemDefaults();
   const configDefaults = [];
   if (defaults != null && defaults.defaults != null) {
     Object.keys(defaults.defaults).forEach(function(key) {
@@ -17,7 +22,10 @@ async function handle(req, res, cache, db, path) {
       });
     });
   }
-  res.render(path + "admin/defaults", { defaults: configDefaults });
+  res.render(dependencies.viewsPath + "admin/defaults", {
+    defaults: configDefaults
+  });
 }
 
+module.exports.path = path;
 module.exports.handle = handle;
