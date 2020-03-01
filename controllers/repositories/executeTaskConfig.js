@@ -1,18 +1,30 @@
 const yaml = require("js-yaml");
 
 /**
+ * path this handler will serve
+ */
+function path() {
+  return "/repositories/executeTaskConfig";
+}
+
+/**
+ * http method this handler will serve
+ */
+function method() {
+  return "post";
+}
+
+/**
  * handle executeTaskSelection
  * @param {*} req
  * @param {*} res
- * @param {*} cache
- * @param {*} db
- * @param {*} path
+ * @param {*} dependencies
  */
-async function handle(req, res, cache, db, path) {
+async function handle(req, res, dependencies) {
   const owner = req.body.owner;
   const repository = req.body.repository;
 
-  const taskDetails = await cache.fetchTaskConfig(req.body.task);
+  const taskDetails = await dependencies.cache.fetchTaskConfig(req.body.task);
   const scm = [];
   const config = [];
   let taskQueue = taskDetails.taskQueue;
@@ -97,7 +109,7 @@ async function handle(req, res, cache, db, path) {
     });
   }
 
-  res.render(path + "repositories/executeTaskConfig", {
+  res.render(dependencies.viewsPath + "repositories/executeTaskConfig", {
     owner: owner,
     repository: repository,
     task: req.body.task,
@@ -108,4 +120,6 @@ async function handle(req, res, cache, db, path) {
   });
 }
 
+module.exports.path = path;
+module.exports.method = method;
 module.exports.handle = handle;

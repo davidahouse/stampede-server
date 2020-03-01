@@ -1,24 +1,37 @@
 /**
+ * path this handler will serve
+ */
+function path() {
+  return "/repositories/repositoryDetails";
+}
+
+/**
  * handle index
  * @param {*} req
  * @param {*} res
- * @param {*} cache
- * @param {*} db
- * @param {*} path
+ * @param {*} dependencies
  */
-async function handle(req, res, cache, db, path) {
+async function handle(req, res, dependencies) {
   const owner = req.query.owner;
   const repository = req.query.repository;
 
-  const buildNumber = await cache.fetchBuildNumber(
+  const buildNumber = await dependencies.cache.fetchBuildNumber(
     owner + "-" + repository + "-buildNumber"
   );
 
-  const activeBuilds = await db.activeBuilds(owner, repository);
-  const recentBuilds = await db.recentBuilds(1000, 50, owner, repository);
+  const activeBuilds = await dependencies.db.activeBuilds(owner, repository);
+  const recentBuilds = await dependencies.db.recentBuilds(
+    1000,
+    50,
+    owner,
+    repository
+  );
 
   // Cached Repo config
-  const repoConfig = await cache.fetchRepoConfig(owner, repository);
+  const repoConfig = await dependencies.cache.fetchRepoConfig(
+    owner,
+    repository
+  );
   const configSource =
     repoConfig != null ? "Cache" : "Repository .stampede.yaml";
   const configSourceDestination =
@@ -26,13 +39,15 @@ async function handle(req, res, cache, db, path) {
   const configSourceAction = repoConfig != null ? "View" : "Upload";
 
   // Org and repo defaults and overrides
-  const orgDefaults = await cache.orgConfigDefaults.fetchDefaults(owner);
+  const orgDefaults = await dependencies.cache.orgConfigDefaults.fetchDefaults(
+    owner
+  );
   const orgDefaultStatus =
     Object.keys(orgDefaults.defaults).length > 0
       ? "Has Defaults"
       : "No Defaults Found";
 
-  const repoDefaults = await cache.repoConfigDefaults.fetchDefaults(
+  const repoDefaults = await dependencies.cache.repoConfigDefaults.fetchDefaults(
     owner,
     repository
   );
@@ -41,13 +56,15 @@ async function handle(req, res, cache, db, path) {
       ? "Has Defaults"
       : "No Defaults Found";
 
-  const orgOverrides = await cache.orgConfigOverrides.fetchOverrides(owner);
+  const orgOverrides = await dependencies.cache.orgConfigOverrides.fetchOverrides(
+    owner
+  );
   const orgOverrideStatus =
     Object.keys(orgOverrides.overrides).length > 0
       ? "Has Overrides"
       : "No Overrides Found";
 
-  const repoOverrides = await cache.repoConfigOverrides.fetchOverrides(
+  const repoOverrides = await dependencies.cache.repoConfigOverrides.fetchOverrides(
     owner,
     repository
   );
@@ -56,12 +73,12 @@ async function handle(req, res, cache, db, path) {
       ? "Has Overrides"
       : "No Overrides Found";
 
-  const repositoryBuilds = await cache.repositoryBuilds.fetchRepositoryBuilds(
+  const repositoryBuilds = await dependencies.cache.repositoryBuilds.fetchRepositoryBuilds(
     owner,
     repository
   );
 
-  res.render(path + "repositories/repositoryDetails", {
+  res.render(dependencies.viewsPath + "repositories/repositoryDetails", {
     owner: owner,
     repository: repository,
     nextBuildNumber: parseInt(buildNumber) + 1,
@@ -78,4 +95,5 @@ async function handle(req, res, cache, db, path) {
   });
 }
 
+module.exports.path = path;
 module.exports.handle = handle;
