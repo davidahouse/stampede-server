@@ -1,18 +1,23 @@
 const prettyMilliseconds = require("pretty-ms");
 
 /**
+ * path this handler will serve
+ */
+function path() {
+  return "/monitor/activeTasks";
+}
+
+/**
  * handle activeBuilds
  * @param {*} req
  * @param {*} res
- * @param {*} cache
- * @param {*} db
- * @param {*} path
+ * @param {*} dependencies
  */
-async function handle(req, res, cache, db, path) {
-  const activeTasks = await db.activeTasks();
+async function handle(req, res, dependencies) {
+  const activeTasks = await dependencies.db.activeTasks();
   const tasks = [];
   for (let index = 0; index < activeTasks.rows.length; index++) {
-    const taskDetails = await cache.fetchTaskConfig(
+    const taskDetails = await dependencies.cache.fetchTaskConfig(
       activeTasks.rows[index].task
     );
     const task = activeTasks.rows[index];
@@ -33,10 +38,11 @@ async function handle(req, res, cache, db, path) {
     }
   });
 
-  res.render(path + "monitor/activeTasks", {
+  res.render(dependencies.viewsPath + "monitor/activeTasks", {
     tasks: sortedTasks,
     prettyMilliseconds: ms => (ms != null ? prettyMilliseconds(ms) : "")
   });
 }
 
+module.exports.path = path;
 module.exports.handle = handle;
