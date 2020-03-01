@@ -30,6 +30,7 @@
     "express": "^4.16.4",
     "express-fileupload": "^1.1.5",
     "figlet": "^1.2.1",
+    "glob": "^7.1.6",
     "js-yaml": "^3.13.1",
     "lynn-request": "^0.4.6",
     "morgan": "^1.9.1",

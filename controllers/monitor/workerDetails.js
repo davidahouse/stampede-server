@@ -1,13 +1,18 @@
 /**
+ * path this handler will serve
+ */
+function path() {
+  return "/monitor/workerDetails";
+}
+
+/**
  * handle worker details
  * @param {*} req
  * @param {*} res
- * @param {*} cache
- * @param {*} db
- * @param {*} path
+ * @param {*} dependencies
  */
-async function handle(req, res, cache, db, path) {
-  const workers = await cache.fetchActiveWorkers();
+async function handle(req, res, dependencies) {
+  const workers = await dependencies.cache.fetchActiveWorkers();
   let worker = null;
   for (let index = 0; index < workers.length; index++) {
     if (workers[index].workerID === req.query.workerID) {
@@ -15,7 +20,10 @@ async function handle(req, res, cache, db, path) {
     }
   }
   console.dir(worker);
-  res.render(path + 'monitor/workerDetails', { worker: worker });
+  res.render(dependencies.viewsPath + "monitor/workerDetails", {
+    worker: worker != null ? worker : { lastTask: {} }
+  });
 }
 
+module.exports.path = path;
 module.exports.handle = handle;

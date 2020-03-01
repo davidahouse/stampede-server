@@ -1,15 +1,20 @@
 "use strict";
 
 /**
+ * The url path this handler will serve
+ */
+function path() {
+  return "/api/admin/configDefaults";
+}
+
+/**
  * handle
  * @param {*} req
  * @param {*} res
- * @param {*} serverConf
- * @param {*} cache
- * @param {*} db
+ * @param {*} dependencies
  */
-async function handle(req, res, serverConf, cache, db) {
-  const systemDefaults = await cache.fetchSystemDefaults();
+async function handle(req, res, dependencies) {
+  const systemDefaults = await dependencies.cache.fetchSystemDefaults();
   let defaults = {};
   if (systemDefaults != null) {
     Object.keys(systemDefaults.defaults).forEach(function(key) {
@@ -19,4 +24,5 @@ async function handle(req, res, serverConf, cache, db) {
   res.send({ defaults: defaults });
 }
 
+module.exports.path = path;
 module.exports.handle = handle;

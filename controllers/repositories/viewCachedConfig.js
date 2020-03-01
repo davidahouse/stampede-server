@@ -1,25 +1,34 @@
 const yaml = require("js-yaml");
 
 /**
+ * path this handler will serve
+ */
+function path() {
+  return "/repositories/viewCachedConfig";
+}
+
+/**
  * handle index
  * @param {*} req
  * @param {*} res
- * @param {*} cache
- * @param {*} db
- * @param {*} path
+ * @param {*} dependencies
  */
-async function handle(req, res, cache, db, path) {
+async function handle(req, res, dependencies) {
   const owner = req.query.owner;
   const repository = req.query.repository;
 
-  const repoConfig = await cache.fetchRepoConfig(owner, repository);
+  const repoConfig = await dependencies.cache.fetchRepoConfig(
+    owner,
+    repository
+  );
 
-  res.render(path + "repositories/viewCachedConfig", {
+  res.render(dependencies.viewsPath + "repositories/viewCachedConfig", {
     owner: owner,
     repository: repository,
-    repoConfig: yaml.safeDump(repoConfig),
+    repoConfig: repoConfig != null ? yaml.safeDump(repoConfig) : null,
     configSource: req.query.configSource
   });
 }
 
+module.exports.path = path;
 module.exports.handle = handle;

@@ -2,12 +2,17 @@ const yaml = require("js-yaml");
 const repositoryBuild = require("../../lib/repositoryBuild");
 
 /**
+ * path this handler will serve
+ */
+function path() {
+  return "/repositories/executeRepositoryBuild";
+}
+
+/**
  * handle index
  * @param {*} req
  * @param {*} res
- * @param {*} cache
- * @param {*} db
- * @param {*} path
+ * @param {*} dependencies
  */
 async function handle(req, res, dependencies) {
   console.log("--- In executeRepositoryBuild!");
@@ -36,4 +41,5 @@ async function handle(req, res, dependencies) {
   res.end();
 }
 
+module.exports.path = path;
 module.exports.handle = handle;

@@ -1,15 +1,20 @@
 const prettyMilliseconds = require("pretty-ms");
 
 /**
+ * path this handler will serve
+ */
+function path() {
+  return "/monitor/workers";
+}
+
+/**
  * handle workers
  * @param {*} req
  * @param {*} res
- * @param {*} cache
- * @param {*} db
- * @param {*} path
+ * @param {*} dependencies
  */
-async function handle(req, res, cache, db, path) {
-  const workers = await cache.fetchActiveWorkers();
+async function handle(req, res, dependencies) {
+  const workers = await dependencies.cache.fetchActiveWorkers();
   const sortedWorkers = workers.sort(function(a, b) {
     if (a.node < b.node) {
       return -1;
@@ -24,10 +29,11 @@ async function handle(req, res, cache, db, path) {
     }
     return 0;
   });
-  res.render(path + "monitor/workers", {
+  res.render(dependencies.viewsPath + "monitor/workers", {
     workers: sortedWorkers,
     prettyMilliseconds: ms => (ms != null ? prettyMilliseconds(ms) : "")
   });
 }
 
+module.exports.path = path;
 module.exports.handle = handle;

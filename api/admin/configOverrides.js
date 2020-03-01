@@ -1,15 +1,20 @@
 "use strict";
 
 /**
+ * The url path this handler will serve
+ */
+function path() {
+  return "/api/admin/configOverrides";
+}
+
+/**
  * handle
  * @param {*} req
  * @param {*} res
- * @param {*} serverConf
- * @param {*} cache
- * @param {*} db
+ * @param {*} dependencies
  */
-async function handle(req, res, serverConf, cache, db) {
-  const systemOverrides = await cache.fetchSystemOverrides();
+async function handle(req, res, dependencies) {
+  const systemOverrides = await dependencies.cache.fetchSystemOverrides();
   let overrides = {};
   if (systemOverrides != null) {
     Object.keys(systemOverrides.overrides).forEach(function(key) {
@@ -19,4 +24,5 @@ async function handle(req, res, serverConf, cache, db) {
   res.send({ overrides: overrides });
 }
 
+module.exports.path = path;
 module.exports.handle = handle;

@@ -1,21 +1,26 @@
 /**
+ * path this handler will serve
+ */
+function path() {
+  return "/repositories/executeTaskSelection";
+}
+
+/**
  * handle executeTaskSelection
  * @param {*} req
  * @param {*} res
- * @param {*} cache
- * @param {*} db
- * @param {*} path
+ * @param {*} dependencies
  */
-async function handle(req, res, cache, db, path) {
+async function handle(req, res, dependencies) {
   const owner = req.query.owner;
   const repository = req.query.repository;
 
-  const taskList = await cache.fetchTasks();
+  const taskList = await dependencies.cache.fetchTasks();
   const sortedTasks = taskList.sort();
 
   const buildTypeList = ["Pull Request", "Branch", "Release"];
 
-  res.render(path + "repositories/executeTaskSelection", {
+  res.render(dependencies.viewsPath + "repositories/executeTaskSelection", {
     owner: owner,
     repository: repository,
     taskList: sortedTasks,
@@ -23,4 +28,5 @@ async function handle(req, res, cache, db, path) {
   });
 }
 
+module.exports.path = path;
 module.exports.handle = handle;

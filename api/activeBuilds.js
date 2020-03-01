@@ -1,15 +1,20 @@
 "use strict";
 
 /**
+ * The url path this handler will serve
+ */
+function path() {
+  return "/api/activeBuilds";
+}
+
+/**
  * handle activeBuilds
  * @param {*} req
  * @param {*} res
- * @param {*} serverConf
- * @param {*} cache
- * @param {*} db
+ * @param {*} dependencies
  */
-async function handle(req, res, serverConf, cache, db) {
-  const activeBuilds = await cache.fetchActiveBuilds();
+async function handle(req, res, dependencies) {
+  const activeBuilds = await dependencies.cache.fetchActiveBuilds();
   let prefix = req.query.repository != null ? req.query.repository + "-" : "";
   if (req.query.owner != null) {
     prefix = req.query.owner + "-" + prefix;
@@ -19,8 +24,8 @@ async function handle(req, res, serverConf, cache, db) {
   const builds = [];
   for (let index = 0; index < filteredBuilds.length; index++) {
     const buildID = filteredBuilds[index];
-    const buildDetails = await db.fetchBuild(buildID);
-    const tasks = await db.fetchBuildTasks(buildID);
+    const buildDetails = await dependencies.db.fetchBuild(buildID);
+    const tasks = await dependencies.db.fetchBuildTasks(buildID);
     builds.push({
       buildID: buildID,
       buildDetails:
@@ -34,4 +39,5 @@ async function handle(req, res, serverConf, cache, db) {
   res.send(builds);
 }
 
+module.exports.path = path;
 module.exports.handle = handle;
