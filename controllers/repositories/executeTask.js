@@ -1,6 +1,20 @@
 const taskExecute = require("../../lib/taskExecute");
 
 /**
+ * path this handler will serve
+ */
+function path() {
+  return "/repositories/executeTask";
+}
+
+/**
+ * http method this handler will serve
+ */
+function method() {
+  return "post";
+}
+
+/**
  * handle executeTaskSelection
  * @param {*} req
  * @param {*} res
@@ -74,4 +88,6 @@ async function handle(req, res, dependencies) {
   });
 }
 
+module.exports.path = path;
+module.exports.method = method;
 module.exports.handle = handle;

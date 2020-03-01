@@ -1,30 +1,35 @@
 const prettyMilliseconds = require("pretty-ms");
+/**
+ * path this handler will serve
+ */
+function path() {
+  return "/repositories/repositoryBuildDetails";
+}
 
 /**
  * handle repositoryBuildDetails
  * @param {*} req
  * @param {*} res
- * @param {*} cache
- * @param {*} db
- * @param {*} path
+ * @param {*} dependencies
  */
-async function handle(req, res, cache, db, path) {
+async function handle(req, res, dependencies) {
   const owner = req.query.owner;
   const repository = req.query.repository;
   const buildID = req.query.build;
-  const build = await cache.repositoryBuilds.fetchRepositoryBuild(
+  const build = await dependencies.cache.repositoryBuilds.fetchRepositoryBuild(
     owner,
     repository,
     buildID
   );
 
-  res.render(path + "repositories/repositoryBuildDetails", {
+  res.render(dependencies.viewsPath + "repositories/repositoryBuildDetails", {
     owner: owner,
     repository: repository,
     buildID: buildID,
-    build: build,
+    build: build != null ? build : {},
     prettyMilliseconds: ms => (ms != null ? prettyMilliseconds(ms) : "")
   });
 }
 
+module.exports.path = path;
 module.exports.handle = handle;

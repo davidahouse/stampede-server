@@ -1,17 +1,23 @@
 /**
+ * path this handler will serve
+ */
+function path() {
+  return "/repositories";
+}
+
+/**
  * handle index
  * @param {*} req
  * @param {*} res
- * @param {*} cache
- * @param {*} db
- * @param {*} path
+ * @param {*} dependencies
  */
-async function handle(req, res, cache, db, path) {
-  const repositories = await db.fetchRepositories();
+async function handle(req, res, dependencies) {
+  const repositories = await dependencies.db.fetchRepositories();
   console.dir(repositories.rows);
-  res.render(path + "repositories/repositories", {
+  res.render(dependencies.viewsPath + "repositories/repositories", {
     repositories: repositories.rows
   });
 }
 
+module.exports.path = path;
 module.exports.handle = handle;
