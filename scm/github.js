@@ -77,6 +77,37 @@ async function getAuthorizedOctokit(owner, repo, serverConf) {
   return authorizedOctokit;
 }
 
+async function getAccessToken(owner, repo, serverConf) {
+  const app = new App({
+    id: serverConf.githubAppID,
+    privateKey: serverConf.githubAppPEM,
+    baseUrl: serverConf.githubHost
+  });
+  const jwt = app.getSignedJsonWebToken();
+  const octokit = Octokit({
+    auth: "Bearer " + jwt,
+    userAgent: "octokit/rest.js v1.2.3",
+    baseUrl: serverConf.githubHost,
+    log: {
+      debug: () => {},
+      info: () => {},
+      warn: console.warn,
+      error: console.error
+    }
+  });
+  console.log("--- getRepoInstallation");
+  const installation = await octokit.apps.getRepoInstallation({
+    owner,
+    repo
+  });
+  const installID = installation.data.id;
+  console.log("--- getInstallationAccessToken");
+  const accessToken = await app.getInstallationAccessToken({
+    installationId: installID
+  });
+  return accessToken;
+}
+
 /**
  * findRepoConfig
  * @param {*} owner
@@ -341,3 +372,4 @@ module.exports.createCheckRun = createCheckRun;
 module.exports.updateCheck = updateCheck;
 module.exports.getTagInfo = getTagInfo;
 module.exports.createStampedeCheck = createStampedeCheck;
+module.exports.getAccessToken = getAccessToken;
