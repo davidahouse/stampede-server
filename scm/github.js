@@ -95,13 +95,11 @@ async function getAccessToken(owner, repo, serverConf) {
       error: console.error
     }
   });
-  console.log("--- getRepoInstallation");
   const installation = await octokit.apps.getRepoInstallation({
     owner,
     repo
   });
   const installID = installation.data.id;
-  console.log("--- getInstallationAccessToken");
   const accessToken = await app.getInstallationAccessToken({
     installationId: installID
   });
