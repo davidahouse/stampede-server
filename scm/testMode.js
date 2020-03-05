@@ -108,9 +108,20 @@ async function createStampedeCheck(
   serverConf
 ) {}
 
+/**
+ * getAccessToken
+ * @param {*} owner
+ * @param {*} repo
+ * @param {*} serverConf
+ */
+async function getAccessToken(owner, repo, serverConf) {
+  return "123456789101112";
+}
+
 module.exports.verifyCredentials = verifyCredentials;
 module.exports.findRepoConfig = findRepoConfig;
 module.exports.createCheckRun = createCheckRun;
 module.exports.getTagInfo = getTagInfo;
 module.exports.updateCheck = updateCheck;
 module.exports.createStampedeCheck = createStampedeCheck;
+module.exports.getAccessToken = getAccessToken;
