@@ -278,6 +278,14 @@ async function updateCheck(owner, repo, serverConf, update) {
   const authorizedOctokit = await getAuthorizedOctokit(owner, repo, serverConf);
   await authorizedOctokit.checks.update(update).catch(error => {
     console.log(chalk.red("Error updating check in Github: " + error));
+    if (update.output.summary != null) {
+      console.log(
+        chalk.red("Summary text size is: " + update.output.summary.length)
+      );
+    }
+    if (update.output.text != null) {
+      console.log(chalk.red("Text size is: " + update.output.text.length));
+    }
     update.output = {
       title: "Task Results",
       summary: "Error applying task results, contact your stampede admin.",
