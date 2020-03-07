@@ -3,8 +3,15 @@ pullrequests:
     - id: pr-standards
       config:
         prMilestoneCheck: true
+        prBodyCheck: true
     - id: lint-nodejs
     - id: unit-tests-nodejs
+pullrequestedit:
+  tasks:
+    - id: pr-standards
+      config:
+        prMilestoneCheck: true
+        prBodyCheck: true
 releases:
   published:
     tasks:
