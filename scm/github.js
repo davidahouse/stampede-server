@@ -239,15 +239,19 @@ async function createCheckRun(
   serverConf
 ) {
   const authorizedOctokit = await getAuthorizedOctokit(owner, repo, serverConf);
-  const checkRun = await authorizedOctokit.checks.create({
-    owner: owner,
-    repo: repo,
-    name: taskTitle,
-    head_sha: head_sha,
-    status: "queued",
-    external_id: external_id,
-    started_at: started_at
-  });
+  const checkRun = await authorizedOctokit.checks
+    .create({
+      owner: owner,
+      repo: repo,
+      name: taskTitle,
+      head_sha: head_sha,
+      status: "queued",
+      external_id: external_id,
+      started_at: started_at
+    })
+    .catch(error => {
+      console.log(chalk.red("Error creating check run: " + error));
+    });
   return checkRun;
 }
 
