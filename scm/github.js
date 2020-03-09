@@ -252,6 +252,10 @@ async function createCheckRun(
     .catch(error => {
       console.log(chalk.red("Error creating check run: " + error));
     });
+  if (checkRun.data == null || checkRun.data.id == null) {
+    console.log(chalk.red("Error receiving a check run id. Response was:"));
+    console.dir(checkRun);
+  }
   return checkRun;
 }
 
