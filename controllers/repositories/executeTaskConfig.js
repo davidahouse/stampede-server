@@ -74,6 +74,18 @@ async function handle(req, res, dependencies) {
       value: providedScm.prTitle != null ? providedScm.prTitle : ""
     });
     scm.push({
+      key: "pr body length",
+      value: providedScm.prBodyLength != null ? providedScm.prBodyLength : ""
+    });
+    scm.push({
+      key: "pr milestone",
+      value: providedScm.prMilestone != null ? providedScm.prMilestone : ""
+    });
+    scm.push({
+      key: "pr labels",
+      value: providedScm.prLabels != null ? providedScm.prLabels : ""
+    });
+    scm.push({
       key: "head ref",
       value: providedScm.headRef != null ? providedScm.headRef : ""
     });

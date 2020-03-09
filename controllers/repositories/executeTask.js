@@ -43,6 +43,9 @@ async function handle(req, res, dependencies) {
     scmConfig.pullRequest = {
       number: req.body["pr number"],
       title: req.body["pr title"],
+      bodyLength: req.body["pr body length"],
+      milestone: req.body["pr milestone"],
+      labels: req.body["pr labels"].split(","),
       head: {
         ref: req.body["head ref"],
         sha: req.body["head sha"]
