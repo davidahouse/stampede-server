@@ -25,7 +25,7 @@ async function handle(req, res, dependencies) {
     const uploadDefaultsData = req.files.uploadFile;
     const uploadDefaults = yaml.safeLoad(uploadDefaultsData.data);
     if (uploadDefaults != null) {
-      await cache.storeSystemDefaults(uploadDefaults);
+      await dependencies.cache.storeSystemDefaults(uploadDefaults);
     }
   }
 
