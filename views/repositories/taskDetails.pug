@@ -57,9 +57,11 @@ block content
 
         +infoCard('Summary')
           div(id="task-result-summary")
+          div(id="task-result-summary-data")
+            = summary
           script.
             document.getElementById('task-result-summary').innerHTML =
-              marked('!{summary}', {gfm: true});
+              marked(document.getElementById('task-result-summary-data'), {gfm: true});
 
         +infoCard('Text')
           div(id="task-result-text")
