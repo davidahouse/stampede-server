@@ -1,10 +1,11 @@
-const yaml = require("js-yaml");
+require("pkginfo")(module);
+const uuidv1 = require("uuid/v1");
 
 /**
  * path this handler will serve
  */
 function path() {
-  return "/repositories/removeOrgConfigDefaults";
+  return "/admin/performLogin";
 }
 
 /**
@@ -18,27 +19,25 @@ function method() {
  * if the route requires admin
  */
 function requiresAdmin() {
-  return true;
+  return false;
 }
 
 /**
- * handle index
+ * handle tasks
  * @param {*} req
  * @param {*} res
  * @param {*} dependencies
  */
 async function handle(req, res, dependencies) {
-  const owner = req.body.owner;
-  const repository = req.body.repository;
-  await dependencies.cache.orgConfigDefaults.removeDefaults(owner);
-  res.writeHead(301, {
-    Location:
-      "/repositories/viewOrgConfigDefaults?owner=" +
-      owner +
-      "&repository=" +
-      repository
-  });
-  res.end();
+  if (req.body.password === dependencies.serverConfig.adminPassword) {
+    const sessionID = uuidv1();
+    res.cookie("sSession", sessionID, { maxAge: 1000 * 60 * 60 * 24 * 30 });
+    res.writeHead(302, { Location: "/" });
+    res.end();
+  } else {
+    res.writeHead(301, { Location: "/admin/login" });
+    res.end();
+  }
 }
 
 module.exports.path = path;
