@@ -1,0 +1,22 @@
+extends ../layout
+
+include ../components/titleBar
+include ../components/tableHeader
+include ../components/tableCell
+include ../components/tableRow
+
+block content
+
+  div(class="w-full p-3")
+    div(class="bg-white border-transparent rounded-lg shadow-lg")
+      div(class="bg-gray-400 uppercase text-gray-800 border-b-2 border-gray-500 rounded-tl-lg rounded-tr-lg p-2")
+        h5(class="font-bold uppercase text-gray-600") Admin access is required for the page you selected:
+      div(class="p-5")
+        form(class="w-full m-4" method="POST" action="/admin/performLogin" encType="multipart/form-data")
+          div(class="flex -mx-3 mb-6")
+            div(class="w-1/2 px-3 mb-6 md:mb-0")
+              label(for="searchValue")= `Admin Password`
+            input(type="password", class="form-control", id="password", name="password", aria-describedby="passwordHelp", placeholder="Password")
+          div(class="w-1/2 px-3 mb-6 md:mb-0")
+            button(class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded") Login
+            
