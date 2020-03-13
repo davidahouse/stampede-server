@@ -6,6 +6,13 @@ function path() {
 }
 
 /**
+ * if the route requires admin
+ */
+function requiresAdmin() {
+  return true;
+}
+
+/**
  * handle tasks
  * @param {*} req
  * @param {*} res
@@ -42,4 +49,5 @@ async function handle(req, res, dependencies) {
 }
 
 module.exports.path = path;
+module.exports.requiresAdmin = requiresAdmin;
 module.exports.handle = handle;

@@ -4,14 +4,14 @@ require("pkginfo")(module);
  * path this handler will serve
  */
 function path() {
-  return "/admin/info";
+  return "/admin/logout";
 }
 
 /**
  * if the route requires admin
  */
 function requiresAdmin() {
-  return true;
+  return false;
 }
 
 /**
@@ -21,11 +21,11 @@ function requiresAdmin() {
  * @param {*} dependencies
  */
 async function handle(req, res, dependencies) {
-  res.render(dependencies.viewsPath + "admin/info", {
-    version: module.exports.version
-  });
+  res.clearCookie("sSession");
+  res.writeHead(302, { Location: "/" });
+  res.end();
 }
 
 module.exports.path = path;
-module.exports.handle = handle;
 module.exports.requiresAdmin = requiresAdmin;
+module.exports.handle = handle;

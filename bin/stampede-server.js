@@ -46,7 +46,9 @@ const conf = require("rc")("stampede", {
   scm: "github",
   // Debug assist properties
   logEventPath: null,
-  testModeRepoConfigPath: null
+  testModeRepoConfigPath: null,
+  // Admin mode
+  adminPassword: "stampede"
 });
 
 clear();
