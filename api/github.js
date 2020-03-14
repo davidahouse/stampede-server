@@ -1,5 +1,4 @@
 "use strict";
-const chalk = require("chalk");
 const eventLog = require("../lib/eventLog");
 
 // Event handlers
@@ -30,7 +29,7 @@ function method() {
  * @param {*} dependencies
  */
 async function handle(req, res, dependencies) {
-  console.log(chalk.green("--- github hook: " + req.headers["x-github-event"]));
+  dependencies.logger.verbose("Github hook: " + req.headers["x-github-event"]);
 
   if (dependencies.serverConfig.logEventPath != null) {
     eventLog.save(
@@ -49,7 +48,8 @@ async function handle(req, res, dependencies) {
       dependencies.serverConfig,
       dependencies.cache,
       dependencies.scm,
-      dependencies.db
+      dependencies.db,
+      dependencies.logger
     );
   } else if (req.headers["x-github-event"] === "check_run") {
     response = await checkRunEvent.handle(
@@ -57,7 +57,8 @@ async function handle(req, res, dependencies) {
       dependencies.serverConfig,
       dependencies.cache,
       dependencies.scm,
-      dependencies.db
+      dependencies.db,
+      dependencies.logger
     );
   } else if (req.headers["x-github-event"] === "pull_request") {
     response = await pullRequestEvent.handle(
@@ -65,7 +66,8 @@ async function handle(req, res, dependencies) {
       dependencies.serverConfig,
       dependencies.cache,
       dependencies.scm,
-      dependencies.db
+      dependencies.db,
+      dependencies.logger
     );
   } else if (req.headers["x-github-event"] === "push") {
     response = await pushEvent.handle(
@@ -73,7 +75,8 @@ async function handle(req, res, dependencies) {
       dependencies.serverConfig,
       dependencies.cache,
       dependencies.scm,
-      dependencies.db
+      dependencies.db,
+      dependencies.logger
     );
   } else if (req.headers["x-github-event"] === "release") {
     response = await releaseEvent.handle(
@@ -81,7 +84,8 @@ async function handle(req, res, dependencies) {
       dependencies.serverConfig,
       dependencies.cache,
       dependencies.scm,
-      dependencies.db
+      dependencies.db,
+      dependencies.logger
     );
   }
   res.send(response);

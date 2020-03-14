@@ -13,7 +13,6 @@ function path() {
  */
 async function handle(req, res, dependencies) {
   const builds = await dependencies.db.recentBuilds(8, 50);
-  console.dir(builds);
   res.render(dependencies.viewsPath + "history/builds", {
     builds: builds.rows
   });

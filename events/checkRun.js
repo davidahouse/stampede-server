@@ -9,11 +9,13 @@ const notification = require("../lib/notification");
  * @param {*} serverConf
  * @param {*} cache
  */
-async function handle(req, serverConf, cache, scm, db) {
+async function handle(req, serverConf, cache, scm, db, logger) {
   // Parse the incoming body into the parts we care about
   const event = parseEvent(req);
-  console.log("--- CheckRunEvent:");
-  console.dir(event);
+  logger.info("CheckRunEvent:");
+  if (serverConf.logLevel === "verbose") {
+    logger.verbose(JSON.stringify(event, null, 2));
+  }
   notification.repositoryEventReceived("check_run", event);
 
   // Ignore check_suite events not for this app
@@ -35,7 +37,8 @@ async function handle(req, serverConf, cache, scm, db) {
         scm,
         cache,
         serverConf,
-        db
+        db,
+        logger
       );
     }
   } else if (event.action === "requested_action") {
@@ -52,11 +55,12 @@ async function handle(req, serverConf, cache, scm, db) {
         scm,
         cache,
         serverConf,
-        db
+        db,
+        logger
       );
     }
   } else {
-    console.log("--- ignoring check run, not a rerequested one");
+    logger.verbose("ignoring check run, not a rerequested one");
     return { status: "check run ignored as it was not a rerequested check" };
   }
   return { status: "check runs created" };

@@ -15,7 +15,6 @@ function path() {
  * @param {*} dependencies
  */
 async function handle(req, res, dependencies) {
-  console.log("--- In executeRepositoryBuild!");
   const owner = req.query.owner;
   const repository = req.query.repository;
   const buildID = req.query.build;
@@ -25,7 +24,6 @@ async function handle(req, res, dependencies) {
     repository,
     buildID
   );
-  console.dir(buildInfo);
 
   repositoryBuild.execute(owner, repository, buildID, buildInfo, dependencies);
 

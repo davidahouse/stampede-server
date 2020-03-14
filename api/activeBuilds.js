@@ -19,7 +19,7 @@ async function handle(req, res, dependencies) {
   if (req.query.owner != null) {
     prefix = req.query.owner + "-" + prefix;
   }
-  console.log("Active build prefix: " + prefix);
+  dependencies.logger.verbose("Active build prefix: " + prefix);
   const filteredBuilds = activeBuilds.filter(build => build.startsWith(prefix));
   const builds = [];
   for (let index = 0; index < filteredBuilds.length; index++) {
@@ -35,7 +35,7 @@ async function handle(req, res, dependencies) {
       tasks: tasks.rows
     });
   }
-  console.log("Active build count: " + builds.length);
+  dependencies.logger.verbose("Active build count: " + builds.length);
   res.send(builds);
 }
 
