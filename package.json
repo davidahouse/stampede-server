@@ -24,7 +24,6 @@
     "@octokit/rest": "^16.43.1",
     "body-parser": "^1.18.3",
     "bull": "^3.10.0",
-    "chalk": "^2.4.2",
     "clear": "^0.1.0",
     "cookie-parser": "^1.4.4",
     "express": "^4.16.4",
@@ -43,6 +42,7 @@
     "sanitize-filename": "^1.6.3",
     "stampede-cache": "^0.13.1",
     "uuid": "^3.3.3",
+    "winston": "^3.2.1",
     "ws": "^6.0.0"
   },
   "devDependencies": {

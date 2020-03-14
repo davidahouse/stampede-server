@@ -3,11 +3,15 @@
 const fs = require("fs");
 const yaml = require("js-yaml");
 
+let systemLogger = null;
+
 /**
  * verifyCredentials
  * @param {*} serverConf
  */
-async function verifyCredentials(serverConf) {}
+async function verifyCredentials(serverConf, logger) {
+  systemLogger = logger;
+}
 
 /**
  * findRepoConfig
@@ -26,11 +30,9 @@ async function findRepoConfig(owner, repo, stampedeFile, sha, serverConf) {
         "/" +
         repo +
         "/.stampede.yaml";
-      console.log("--- loading repo config: " + path);
+      systemLogger.verbose("--- loading repo config: " + path);
       const testModeConfigFile = fs.readFileSync(path);
       const config = yaml.safeLoad(testModeConfigFile);
-      console.log("stampede file:");
-      console.dir(config);
       return config;
     } catch (e) {
       return {};
@@ -53,15 +55,14 @@ async function createCheckRun(
   started_at,
   serverConf
 ) {
-  console.log("--- createCheckRun");
-  console.log("owner: " + owner);
-  console.log("repo: " + repo);
-  console.log("task: " + taskTitle);
-  console.log("taskTitle: " + taskTitle);
-  console.log("head_sha: " + head_sha);
-  console.log("external_id: " + external_id);
-  console.log("started_at: " + started_at);
-  console.dir(serverConf);
+  systemLogger.verbose("--- createCheckRun");
+  systemLogger.verbose("owner: " + owner);
+  systemLogger.verbose("repo: " + repo);
+  systemLogger.verbose("task: " + taskTitle);
+  systemLogger.verbose("taskTitle: " + taskTitle);
+  systemLogger.verbose("head_sha: " + head_sha);
+  systemLogger.verbose("external_id: " + external_id);
+  systemLogger.verbose("started_at: " + started_at);
   return {
     data: {
       id: "123"
@@ -93,7 +94,7 @@ async function getTagInfo(owner, repo, ref, serverConf) {
  * @param {*} update
  */
 async function updateCheck(owner, repo, serverConf, update) {
-  console.log("--- updateCheck");
+  systemLogger.verbose("--- updateCheck");
 }
 
 /**

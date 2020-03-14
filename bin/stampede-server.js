@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 "use strict";
-const chalk = require("chalk");
 const clear = require("clear");
 const figlet = require("figlet");
 const fs = require("fs");
@@ -8,12 +7,12 @@ const cache = require("stampede-cache");
 const os = require("os");
 require("pkginfo")(module);
 const viewsPath = __dirname + "/../views/";
+const winston = require("winston");
 
 // Internal modules
 const web = require("../lib/web");
 const taskQueue = require("../lib/taskQueue");
 const taskUpdate = require("../lib/taskUpdate");
-const taskExecute = require("../lib/taskExecute");
 const notification = require("../lib/notification");
 const db = require("../lib/db");
 const repositoryBuild = require("../lib/repositoryBuild");
@@ -48,20 +47,36 @@ const conf = require("rc")("stampede", {
   logEventPath: null,
   testModeRepoConfigPath: null,
   // Admin mode
-  adminPassword: "stampede"
+  adminPassword: "stampede",
+  // Logging
+  logLevel: "info"
+});
+
+// Configure winston logging
+const logFormat = winston.format.combine(
+  winston.format.colorize(),
+  winston.format.timestamp(),
+  winston.format.align(),
+  winston.format.printf(
+    info => `${info.timestamp} ${info.level}: ${info.message}`
+  )
+);
+
+const logger = winston.createLogger({
+  level: conf.logLevel,
+  format: logFormat,
+  transports: [new winston.transports.Console()]
 });
 
 clear();
-console.log(
-  chalk.red(figlet.textSync("stampede", { horizontalLayout: "full" }))
-);
-console.log(chalk.yellow(module.exports.version));
-console.log(chalk.red("Redis Host: " + conf.redisHost));
-console.log(chalk.red("Redis Port: " + conf.redisPort));
-console.log(chalk.red("Web Port: " + conf.webPort));
-console.log(chalk.red("SCM: " + conf.scm));
-console.log(chalk.red("GitHub APP ID: " + conf.githubAppID));
-console.log(chalk.red("GitHub PEM Path: " + conf.githubAppPEMPath));
+logger.info(figlet.textSync("stampede", { horizontalLayout: "full" }));
+logger.info(module.exports.version);
+logger.info("Redis Host: " + conf.redisHost);
+logger.info("Redis Port: " + conf.redisPort);
+logger.info("Web Port: " + conf.webPort);
+logger.info("SCM: " + conf.scm);
+logger.info("GitHub APP ID: " + conf.githubAppID);
+logger.info("GitHub PEM Path: " + conf.githubAppPEMPath);
 
 if (conf.scm === "github") {
   // Load up our key for this GitHub app. You get this key from GitHub
@@ -82,10 +97,8 @@ if (conf.scm === "github") {
     conf.githubAppPEM == null ||
     conf.githubHost == null
   ) {
-    console.log(
-      chalk.red(
-        "Stampede needs a GitHub APP ID, PEM certificate and host in order to operate. Not found in the config so unable to continue."
-      )
+    logger.error(
+      "Stampede needs a GitHub APP ID, PEM certificate and host in order to operate. Not found in the config so unable to continue."
     );
     process.exit(1);
   }
@@ -117,12 +130,12 @@ if (conf.scm === "github") {
 } else if (conf.scm === "testMode") {
   scm = require("../scm/testMode");
 } else {
-  console.error(
+  logger.error(
     "Invalid scm specified in the config: " + conf.scm + ", unable to continue"
   );
   process.exit(1);
 }
-scm.verifyCredentials(conf);
+scm.verifyCredentials(conf, logger);
 
 // Start our own queue that listens for updates that need to get
 // made back into GitHub
@@ -130,19 +143,15 @@ const responseQueue = taskQueue.createTaskQueue(
   "stampede-" + conf.responseQueue
 );
 responseQueue.on("error", function(error) {
-  console.log(chalk.red("Error from response queue: " + error));
+  logger.error("Error from response queue: " + error);
 });
 
 responseQueue.process(function(job) {
   if (job.data.response === "taskUpdate") {
-    return taskUpdate.handle(job.data.payload, conf, cache, scm, db);
+    return taskUpdate.handle(job.data.payload, conf, cache, scm, db, logger);
   } else if (job.data.response === "heartbeat") {
     cache.storeWorkerHeartbeat(job.data.payload);
     notification.workerHeartbeat(job.data.payload);
-  } else if (job.data.response === "executeTask") {
-    // REFACTOR:
-    // This can be removed since we will handle this directly
-    return taskExecute.handle(job.data.payload, conf, cache, scm);
   }
 });
 
@@ -157,20 +166,20 @@ process.on("SIGINT", function() {
  * gracefulShutdown
  */
 async function gracefulShutdown() {
-  console.log("Closing queues");
+  logger.verbose("Closing queues");
   await responseQueue.close();
   await db.stop();
   await cache.stopCache();
   process.exit(0);
 }
 
-db.start(conf);
+db.start(conf, logger);
 
 setInterval(buildSchedule, fiveMinuteInterval);
 
 async function buildSchedule() {
   const currentDate = new Date();
-  console.log(
+  logger.verbose(
     "Checking for any builds that need to be started at hour " +
       currentDate.getHours() +
       " minute " +
@@ -209,8 +218,7 @@ async function buildSchedule() {
             currentDate.getHours() >= buildInfo.schedule.hour &&
             currentDate.getMinutes() >= buildInfo.schedule.minute
           ) {
-            console.log("Executing a repository build:");
-            console.dir(buildInfo);
+            logger.verbose("Executing a repository build:");
             buildInfo.lastExecuteDate = currentDate;
             await cache.repositoryBuilds.updateRepositoryBuild(
               repositories.rows[index].owner,
@@ -237,7 +245,8 @@ const dependencies = {
   scm: scm,
   db: db,
   redisConfig: redisConfig,
-  viewsPath: viewsPath
+  viewsPath: viewsPath,
+  logger: logger
 };
 
 web.startRESTApi(dependencies);

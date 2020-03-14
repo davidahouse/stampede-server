@@ -31,7 +31,6 @@ async function handle(req, res, dependencies) {
       task.finished_at != null ? task.finished_at - task.started_at : null;
     tasks.push(task);
   }
-  console.dir(tasks);
   res.render(dependencies.viewsPath + "monitor/buildDetails", {
     build: buildDetails,
     duration: duration,

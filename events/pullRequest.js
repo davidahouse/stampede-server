@@ -1,7 +1,5 @@
 "use strict";
 
-const chalk = require("chalk");
-
 const checkRun = require("../lib/checkRun");
 const notification = require("../lib/notification");
 const config = require("../lib/config");
@@ -13,11 +11,13 @@ const build = require("../lib/build");
  * @param {*} serverConf
  * @param {*} cache
  */
-async function handle(req, serverConf, cache, scm, db) {
+async function handle(req, serverConf, cache, scm, db, logger) {
   // Parse the incoming body into the parts we care about
   const event = parseEvent(req);
-  console.log("--- PullRequestEvent:");
-  //  console.dir(event)
+  logger.info("--- PullRequestEvent:");
+  if (serverConf.logLevel === "verbose") {
+    logger.verbose(JSON.stringify(event, null, 2));
+  }
   notification.repositoryEventReceived("pull_request", event);
 
   await db.storeRepository(event.owner, event.repo);
@@ -37,7 +37,8 @@ async function handle(req, serverConf, cache, scm, db) {
       scm,
       cache,
       serverConf,
-      db
+      db,
+      logger
     );
     return { status: "pull request tasks created" };
   } else if (event.action === "edited") {
@@ -51,7 +52,8 @@ async function handle(req, serverConf, cache, scm, db) {
       scm,
       cache,
       serverConf,
-      db
+      db,
+      logger
     );
   } else {
     return { status: "ignored, pull request not opened or reopened" };
@@ -108,19 +110,9 @@ async function pullRequestEdit(
   scm,
   cache,
   serverConf,
-  db
+  db,
+  logger
 ) {
-  console.log(
-    chalk.green(
-      "--- Creating check run for " +
-        owner +
-        " " +
-        repo +
-        " PR " +
-        pullRequest.number
-    )
-  );
-
   const repoConfig = await config.findRepoConfig(
     owner,
     repo,
@@ -130,13 +122,9 @@ async function pullRequestEdit(
     cache,
     serverConf
   );
-  console.log("Found stampede config:");
-  console.dir(repoConfig);
   if (repoConfig == null) {
-    console.log(
-      chalk.red(
-        "--- Unable to determine config, no found in Redis or the project. Unable to continue"
-      )
+    logger.verbose(
+      "--- Unable to determine config, no found in Redis or the project. Unable to continue"
     );
     return;
   }
@@ -145,14 +133,12 @@ async function pullRequestEdit(
     repoConfig.pullrequestedit == null ||
     repoConfig.pullrequestedit.tasks == null
   ) {
-    console.log(chalk.red("--- Unable to find tasks. Unable to continue."));
+    logger.verbose("--- Unable to find tasks. Unable to continue.");
     return;
   }
 
-  console.dir(repoConfig.pullrequestedit);
-  console.dir(repoConfig.pullrequestedit.tasks);
   if (repoConfig.pullrequestedit.tasks.length === 0) {
-    console.log(chalk.red("--- Task list was empty. Unable to continue."));
+    logger.verbose("--- Task list was empty. Unable to continue.");
     return;
   }
 
@@ -197,7 +183,8 @@ async function pullRequestEdit(
     [],
     cache,
     serverConf,
-    db
+    db,
+    logger
   );
 }
 
