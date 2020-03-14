@@ -22,7 +22,6 @@ async function handle(req, res, dependencies) {
   const taskDetails = await dependencies.cache.fetchTaskConfig(
     req.query.taskID
   );
-  console.dir(taskDetails);
   const workerConfig = [];
   if (taskDetails.worker != null) {
     Object.keys(taskDetails.worker).forEach(function(key) {

@@ -4,10 +4,12 @@ const LynnRequest = require("lynn-request");
 const yaml = require("js-yaml");
 const { App } = require("@octokit/app");
 const { Octokit } = require("@octokit/rest");
-const chalk = require("chalk");
 const url = require("url");
 
-async function verifyCredentials(serverConf) {
+let systemLogger = null;
+
+async function verifyCredentials(serverConf, logger) {
+  systemLogger = logger;
   const app = new App({
     id: serverConf.githubAppID,
     privateKey: serverConf.githubAppPEM,
@@ -25,7 +27,7 @@ async function verifyCredentials(serverConf) {
       error: console.error
     }
   });
-  console.log("Github connection verified");
+  logger.verbose("Github connection verified");
 }
 
 /**
@@ -53,13 +55,13 @@ async function getAuthorizedOctokit(owner, repo, serverConf) {
       error: console.error
     }
   });
-  console.log("--- getRepoInstallation");
+  systemLogger.verbose("getRepoInstallation");
   const installation = await octokit.apps.getRepoInstallation({
     owner,
     repo
   });
   const installID = installation.data.id;
-  console.log("--- getInstallationAccessToken");
+  systemLogger.verbose("getInstallationAccessToken");
   const accessToken = await app.getInstallationAccessToken({
     installationId: installID
   });
@@ -121,7 +123,7 @@ async function findRepoConfig(owner, repo, stampedeFile, sha, serverConf) {
       repo,
       serverConf
     );
-    console.log(
+    systemLogger.verbose(
       "searching for stampede file " + stampedeFile + " with sha " + sha
     );
     const contents = await authorizedOctokit.repos.getContents({
@@ -130,7 +132,6 @@ async function findRepoConfig(owner, repo, stampedeFile, sha, serverConf) {
       path: stampedeFile,
       ref: sha
     });
-    console.dir(contents);
     if (contents != null) {
       const configFile = await downloadStampedeFile(
         contents.data.download_url,
@@ -139,7 +140,7 @@ async function findRepoConfig(owner, repo, stampedeFile, sha, serverConf) {
         serverConf
       );
       if (configFile != null) {
-        console.log(configFile.body);
+        systemLogger.verbose(configFile.body);
         try {
           const stampedeConfig = yaml.safeLoad(configFile.body);
           if (stampedeConfig != null) {
@@ -152,7 +153,7 @@ async function findRepoConfig(owner, repo, stampedeFile, sha, serverConf) {
     }
     return null;
   } catch (e) {
-    console.log("exception trying to find config: " + e);
+    systemLogger.verbose("exception trying to find config: " + e);
     return null;
   }
 }
@@ -212,13 +213,13 @@ async function getBearerToken(owner, repo, serverConf) {
       error: console.error
     }
   });
-  console.log("--- getRepoInstallation");
+  systemLogger.verbose("getRepoInstallation");
   const installation = await octokit.apps.getRepoInstallation({
     owner,
     repo
   });
   const installID = installation.data.id;
-  console.log("--- getInstallationAccessToken");
+  systemLogger.verbose("getInstallationAccessToken");
   const accessToken = await app.getInstallationAccessToken({
     installationId: installID
   });
@@ -250,11 +251,11 @@ async function createCheckRun(
       started_at: started_at
     })
     .catch(error => {
-      console.log(chalk.red("Error creating check run: " + error));
+      systemLogger.error("Error creating check run: " + error);
     });
   if (checkRun.data == null || checkRun.data.id == null) {
-    console.log(chalk.red("Error receiving a check run id. Response was:"));
-    console.dir(checkRun);
+    systemLogger.error("Error receiving a check run id. Response was:");
+    systemLogger.error(JSON.stringify(checkRun, null, 2));
   }
   return checkRun;
 }
@@ -285,14 +286,14 @@ async function getTagInfo(owner, repo, ref, serverConf) {
 async function updateCheck(owner, repo, serverConf, update) {
   const authorizedOctokit = await getAuthorizedOctokit(owner, repo, serverConf);
   await authorizedOctokit.checks.update(update).catch(error => {
-    console.log(chalk.red("Error updating check in Github: " + error));
+    systemLogger.error("Error updating check in Github: " + error);
     if (update.output.summary != null) {
-      console.log(
-        chalk.red("Summary text size is: " + update.output.summary.length)
+      systemLogger.error(
+        "Summary text size is: " + update.output.summary.length
       );
     }
     if (update.output.text != null) {
-      console.log(chalk.red("Text size is: " + update.output.text.length));
+      systemLogger.error("Text size is: " + update.output.text.length);
     }
     update.output = {
       title: "Task Results",
@@ -359,7 +360,7 @@ async function createStampedeCheck(
   }
 
   const authorizedOctokit = await getAuthorizedOctokit(owner, repo, serverConf);
-  console.log("Creating Stampede check run");
+  systemLogger.verbose("Creating Stampede check run");
   const checkRun = await authorizedOctokit.checks.create({
     owner: owner,
     repo: repo,
