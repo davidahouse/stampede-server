@@ -16,13 +16,13 @@ const notification = require("../lib/notification");
 async function handle(req, serverConf, cache, scm, db, logger) {
   // Parse the incoming body into the parts we care about
   const event = parseEvent(req);
-  logger.info("--- ReleaseEvent:");
+  logger.info("ReleaseEvent:");
   notification.repositoryEventReceived("release", event);
 
   await db.storeRepository(event.owner, event.repo);
 
   if (event.action !== "published") {
-    logger.verbose("--- Ignoring as the release is not marked as published");
+    logger.verbose("Ignoring as the release is not marked as published");
     return { status: "not a published release, ignoring" };
   }
 
@@ -30,10 +30,10 @@ async function handle(req, serverConf, cache, scm, db, logger) {
   // case, we need to just try and find the sha from the target branch
   let ref = "";
   if (event.draft === true) {
-    logger.verbose("--- Trying to find head sha for branch " + event.target);
+    logger.verbose("Trying to find head sha for branch " + event.target);
     ref = "heads/" + event.target;
   } else {
-    logger.verbose("--- Trying to find sha for " + event.tag);
+    logger.verbose("Trying to find sha for " + event.tag);
     ref = "tags/" + event.tag;
   }
 
@@ -44,12 +44,12 @@ async function handle(req, serverConf, cache, scm, db, logger) {
     serverConf
   );
   if (tagInfo.data.object == null || tagInfo.data.object.sha == null) {
-    logger.verbose("--- Unable to find sha for tag, unlable to continue");
+    logger.verbose("Unable to find sha for tag, unlable to continue");
     return { status: "unable to find sha for this tag" };
   }
 
   const sha = tagInfo.data.object.sha;
-  logger.verbose("--- Found sha: " + sha);
+  logger.verbose("Found sha: " + sha);
 
   const repoConfig = await config.findRepoConfig(
     event.owner,
@@ -62,13 +62,13 @@ async function handle(req, serverConf, cache, scm, db, logger) {
   );
   if (repoConfig == null) {
     logger.verbose(
-      "--- Unable to determine config, no found in Redis or the project. Unable to continue"
+      "Unable to determine config, no found in Redis or the project. Unable to continue"
     );
     return { status: "config not found" };
   }
 
   if (repoConfig.releases == null) {
-    logger.verbose("--- No release builds configured, unable to continue.");
+    logger.verbose("No release builds configured, unable to continue.");
     return { status: "releases config not found" };
   }
 
@@ -77,12 +77,12 @@ async function handle(req, serverConf, cache, scm, db, logger) {
       ? repoConfig.releases.draft
       : repoConfig.releases.published;
   if (releaseConfig == null) {
-    logger.verbose("--- No release config found under draft or published.");
+    logger.verbose("No release config found under draft or published.");
     return { status: "releases config not found" };
   }
 
   if (releaseConfig.tasks.length === 0) {
-    logger.verbose("--- Task list was empty. Unable to continue.");
+    logger.verbose("Task list was empty. Unable to continue.");
     return { status: "task list was empty" };
   }
 

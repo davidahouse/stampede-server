@@ -30,7 +30,7 @@ async function findRepoConfig(owner, repo, stampedeFile, sha, serverConf) {
         "/" +
         repo +
         "/.stampede.yaml";
-      systemLogger.verbose("--- loading repo config: " + path);
+      systemLogger.verbose("loading repo config: " + path);
       const testModeConfigFile = fs.readFileSync(path);
       const config = yaml.safeLoad(testModeConfigFile);
       return config;
@@ -55,7 +55,7 @@ async function createCheckRun(
   started_at,
   serverConf
 ) {
-  systemLogger.verbose("--- createCheckRun");
+  systemLogger.verbose("createCheckRun");
   systemLogger.verbose("owner: " + owner);
   systemLogger.verbose("repo: " + repo);
   systemLogger.verbose("task: " + taskTitle);
@@ -94,7 +94,7 @@ async function getTagInfo(owner, repo, ref, serverConf) {
  * @param {*} update
  */
 async function updateCheck(owner, repo, serverConf, update) {
-  systemLogger.verbose("--- updateCheck");
+  systemLogger.verbose("updateCheck");
 }
 
 /**

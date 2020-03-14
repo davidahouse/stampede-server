@@ -12,7 +12,7 @@ const notification = require("../lib/notification");
 async function handle(req, serverConf, cache, scm, db, logger) {
   // Parse the incoming body into the parts we care about
   const event = parseEvent(req);
-  logger.info("--- CheckRunEvent:");
+  logger.info("CheckRunEvent:");
   if (serverConf.logLevel === "verbose") {
     logger.verbose(JSON.stringify(event, null, 2));
   }
@@ -60,7 +60,7 @@ async function handle(req, serverConf, cache, scm, db, logger) {
       );
     }
   } else {
-    logger.verbose("--- ignoring check run, not a rerequested one");
+    logger.verbose("ignoring check run, not a rerequested one");
     return { status: "check run ignored as it was not a rerequested check" };
   }
   return { status: "check runs created" };

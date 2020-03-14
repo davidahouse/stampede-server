@@ -55,13 +55,13 @@ async function getAuthorizedOctokit(owner, repo, serverConf) {
       error: console.error
     }
   });
-  systemLogger.verbose("--- getRepoInstallation");
+  systemLogger.verbose("getRepoInstallation");
   const installation = await octokit.apps.getRepoInstallation({
     owner,
     repo
   });
   const installID = installation.data.id;
-  systemLogger.verbose("--- getInstallationAccessToken");
+  systemLogger.verbose("getInstallationAccessToken");
   const accessToken = await app.getInstallationAccessToken({
     installationId: installID
   });
@@ -213,13 +213,13 @@ async function getBearerToken(owner, repo, serverConf) {
       error: console.error
     }
   });
-  systemLogger.verbose("--- getRepoInstallation");
+  systemLogger.verbose("getRepoInstallation");
   const installation = await octokit.apps.getRepoInstallation({
     owner,
     repo
   });
   const installID = installation.data.id;
-  systemLogger.verbose("--- getInstallationAccessToken");
+  systemLogger.verbose("getInstallationAccessToken");
   const accessToken = await app.getInstallationAccessToken({
     installationId: installID
   });
