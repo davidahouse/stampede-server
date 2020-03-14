@@ -19,7 +19,6 @@ async function handle(req, res, dependencies) {
       worker = workers[index];
     }
   }
-  console.dir(worker);
   res.render(dependencies.viewsPath + "monitor/workerDetails", {
     worker: worker != null ? worker : { lastTask: {} }
   });

@@ -1,7 +1,5 @@
 "use strict";
 
-const chalk = require("chalk");
-
 const checkRun = require("../lib/checkRun");
 const notification = require("../lib/notification");
 
@@ -12,11 +10,13 @@ const notification = require("../lib/notification");
  * @param {*} cache
  * @return {Object} response to the event
  */
-async function handle(req, serverConf, cache, scm, db) {
+async function handle(req, serverConf, cache, scm, db, logger) {
   // Parse the incoming body into the parts we care about
   const event = parseEvent(req);
-  console.log(chalk.green("--- CheckSuiteEvent:"));
-  console.dir(event);
+  logger.info("--- CheckSuiteEvent:");
+  if (serverConf.logLevel === "verbose") {
+    logger.verbose(JSON.stringify(event, null, 2));
+  }
   notification.repositoryEventReceived("check_suite", event);
 
   // Ignore check_suite events not for this app
@@ -43,7 +43,8 @@ async function handle(req, serverConf, cache, scm, db) {
       scm,
       cache,
       serverConf,
-      db
+      db,
+      logger
     );
   }
   return { status: "check runs created" };

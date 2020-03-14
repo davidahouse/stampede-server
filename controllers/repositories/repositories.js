@@ -13,7 +13,6 @@ function path() {
  */
 async function handle(req, res, dependencies) {
   const repositories = await dependencies.db.fetchRepositories();
-  console.dir(repositories.rows);
   res.render(dependencies.viewsPath + "repositories/repositories", {
     repositories: repositories.rows
   });

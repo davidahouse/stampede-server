@@ -31,8 +31,6 @@ async function handle(req, res, dependencies) {
       taskConfig[taskDetails.config[index].key] =
         req.body[taskDetails.config[index].key];
     }
-  } else {
-    console.log("no task config!");
   }
 
   const scmConfig = {
@@ -82,7 +80,8 @@ async function handle(req, res, dependencies) {
     dependencies.serverConfig,
     dependencies.cache,
     dependencies.scm,
-    dependencies.db
+    dependencies.db,
+    dependencies.logger
   );
 
   res.render(dependencies.viewsPath + "repositories/executeTask", {

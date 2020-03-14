@@ -50,8 +50,7 @@ async function handle(req, res, dependencies) {
   //    sha
   // taskQueue: ""
   const taskDetails = await dependencies.cache.fetchTaskConfig(req.body.task);
-  console.log("got task details for task: " + req.body.task);
-  console.dir(taskDetails);
+  dependencies.logger.verbose("got task details for task: " + req.body.task);
   if (taskDetails != null) {
     const executeConfig = req.body;
     executeConfig.task = taskDetails;
@@ -61,7 +60,8 @@ async function handle(req, res, dependencies) {
       dependencies.serverConfig,
       dependencies.cache,
       dependencies.scm,
-      dependencies.db
+      dependencies.db,
+      dependencies.logger
     );
     res.send({ status: "ok" });
   } else {
