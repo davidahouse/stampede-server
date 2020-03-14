@@ -31,6 +31,11 @@ function requiresAdmin() {
 async function handle(req, res, dependencies) {
   if (req.body.password === dependencies.serverConfig.adminPassword) {
     const sessionID = uuidv1();
+    await dependencies.cache.admin.storeSession(
+      sessionID,
+      { id: sessionID },
+      1000 * 60 * 60 * 24 * 30
+    );
     res.cookie("sSession", sessionID, { maxAge: 1000 * 60 * 60 * 24 * 30 });
     res.writeHead(302, { Location: "/" });
     res.end();
