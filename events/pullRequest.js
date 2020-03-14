@@ -14,7 +14,7 @@ const build = require("../lib/build");
 async function handle(req, serverConf, cache, scm, db, logger) {
   // Parse the incoming body into the parts we care about
   const event = parseEvent(req);
-  logger.info("--- PullRequestEvent:");
+  logger.info("PullRequestEvent:");
   if (serverConf.logLevel === "verbose") {
     logger.verbose(JSON.stringify(event, null, 2));
   }
@@ -124,7 +124,7 @@ async function pullRequestEdit(
   );
   if (repoConfig == null) {
     logger.verbose(
-      "--- Unable to determine config, no found in Redis or the project. Unable to continue"
+      "Unable to determine config, no found in Redis or the project. Unable to continue"
     );
     return;
   }
@@ -133,12 +133,12 @@ async function pullRequestEdit(
     repoConfig.pullrequestedit == null ||
     repoConfig.pullrequestedit.tasks == null
   ) {
-    logger.verbose("--- Unable to find tasks. Unable to continue.");
+    logger.verbose("Unable to find tasks. Unable to continue.");
     return;
   }
 
   if (repoConfig.pullrequestedit.tasks.length === 0) {
-    logger.verbose("--- Task list was empty. Unable to continue.");
+    logger.verbose("Task list was empty. Unable to continue.");
     return;
   }
 

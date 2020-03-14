@@ -29,9 +29,7 @@ function method() {
  * @param {*} dependencies
  */
 async function handle(req, res, dependencies) {
-  dependencies.logger.verbose(
-    "--- github hook: " + req.headers["x-github-event"]
-  );
+  dependencies.logger.verbose("Github hook: " + req.headers["x-github-event"]);
 
   if (dependencies.serverConfig.logEventPath != null) {
     eventLog.save(

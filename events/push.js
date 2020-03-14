@@ -15,13 +15,13 @@ const notification = require("../lib/notification");
 async function handle(req, serverConf, cache, scm, db, logger) {
   // Parse the incoming body into the parts we care about
   const event = parseEvent(req);
-  logger.info("--- PushEvent:");
+  logger.info("PushEvent:");
   notification.repositoryEventReceived("push", event);
 
   await db.storeRepository(event.owner, event.repo);
 
   if (event.created === true || event.deleted === true) {
-    logger.verbose("--- Ignoring push since it is created or deleted");
+    logger.verbose("Ignoring push since it is created or deleted");
     return { status: "ignoring due to created or pushed" };
   }
 
@@ -36,26 +36,26 @@ async function handle(req, serverConf, cache, scm, db, logger) {
   );
   if (repoConfig == null) {
     logger.verbose(
-      "--- Unable to determine config, no found in Redis or the project. Unable to continue"
+      "Unable to determine config, no found in Redis or the project. Unable to continue"
     );
     return { status: "no repo config found" };
   }
 
   if (repoConfig.branches == null) {
-    logger.verbose("--- No branch builds configured, unable to continue.");
+    logger.verbose("No branch builds configured, unable to continue.");
     return { status: "no branches configured" };
   }
 
   const branchConfig = repoConfig.branches[event.branch];
   if (branchConfig == null) {
     logger.verbose(
-      "--- No branch config for this branch: " + event.branch + ", skipping"
+      "No branch config for this branch: " + event.branch + ", skipping"
     );
     return { status: "branch not configured" };
   }
 
   if (branchConfig.tasks.length === 0) {
-    logger.verbose("--- Task list was empty. Unable to continue.");
+    logger.verbose("Task list was empty. Unable to continue.");
     return { status: "no tasks configured for the branch" };
   }
 

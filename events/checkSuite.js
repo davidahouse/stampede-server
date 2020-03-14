@@ -13,7 +13,7 @@ const notification = require("../lib/notification");
 async function handle(req, serverConf, cache, scm, db, logger) {
   // Parse the incoming body into the parts we care about
   const event = parseEvent(req);
-  logger.info("--- CheckSuiteEvent:");
+  logger.info("CheckSuiteEvent:");
   if (serverConf.logLevel === "verbose") {
     logger.verbose(JSON.stringify(event, null, 2));
   }
