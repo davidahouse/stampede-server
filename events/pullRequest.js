@@ -144,10 +144,6 @@ async function pullRequestEdit(
 
   const pullRequestDetails = {
     number: pullRequest.number,
-    title: pullRequest.title,
-    bodyLength: pullRequest.body.length,
-    milestone: pullRequest.milestone != null ? pullRequest.milestone.title : "",
-    labels: pullRequest.labels.map(label => label.name),
     head: {
       ref: pullRequest.head.ref,
       sha: pullRequest.head.sha
