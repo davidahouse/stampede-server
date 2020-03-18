@@ -206,13 +206,14 @@ async function buildSchedule() {
           repositoryBuilds[buildIndex]
         );
         if (
-          (buildInfo.schedule != null && buildInfo.lastExecuteDate == null) ||
-          new Date(buildInfo.lastExecuteDate).getDate() !=
-            currentDate.getDate() ||
-          new Date(buildInfo.lastExecuteDate).getMonth() !=
-            currentDate.getMonth() ||
-          new Date(buildInfo.lastExecuteDate).getFullYear() !=
-            currentDate.getFullYear()
+          buildInfo.schedule != null &&
+          (buildInfo.lastExecuteDate == null ||
+            new Date(buildInfo.lastExecuteDate).getDate() !=
+              currentDate.getDate() ||
+            new Date(buildInfo.lastExecuteDate).getMonth() !=
+              currentDate.getMonth() ||
+            new Date(buildInfo.lastExecuteDate).getFullYear() !=
+              currentDate.getFullYear())
         ) {
           if (
             currentDate.getHours() >= buildInfo.schedule.hour &&
