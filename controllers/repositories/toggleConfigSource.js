@@ -13,6 +13,13 @@ function requiresAdmin() {
 }
 
 /**
+ * http method this handler will serve
+ */
+function method() {
+  return "post";
+}
+
+/**
  * handle index
  * @param {*} req
  * @param {*} res
@@ -41,4 +48,5 @@ async function handle(req, res, dependencies) {
 
 module.exports.path = path;
 module.exports.requiresAdmin = requiresAdmin;
+module.exports.method = method;
 module.exports.handle = handle;
