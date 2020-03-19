@@ -155,7 +155,9 @@ function parseEvent(req) {
  */
 function safeBuildKey(release) {
   const spacesRemoved = release.replace(/ /g, "_");
-  return sanitize(spacesRemoved);
+  const openParamRemoved = spacesRemoved.replace(/\(/g, "_");
+  const closedParamRemoved = openParamRemoved.replace(/\)/g, "_");
+  return sanitize(closedParamRemoved);
 }
 
 module.exports.handle = handle;
