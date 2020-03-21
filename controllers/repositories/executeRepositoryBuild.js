@@ -27,16 +27,10 @@ async function handle(req, res, dependencies) {
 
   repositoryBuild.execute(owner, repository, buildID, buildInfo, dependencies);
 
-  res.writeHead(301, {
-    Location:
-      "/repositories/repositoryBuildDetails?owner=" +
-      owner +
-      "&repository=" +
-      repository +
-      "&build=" +
-      buildID
+  res.render(dependencies.viewsPath + "repositories/executeRepositoryBuild", {
+    owner: owner,
+    repository: repository
   });
-  res.end();
 }
 
 module.exports.path = path;
