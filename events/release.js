@@ -101,7 +101,8 @@ async function handle(req, serverConf, cache, scm, db, logger) {
     release: {
       name: event.release,
       tag: event.tag,
-      sha: sha
+      sha: sha,
+      body: event.body
     }
   };
 
@@ -142,6 +143,7 @@ function parseEvent(req) {
     cloneURL: req.body.repository.clone_url,
     sshURL: req.body.repository.ssh_url,
     prerelease: req.body.release.prerelease,
+    body: req.body.release.body,
     draft: req.body.release.draft,
     target: req.body.release.target_commitish
   };
