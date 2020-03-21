@@ -21,10 +21,9 @@ async function handle(req, res, dependencies) {
 
   const activeBuilds = await dependencies.db.activeBuilds(owner, repository);
   const recentBuilds = await dependencies.db.recentBuilds(
-    1000,
-    50,
-    owner,
-    repository
+    "Last 8 hours",
+    "All",
+    owner + "/" + repository
   );
 
   // Cached Repo config

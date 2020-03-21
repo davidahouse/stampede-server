@@ -21,7 +21,11 @@ async function handle(req, res, dependencies) {
     maxDuration: 0.0
   };
 
-  const builds = await dependencies.db.recentBuilds(12, 50);
+  const builds = await dependencies.db.recentBuilds(
+    "Last 12 hours",
+    "All",
+    "All"
+  );
   const recentBuilds = builds.rows;
   for (let index = 0; index < recentBuilds.length; index++) {
     const ageInMs = Date.now() - recentBuilds[index].completed_at;
