@@ -3,12 +3,27 @@ include ../components/titleBar
 include ../components/tableHeader
 include ../components/tableCell
 include ../components/tableRow
+include ../components/formSelect
 
 block content
 
   +titleBar([{title: 'Builds'}])
-  div(class="flex flex-wrap m-4")
 
+  div(class="flex flex-wrap m-4")
+    form(class="w-full m-4" method="GET" action="/history/builds")
+      div(class="flex -mx-3 mb-6")
+        div(class="w-1/5 px-3 mb-6 md:mb-0")
+          +formSelect("Time", "time", timeFilterList, timeFilter)
+        div(class="w-1/5 px-3 mb-6 md:mb-0")
+          +formSelect("Build Key", "buildKey", buildKeyList, buildKeyFilter)
+        div(class="w-1/5 px-3 mb-6 md:mb-0")
+          +formSelect("Repository", "repository", repositoryList, repositoryFilter)
+      div(class="w-1/4 px-3 mb-6 md:mb-0")
+        button(class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded") Filter
+
+  hr
+  
+  div(class="flex flex-wrap m-4")
     table(class="table-auto w-full")
       thead
         tr
