@@ -107,7 +107,9 @@ async function createStampedeCheck(
   buildKey,
   actions,
   serverConf
-) {}
+) {
+  systemLogger.verbose("createStampedeCheck");
+}
 
 /**
  * getAccessToken
