@@ -121,7 +121,11 @@ taskQueue.setRedisConfig(redisConfig);
 
 // Setup the notification queue(s)
 notification.setRedisConfig(redisConfig);
-notification.setNotificationQueues(conf.notificationQueues.split(","));
+if (conf.notificationQueues != null && conf.notificationQueues.length > 0) {
+  notification.setNotificationQueues(conf.notificationQueues.split(","));
+} else {
+  notification.setNotificationQueues([]);
+}
 
 // Setup our scm based on what is configured
 let scm = {};
