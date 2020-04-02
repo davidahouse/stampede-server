@@ -364,7 +364,7 @@ async function createStampedeCheck(
   const checkRun = await authorizedOctokit.checks.create({
     owner: owner,
     repo: repo,
-    name: "Stampede Build",
+    name: "Stampede Information",
     head_sha: head_sha,
     status: "completed",
     external_id: externalID,
@@ -372,7 +372,7 @@ async function createStampedeCheck(
     completed_at: new Date(),
     conclusion: "neutral",
     output: {
-      title: "Stampede Build",
+      title: "Stampede Information",
       summary: welcomeString,
       text: ""
     },
