@@ -11,7 +11,7 @@ function path() {
  * @param {*} res
  * @param {*} dependencies
  */
-async function handle(req, res, dependencies) {
+async function handle(req, res, dependencies, owners) {
   let timeFilter = "Last 8 hours";
   if (req.query.time != null) {
     timeFilter = req.query.time;
@@ -52,13 +52,14 @@ async function handle(req, res, dependencies) {
   );
 
   res.render(dependencies.viewsPath + "history/builds", {
+    owners: owners,
     builds: builds.rows,
     timeFilter: timeFilter,
     timeFilterList: ["Last 8 hours", "Today", "Yesterday"],
     buildKeyFilter: buildKeyFilter,
     buildKeyList: buildKeyList,
     repositoryFilter: repositoryFilter,
-    repositoryList: repositories
+    repositoryList: repositories,
   });
 }
 

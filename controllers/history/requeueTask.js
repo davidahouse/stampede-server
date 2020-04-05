@@ -13,7 +13,7 @@ function path() {
  * @param {*} res
  * @param {*} dependencies
  */
-async function handle(req, res, dependencies) {
+async function handle(req, res, dependencies, owners) {
   const taskRows = await dependencies.db.fetchTask(req.query.taskID);
   const task = taskRows.rows[0];
   if (task != null) {
@@ -39,15 +39,17 @@ async function handle(req, res, dependencies) {
     taskQueue.close();
 
     res.render(dependencies.viewsPath + "history/requeueTask", {
+      owners: owners,
       task: task,
       taskDetails: taskDetails,
-      build: build
+      build: build,
     });
   } else {
     res.render(dependencies.viewsPath + "history/requeueTask", {
+      owners: owners,
       task: {},
       taskDetails: { details: {} },
-      build: {}
+      build: {},
     });
   }
 }

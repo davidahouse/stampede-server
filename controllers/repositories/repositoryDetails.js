@@ -11,7 +11,7 @@ function path() {
  * @param {*} res
  * @param {*} dependencies
  */
-async function handle(req, res, dependencies) {
+async function handle(req, res, dependencies, owners) {
   const owner = req.query.owner;
   const repository = req.query.repository;
 
@@ -78,6 +78,7 @@ async function handle(req, res, dependencies) {
   );
 
   res.render(dependencies.viewsPath + "repositories/repositoryDetails", {
+    owners: owners,
     owner: owner,
     repository: repository,
     nextBuildNumber: parseInt(buildNumber) + 1,
@@ -90,7 +91,7 @@ async function handle(req, res, dependencies) {
     repoDefaultStatus: repoDefaultStatus,
     orgOverrideStatus: orgOverrideStatus,
     repoOverrideStatus: repoOverrideStatus,
-    repositoryBuilds: repositoryBuilds
+    repositoryBuilds: repositoryBuilds,
   });
 }
 

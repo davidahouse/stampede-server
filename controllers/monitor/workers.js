@@ -13,9 +13,9 @@ function path() {
  * @param {*} res
  * @param {*} dependencies
  */
-async function handle(req, res, dependencies) {
+async function handle(req, res, dependencies, owners) {
   const workers = await dependencies.cache.fetchActiveWorkers();
-  const sortedWorkers = workers.sort(function(a, b) {
+  const sortedWorkers = workers.sort(function (a, b) {
     if (a.node < b.node) {
       return -1;
     } else if (a.node > b.node) {
@@ -30,8 +30,9 @@ async function handle(req, res, dependencies) {
     return 0;
   });
   res.render(dependencies.viewsPath + "monitor/workers", {
+    owners: owners,
     workers: sortedWorkers,
-    prettyMilliseconds: ms => (ms != null ? prettyMilliseconds(ms) : "")
+    prettyMilliseconds: (ms) => (ms != null ? prettyMilliseconds(ms) : ""),
   });
 }
 

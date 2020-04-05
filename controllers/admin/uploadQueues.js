@@ -27,7 +27,7 @@ function requiresAdmin() {
  * @param {*} res
  * @param {*} dependencies
  */
-async function handle(req, res, dependencies) {
+async function handle(req, res, dependencies, owners) {
   if (req.files != null) {
     const uploadData = req.files.uploadFile;
     const uploadQueues = yaml.safeLoad(uploadData.data);
@@ -38,7 +38,8 @@ async function handle(req, res, dependencies) {
 
   const queueList = await dependencies.cache.systemQueues.fetchSystemQueues();
   res.render(dependencies.viewsPath + "admin/queues", {
-    queues: queueList != null ? queueList : []
+    owners: owners,
+    queues: queueList != null ? queueList : [],
   });
 }
 

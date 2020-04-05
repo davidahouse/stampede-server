@@ -20,7 +20,7 @@ function requiresAdmin() {
  * @param {*} res
  * @param {*} dependencies
  */
-async function handle(req, res, dependencies) {
+async function handle(req, res, dependencies, owners) {
   const owner = req.query.owner;
   const repository = req.query.repository;
   const orgOverrides = await dependencies.cache.orgConfigOverrides.fetchOverrides(
@@ -28,17 +28,18 @@ async function handle(req, res, dependencies) {
   );
   const configOverrides = [];
   if (orgOverrides != null && orgOverrides.overrides != null) {
-    Object.keys(orgOverrides.overrides).forEach(function(key) {
+    Object.keys(orgOverrides.overrides).forEach(function (key) {
       configOverrides.push({
         key: key,
-        value: orgOverrides.overrides[key]
+        value: orgOverrides.overrides[key],
       });
     });
   }
   res.render(dependencies.viewsPath + "repositories/viewOrgConfigOverrides", {
+    owners: owners,
     owner: owner,
     repository: repository,
-    overrides: configOverrides
+    overrides: configOverrides,
   });
 }
 

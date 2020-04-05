@@ -12,7 +12,7 @@ function path() {
  * @param {*} res
  * @param {*} dependencies
  */
-async function handle(req, res, dependencies) {
+async function handle(req, res, dependencies, owners) {
   const owner = req.query.owner;
   const repository = req.query.repository;
   const buildID = req.query.build;
@@ -23,11 +23,12 @@ async function handle(req, res, dependencies) {
   );
 
   res.render(dependencies.viewsPath + "repositories/repositoryBuildDetails", {
+    owners: owners,
     owner: owner,
     repository: repository,
     buildID: buildID,
     build: build != null ? build : {},
-    prettyMilliseconds: ms => (ms != null ? prettyMilliseconds(ms) : "")
+    prettyMilliseconds: (ms) => (ms != null ? prettyMilliseconds(ms) : ""),
   });
 }
 

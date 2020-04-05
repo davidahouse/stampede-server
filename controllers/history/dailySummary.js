@@ -11,7 +11,7 @@ function path() {
  * @param {*} res
  * @param {*} dependencies
  */
-async function handle(req, res, dependencies) {
+async function handle(req, res, dependencies, owners) {
   let todayBuildsCount = "";
   const todayBuilds = await dependencies.db.countRecentBuilds("Today");
   if (todayBuilds.rows.length > 0) {
@@ -50,9 +50,9 @@ async function handle(req, res, dependencies) {
       {
         label: "Builds",
         data: buildData,
-        backgroundColor: "rgba(0, 255, 0, 0.6)"
-      }
-    ]
+        backgroundColor: "rgba(0, 255, 0, 0.6)",
+      },
+    ],
   };
 
   const taskSummary = await dependencies.db.summarizeRecentTasks();
@@ -69,18 +69,19 @@ async function handle(req, res, dependencies) {
       {
         label: "Tasks",
         data: taskData,
-        backgroundColor: "rgba(0, 255, 0, 0.6)"
-      }
-    ]
+        backgroundColor: "rgba(0, 255, 0, 0.6)",
+      },
+    ],
   };
 
   res.render(dependencies.viewsPath + "history/dailySummary", {
+    owners: owners,
     yesterdayBuilds: yesterdayBuildsCount,
     yesterdayTasks: yesterdayTasksCount,
     todayBuilds: todayBuildsCount,
     todayTasks: todayTasksCount,
     builds: builds,
-    tasks: tasks
+    tasks: tasks,
   });
 }
 

@@ -18,10 +18,11 @@ function requiresAdmin() {
  * @param {*} res
  * @param {*} dependencies
  */
-async function handle(req, res, dependencies) {
+async function handle(req, res, dependencies, owners) {
   const queueList = await dependencies.cache.systemQueues.fetchSystemQueues();
   res.render(dependencies.viewsPath + "admin/queues", {
-    queues: queueList != null ? queueList : []
+    owners: owners,
+    queues: queueList != null ? queueList : [],
   });
 }
 
