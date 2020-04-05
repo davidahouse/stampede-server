@@ -20,7 +20,7 @@ function method() {
  * @param {*} res
  * @param {*} dependencies
  */
-async function handle(req, res, dependencies) {
+async function handle(req, res, dependencies, owners) {
   const owner = req.body.owner;
   const repository = req.body.repository;
   const taskDetails = await dependencies.cache.fetchTaskConfig(req.body.task);
@@ -35,30 +35,30 @@ async function handle(req, res, dependencies) {
 
   const scmConfig = {
     cloneURL: req.body["clone url"],
-    sshURL: req.body["ssh url"]
+    sshURL: req.body["ssh url"],
   };
   if (req.body.buildType === "Pull Request") {
     scmConfig.pullRequest = {
       number: req.body["pr number"],
       head: {
         ref: req.body["head ref"],
-        sha: req.body["head sha"]
+        sha: req.body["head sha"],
       },
       base: {
         ref: req.body["base ref"],
-        sha: req.body["base sha"]
-      }
+        sha: req.body["base sha"],
+      },
     };
   } else if (req.body.buildType === "Branch") {
     scmConfig.branch = {
       name: req.body["branch name"],
-      sha: req.body["branch sha"]
+      sha: req.body["branch sha"],
     };
   } else if (req.body.buildType === "Release") {
     scmConfig.release = {
       name: req.body["release name"],
       tag: req.body["release tag"],
-      sha: req.body["release sha"]
+      sha: req.body["release sha"],
     };
   }
   const execute = {
@@ -68,7 +68,7 @@ async function handle(req, res, dependencies) {
     task: taskDetails,
     taskConfig: taskConfig,
     scmConfig: scmConfig,
-    taskQueue: req.body.taskQueue
+    taskQueue: req.body.taskQueue,
   };
 
   taskExecute.handle(
@@ -81,8 +81,9 @@ async function handle(req, res, dependencies) {
   );
 
   res.render(dependencies.viewsPath + "repositories/executeTask", {
+    owners: owners,
     owner: req.body.owner,
-    repository: req.body.repository
+    repository: req.body.repository,
   });
 }
 

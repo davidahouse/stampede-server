@@ -49,7 +49,7 @@ const conf = require("rc")("stampede", {
   // Admin mode
   adminPassword: "stampede",
   // Logging
-  logLevel: "info"
+  logLevel: "info",
 });
 
 // Configure winston logging
@@ -58,14 +58,14 @@ const logFormat = winston.format.combine(
   winston.format.timestamp(),
   winston.format.align(),
   winston.format.printf(
-    info => `${info.timestamp} ${info.level}: ${info.message}`
+    (info) => `${info.timestamp} ${info.level}: ${info.message}`
   )
 );
 
 const logger = winston.createLogger({
   level: conf.logLevel,
   format: logFormat,
-  transports: [new winston.transports.Console()]
+  transports: [new winston.transports.Console()],
 });
 
 clear();
@@ -112,8 +112,8 @@ const redisConfig = {
   redis: {
     port: conf.redisPort,
     host: conf.redisHost,
-    password: conf.redisPassword
-  }
+    password: conf.redisPassword,
+  },
 };
 
 // Start the webhook listener
@@ -146,11 +146,11 @@ scm.verifyCredentials(conf, logger);
 const responseQueue = taskQueue.createTaskQueue(
   "stampede-" + conf.responseQueue
 );
-responseQueue.on("error", function(error) {
+responseQueue.on("error", function (error) {
   logger.error("Error from response queue: " + error);
 });
 
-responseQueue.process(function(job) {
+responseQueue.process(function (job) {
   if (job.data.response === "taskUpdate") {
     return taskUpdate.handle(job.data.payload, conf, cache, scm, db, logger);
   } else if (job.data.response === "heartbeat") {
@@ -162,7 +162,7 @@ responseQueue.process(function(job) {
 /**
  * Handle shutdown gracefully
  */
-process.on("SIGINT", function() {
+process.on("SIGINT", function () {
   gracefulShutdown();
 });
 
@@ -251,7 +251,7 @@ const dependencies = {
   db: db,
   redisConfig: redisConfig,
   viewsPath: viewsPath,
-  logger: logger
+  logger: logger,
 };
 
 web.startRESTApi(dependencies);

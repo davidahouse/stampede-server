@@ -20,7 +20,7 @@ function method() {
  * @param {*} res
  * @param {*} dependencies
  */
-async function handle(req, res, dependencies) {
+async function handle(req, res, dependencies, owners) {
   const owner = req.body.owner;
   const repository = req.body.repository;
 
@@ -37,10 +37,10 @@ async function handle(req, res, dependencies) {
     const uploadDetails = yaml.safeLoad(uploadData.data);
     const providedConfig =
       uploadDetails.config != null ? uploadDetails.config : {};
-    Object.keys(providedConfig).forEach(function(key) {
+    Object.keys(providedConfig).forEach(function (key) {
       config.push({
         key: key,
-        value: providedConfig[key] != null ? providedConfig[key] : ""
+        value: providedConfig[key] != null ? providedConfig[key] : "",
       });
     });
 
@@ -58,61 +58,62 @@ async function handle(req, res, dependencies) {
 
   scm.push({
     key: "clone url",
-    value: providedScm.cloneURL != null ? providedScm.cloneURL : ""
+    value: providedScm.cloneURL != null ? providedScm.cloneURL : "",
   });
   scm.push({
     key: "ssh url",
-    value: providedScm.sshURL != null ? providedScm.sshURL : ""
+    value: providedScm.sshURL != null ? providedScm.sshURL : "",
   });
   if (req.body.buildType === "Pull Request") {
     scm.push({
       key: "pr number",
-      value: providedScm.prNumber != null ? providedScm.prNumber : ""
+      value: providedScm.prNumber != null ? providedScm.prNumber : "",
     });
     scm.push({
       key: "head ref",
-      value: providedScm.headRef != null ? providedScm.headRef : ""
+      value: providedScm.headRef != null ? providedScm.headRef : "",
     });
     scm.push({
       key: "head sha",
-      value: providedScm.headSHA != null ? providedScm.headSHA : ""
+      value: providedScm.headSHA != null ? providedScm.headSHA : "",
     });
     scm.push({
       key: "base ref",
-      value: providedScm.baseRef != null ? providedScm.baseRef : ""
+      value: providedScm.baseRef != null ? providedScm.baseRef : "",
     });
     scm.push({
       key: "base sha",
-      value: providedScm.baseSHA != null ? providedScm.baseSHA : ""
+      value: providedScm.baseSHA != null ? providedScm.baseSHA : "",
     });
   } else if (req.body.buildType === "Branch") {
     scm.push({
       key: "branch name",
-      value: providedScm.branchName != null ? providedScm.branchName : ""
+      value: providedScm.branchName != null ? providedScm.branchName : "",
     });
     scm.push({
       key: "branch sha",
-      value: providedScm.branchSHA != null ? providedScm.branchSHA : ""
+      value: providedScm.branchSHA != null ? providedScm.branchSHA : "",
     });
   } else if (req.body.buildType === "Release") {
     scm.push({
       key: "release name",
-      value: providedScm.releaseName != null ? providedScm.releaseName : ""
+      value: providedScm.releaseName != null ? providedScm.releaseName : "",
     });
     scm.push({
       key: "release tag",
-      value: providedScm.releaseTag != null ? providedScm.releaseTag : ""
+      value: providedScm.releaseTag != null ? providedScm.releaseTag : "",
     });
   }
 
   res.render(dependencies.viewsPath + "repositories/executeTaskConfig", {
+    owners: owners,
     owner: owner,
     repository: repository,
     task: req.body.task,
     buildType: req.body.buildType,
     config: config,
     scm: scm,
-    taskQueue: taskQueue
+    taskQueue: taskQueue,
   });
 }
 

@@ -20,7 +20,7 @@ function requiresAdmin() {
  * @param {*} res
  * @param {*} dependencies
  */
-async function handle(req, res, dependencies) {
+async function handle(req, res, dependencies, owners) {
   const owner = req.query.owner;
   const repository = req.query.repository;
 
@@ -30,10 +30,11 @@ async function handle(req, res, dependencies) {
   );
 
   res.render(dependencies.viewsPath + "repositories/viewCachedConfig", {
+    owners: owners,
     owner: owner,
     repository: repository,
     repoConfig: repoConfig != null ? yaml.safeDump(repoConfig) : null,
-    configSource: req.query.configSource
+    configSource: req.query.configSource,
   });
 }
 

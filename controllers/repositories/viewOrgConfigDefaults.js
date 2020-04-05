@@ -20,7 +20,7 @@ function requiresAdmin() {
  * @param {*} res
  * @param {*} dependencies
  */
-async function handle(req, res, dependencies) {
+async function handle(req, res, dependencies, owners) {
   const owner = req.query.owner;
   const repository = req.query.repository;
   const orgDefaults = await dependencies.cache.orgConfigDefaults.fetchDefaults(
@@ -28,17 +28,18 @@ async function handle(req, res, dependencies) {
   );
   const configDefaults = [];
   if (orgDefaults != null && orgDefaults.defaults != null) {
-    Object.keys(orgDefaults.defaults).forEach(function(key) {
+    Object.keys(orgDefaults.defaults).forEach(function (key) {
       configDefaults.push({
         key: key,
-        value: orgDefaults.defaults[key]
+        value: orgDefaults.defaults[key],
       });
     });
   }
   res.render(dependencies.viewsPath + "repositories/viewOrgConfigDefaults", {
+    owners: owners,
     owner: owner,
     repository: repository,
-    defaults: configDefaults
+    defaults: configDefaults,
   });
 }
 

@@ -20,8 +20,10 @@ function requiresAdmin() {
  * @param {*} res
  * @param {*} dependencies
  */
-async function handle(req, res, dependencies) {
-  res.render(dependencies.viewsPath + "admin/login", {});
+async function handle(req, res, dependencies, owners) {
+  res.render(dependencies.viewsPath + "admin/login", {
+    owners: owners,
+  });
 }
 
 module.exports.path = path;

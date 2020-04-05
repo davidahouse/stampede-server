@@ -11,7 +11,7 @@ function path() {
  * @param {*} res
  * @param {*} dependencies
  */
-async function handle(req, res, dependencies) {
+async function handle(req, res, dependencies, owners) {
   const taskRows = await dependencies.db.fetchTask(req.query.taskID);
   const task = taskRows.rows[0];
   const detailsRows = await dependencies.db.fetchTaskDetails(req.query.taskID);
@@ -19,11 +19,11 @@ async function handle(req, res, dependencies) {
   const configValues = [];
   Object.keys(
     taskDetails.details.config != null ? taskDetails.details.config : {}
-  ).forEach(function(key) {
+  ).forEach(function (key) {
     configValues.push({
       key: key,
       value: taskDetails.details.config[key].value,
-      source: taskDetails.details.config[key].source
+      source: taskDetails.details.config[key].source,
     });
   });
   const buildRows = await dependencies.db.fetchBuild(task.build_id);
@@ -40,12 +40,13 @@ async function handle(req, res, dependencies) {
       : "";
 
   res.render(dependencies.viewsPath + "history/taskDetails", {
+    owners: owners,
     task: task,
     build: build,
     taskDetails: taskDetails,
     configValues: configValues,
     summary: summary,
-    text: text
+    text: text,
   });
 }
 

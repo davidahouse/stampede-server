@@ -11,7 +11,7 @@ function path() {
  * @param {*} res
  * @param {*} dependencies
  */
-async function handle(req, res, dependencies) {
+async function handle(req, res, dependencies, owners) {
   const workers = await dependencies.cache.fetchActiveWorkers();
   let worker = null;
   for (let index = 0; index < workers.length; index++) {
@@ -20,7 +20,8 @@ async function handle(req, res, dependencies) {
     }
   }
   res.render(dependencies.viewsPath + "monitor/workerDetails", {
-    worker: worker != null ? worker : { lastTask: {} }
+    owners: owners,
+    worker: worker != null ? worker : { lastTask: {} },
   });
 }
 

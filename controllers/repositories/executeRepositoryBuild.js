@@ -14,7 +14,7 @@ function path() {
  * @param {*} res
  * @param {*} dependencies
  */
-async function handle(req, res, dependencies) {
+async function handle(req, res, dependencies, owners) {
   const owner = req.query.owner;
   const repository = req.query.repository;
   const buildID = req.query.build;
@@ -28,8 +28,9 @@ async function handle(req, res, dependencies) {
   repositoryBuild.execute(owner, repository, buildID, buildInfo, dependencies);
 
   res.render(dependencies.viewsPath + "repositories/executeRepositoryBuild", {
+    owners: owners,
     owner: owner,
-    repository: repository
+    repository: repository,
   });
 }
 

@@ -28,7 +28,7 @@ function requiresAdmin() {
  * @param {*} res
  * @param {*} dependencies
  */
-async function handle(req, res, dependencies) {
+async function handle(req, res, dependencies, owners) {
   if (req.body.password === dependencies.serverConfig.adminPassword) {
     const sessionID = uuidv1();
     await dependencies.cache.admin.storeSession(
