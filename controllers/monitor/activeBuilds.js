@@ -13,11 +13,12 @@ function path() {
  * @param {*} res
  * @param {*} dependencies
  */
-async function handle(req, res, dependencies) {
+async function handle(req, res, dependencies, owners) {
   const builds = await dependencies.db.activeBuilds();
   res.render(dependencies.viewsPath + "monitor/activeBuilds", {
+    owners: owners,
     builds: builds.rows,
-    prettyMilliseconds: ms => (ms != null ? prettyMilliseconds(ms) : "")
+    prettyMilliseconds: (ms) => (ms != null ? prettyMilliseconds(ms) : ""),
   });
 }
 

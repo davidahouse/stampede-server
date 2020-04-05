@@ -13,7 +13,7 @@ function path() {
  * @param {*} res
  * @param {*} dependencies
  */
-async function handle(req, res, dependencies) {
+async function handle(req, res, dependencies, owners) {
   const build = await dependencies.db.fetchBuild(req.query.buildID);
   const buildTasks = await dependencies.db.fetchBuildTasks(req.query.buildID);
   const buildDetails = build.rows.length > 0 ? build.rows[0] : {};
@@ -32,10 +32,11 @@ async function handle(req, res, dependencies) {
     tasks.push(task);
   }
   res.render(dependencies.viewsPath + "history/buildDetails", {
+    owners: owners,
     build: buildDetails,
     duration: duration,
     tasks: tasks,
-    prettyMilliseconds: ms => (ms != null ? prettyMilliseconds(ms) : "")
+    prettyMilliseconds: (ms) => (ms != null ? prettyMilliseconds(ms) : ""),
   });
 }
 

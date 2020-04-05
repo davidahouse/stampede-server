@@ -11,10 +11,14 @@ function path() {
  * @param {*} res
  * @param {*} dependencies
  */
-async function handle(req, res, dependencies) {
-  const repositories = await dependencies.db.fetchRepositories();
+async function handle(req, res, dependencies, owners) {
+  const repositories = await dependencies.db.fetchRepositoriesWithOwner(
+    req.query.owner
+  );
   res.render(dependencies.viewsPath + "repositories/repositories", {
-    repositories: repositories.rows
+    owners: owners,
+    owner: req.query.owner,
+    repositories: repositories.rows,
   });
 }
 

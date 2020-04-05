@@ -20,9 +20,10 @@ function requiresAdmin() {
  * @param {*} res
  * @param {*} dependencies
  */
-async function handle(req, res, dependencies) {
+async function handle(req, res, dependencies, owners) {
   res.render(dependencies.viewsPath + "admin/info", {
-    version: module.exports.version
+    owners: owners,
+    version: module.exports.version,
   });
 }
 

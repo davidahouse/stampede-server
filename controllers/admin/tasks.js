@@ -18,7 +18,7 @@ function requiresAdmin() {
  * @param {*} res
  * @param {*} dependencies
  */
-async function handle(req, res, dependencies) {
+async function handle(req, res, dependencies, owners) {
   const taskList = await dependencies.cache.fetchTasks();
   const sortedTasks = taskList.sort();
   const tasks = [];
@@ -28,10 +28,13 @@ async function handle(req, res, dependencies) {
     );
     tasks.push({
       id: sortedTasks[index],
-      title: taskDetails.title
+      title: taskDetails.title,
     });
   }
-  res.render(dependencies.viewsPath + "admin/tasks", { tasks: tasks });
+  res.render(dependencies.viewsPath + "admin/tasks", {
+    owners: owners,
+    tasks: tasks,
+  });
 }
 
 module.exports.path = path;

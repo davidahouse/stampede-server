@@ -4,7 +4,7 @@ const yaml = require("js-yaml");
  * path this handler will serve
  */
 function path() {
-  return "/admin/removeTask";
+  return "/admin/addOwner";
 }
 
 /**
@@ -22,16 +22,15 @@ function method() {
 }
 
 /**
- * handle tasks
+ * handle
  * @param {*} req
  * @param {*} res
  * @param {*} dependencies
  */
 async function handle(req, res, dependencies, owners) {
-  const taskID = req.body.taskID;
-  await dependencies.cache.removeTaskConfig(taskID);
+  await dependencies.cache.addOwner(req.body.owner);
   res.writeHead(301, {
-    Location: "/admin/tasks",
+    Location: "/admin/owners",
   });
   res.end();
 }

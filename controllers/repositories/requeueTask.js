@@ -13,7 +13,7 @@ function path() {
  * @param {*} res
  * @param {*} dependencies
  */
-async function handle(req, res, dependencies) {
+async function handle(req, res, dependencies, owners) {
   const taskRows = await dependencies.db.fetchTask(req.query.taskID);
   const task = taskRows.rows[0];
   const detailsRows = await dependencies.db.fetchTaskDetails(req.query.taskID);
@@ -36,9 +36,10 @@ async function handle(req, res, dependencies) {
   taskQueue.close();
 
   res.render(dependencies.viewsPath + "repositories/requeueTask", {
+    owners: owners,
     task: task,
     taskDetails: taskDetails,
-    build: build
+    build: build,
   });
 }
 

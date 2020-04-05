@@ -11,14 +11,14 @@ function path() {
  * @param {*} res
  * @param {*} dependencies
  */
-async function handle(req, res, dependencies) {
+async function handle(req, res, dependencies, owners) {
   const total = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
   const summary = {
     total: 0,
     totalDuration: 0.0,
     avgDuration: 0.0,
     minDuration: 99999.99,
-    maxDuration: 0.0
+    maxDuration: 0.0,
   };
 
   const builds = await dependencies.db.recentBuilds(
@@ -49,13 +49,14 @@ async function handle(req, res, dependencies) {
       {
         label: "Total",
         data: total,
-        backgroundColor: "rgba(0, 255, 0, 0.6)"
-      }
-    ]
+        backgroundColor: "rgba(0, 255, 0, 0.6)",
+      },
+    ],
   };
   res.render(dependencies.viewsPath + "history/buildSummary", {
+    owners: owners,
     data: data,
-    summary: summary
+    summary: summary,
   });
 }
 

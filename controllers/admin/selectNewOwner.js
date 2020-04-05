@@ -2,7 +2,7 @@
  * path this handler will serve
  */
 function path() {
-  return "/repositories/selectConfigSource";
+  return "/admin/selectNewOwner";
 }
 
 /**
@@ -13,19 +13,22 @@ function requiresAdmin() {
 }
 
 /**
- * handle index
+ * handle
  * @param {*} req
  * @param {*} res
  * @param {*} dependencies
  */
 async function handle(req, res, dependencies, owners) {
-  let owner = req.query.owner;
-  let repository = req.query.repository;
-
-  res.render(dependencies.viewsPath + "repositories/selectConfigSource", {
+  const allOwners = await dependencies.db.fetchOwners();
+  const newOwners = [];
+  for (let index = 0; index < allOwners.rows.length; index++) {
+    if (!owners.includes(allOwners.rows[index].owner)) {
+      newOwners.push(allOwners.rows[index].owner);
+    }
+  }
+  res.render(dependencies.viewsPath + "admin/selectNewOwner", {
     owners: owners,
-    owner: owner,
-    repository: repository,
+    newOwners: newOwners,
   });
 }
 

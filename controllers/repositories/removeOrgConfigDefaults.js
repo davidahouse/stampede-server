@@ -27,7 +27,7 @@ function requiresAdmin() {
  * @param {*} res
  * @param {*} dependencies
  */
-async function handle(req, res, dependencies) {
+async function handle(req, res, dependencies, owners) {
   const owner = req.body.owner;
   const repository = req.body.repository;
   await dependencies.cache.orgConfigDefaults.removeDefaults(owner);
@@ -36,7 +36,7 @@ async function handle(req, res, dependencies) {
       "/repositories/viewOrgConfigDefaults?owner=" +
       owner +
       "&repository=" +
-      repository
+      repository,
   });
   res.end();
 }
