@@ -18,19 +18,20 @@ function requiresAdmin() {
  * @param {*} res
  * @param {*} dependencies
  */
-async function handle(req, res, dependencies) {
+async function handle(req, res, dependencies, owners) {
   const overrides = await dependencies.cache.fetchSystemOverrides();
   const configOverrides = [];
   if (overrides != null && overrides.overrides != null) {
-    Object.keys(overrides.overrides).forEach(function(key) {
+    Object.keys(overrides.overrides).forEach(function (key) {
       configOverrides.push({
         key: key,
-        value: overrides.overrides[key]
+        value: overrides.overrides[key],
       });
     });
   }
   res.render(dependencies.viewsPath + "admin/overrides", {
-    overrides: configOverrides
+    owners: owners,
+    overrides: configOverrides,
   });
 }
 

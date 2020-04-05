@@ -20,7 +20,7 @@ function requiresAdmin() {
  * @param {*} res
  * @param {*} dependencies
  */
-async function handle(req, res, dependencies) {
+async function handle(req, res, dependencies, owners) {
   res.clearCookie("sSession");
   res.writeHead(302, { Location: "/" });
   res.end();

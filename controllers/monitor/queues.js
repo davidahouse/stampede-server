@@ -13,7 +13,7 @@ function path() {
  * @param {*} res
  * @param {*} dependencies
  */
-async function handle(req, res, dependencies) {
+async function handle(req, res, dependencies, owners) {
   const queueList = await dependencies.cache.systemQueues.fetchSystemQueues();
   const queues = [];
 
@@ -25,10 +25,13 @@ async function handle(req, res, dependencies) {
     const stats = await q.getJobCounts();
     queues.push({
       queue: queueList[index].id,
-      stats: stats
+      stats: stats,
     });
   }
-  res.render(dependencies.viewsPath + "monitor/queues", { queues: queues });
+  res.render(dependencies.viewsPath + "monitor/queues", {
+    owners: owners,
+    queues: queues,
+  });
 }
 
 module.exports.path = path;

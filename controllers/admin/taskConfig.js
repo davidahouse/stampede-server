@@ -18,13 +18,13 @@ function requiresAdmin() {
  * @param {*} res
  * @param {*} dependencies
  */
-async function handle(req, res, dependencies) {
+async function handle(req, res, dependencies, owners) {
   const taskDetails = await dependencies.cache.fetchTaskConfig(
     req.query.taskID
   );
   const workerConfig = [];
   if (taskDetails.worker != null) {
-    Object.keys(taskDetails.worker).forEach(function(key) {
+    Object.keys(taskDetails.worker).forEach(function (key) {
       workerConfig.push({ key: key, value: taskDetails.worker[key] });
     });
   }
@@ -39,11 +39,12 @@ async function handle(req, res, dependencies) {
   }
 
   res.render(dependencies.viewsPath + "admin/taskConfig", {
+    owners: owners,
     taskID: req.query.taskID,
     taskDetails: taskDetails,
     config: taskDetails.config != null ? taskDetails.config : [],
     workerConfig: workerConfig,
-    example: example
+    example: example,
   });
 }
 

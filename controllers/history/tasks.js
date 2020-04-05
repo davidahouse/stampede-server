@@ -11,7 +11,7 @@ function path() {
  * @param {*} res
  * @param {*} dependencies
  */
-async function handle(req, res, dependencies) {
+async function handle(req, res, dependencies, owners) {
   let timeFilter = "Last 8 hours";
   if (req.query.time != null) {
     timeFilter = req.query.time;
@@ -54,7 +54,7 @@ async function handle(req, res, dependencies) {
     "Task",
     "Owner",
     "Repository",
-    "Conclusion"
+    "Conclusion",
   ];
   let sorted = "Date DESC";
   if (req.query.sorted != null) {
@@ -83,6 +83,7 @@ async function handle(req, res, dependencies) {
   );
 
   res.render(dependencies.viewsPath + "history/tasks", {
+    owners: owners,
     tasks: tasks.rows,
     timeFilter: timeFilter,
     timeFilterList: ["Last 8 hours", "Today", "Yesterday"],
@@ -95,7 +96,7 @@ async function handle(req, res, dependencies) {
     nodeList: nodeList,
     nodeFilter: nodeFilter,
     sortList: sortList,
-    sorted: sorted
+    sorted: sorted,
   });
 }
 

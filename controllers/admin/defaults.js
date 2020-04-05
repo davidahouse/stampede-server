@@ -18,19 +18,20 @@ function requiresAdmin() {
  * @param {*} res
  * @param {*} dependencies
  */
-async function handle(req, res, dependencies) {
+async function handle(req, res, dependencies, owners) {
   const defaults = await dependencies.cache.fetchSystemDefaults();
   const configDefaults = [];
   if (defaults != null && defaults.defaults != null) {
-    Object.keys(defaults.defaults).forEach(function(key) {
+    Object.keys(defaults.defaults).forEach(function (key) {
       configDefaults.push({
         key: key,
-        value: defaults.defaults[key]
+        value: defaults.defaults[key],
       });
     });
   }
   res.render(dependencies.viewsPath + "admin/defaults", {
-    defaults: configDefaults
+    owners: owners,
+    defaults: configDefaults,
   });
 }
 

@@ -11,7 +11,7 @@ function path() {
  * @param {*} res
  * @param {*} dependencies
  */
-async function handle(req, res, dependencies) {
+async function handle(req, res, dependencies, owners) {
   const owner = req.query.owner;
   const repository = req.query.repository;
 
@@ -21,10 +21,11 @@ async function handle(req, res, dependencies) {
   const buildTypeList = ["Pull Request", "Branch", "Release"];
 
   res.render(dependencies.viewsPath + "repositories/executeTaskSelection", {
+    owners: owners,
     owner: owner,
     repository: repository,
     taskList: sortedTasks,
-    buildTypeList: buildTypeList
+    buildTypeList: buildTypeList,
   });
 }
 

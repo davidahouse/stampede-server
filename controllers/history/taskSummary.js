@@ -11,7 +11,7 @@ function path() {
  * @param {*} res
  * @param {*} dependencies
  */
-async function handle(req, res, dependencies) {
+async function handle(req, res, dependencies, owners) {
   let timeFilter = "Last 8 hours";
   if (req.query.time != null) {
     timeFilter = req.query.time;
@@ -57,7 +57,7 @@ async function handle(req, res, dependencies) {
       totalDuration: 0,
       avgDuration: 0,
       minDuration: 999999,
-      maxDuration: 0
+      maxDuration: 0,
     };
 
     for (let tindex = 0; tindex < tasks.rows.length; tindex++) {
@@ -99,24 +99,25 @@ async function handle(req, res, dependencies) {
         {
           label: "Duration",
           data: taskData,
-          backgroundColor: taskColor
-        }
-      ]
+          backgroundColor: taskColor,
+        },
+      ],
     };
 
     graphs.push({
       task: sortedTasks[index],
       data: data,
-      summary: summary
+      summary: summary,
     });
   }
 
   res.render(dependencies.viewsPath + "history/taskSummary", {
+    owners: owners,
     graphs: graphs,
     timeFilter: timeFilter,
     timeFilterList: ["Last 8 hours", "Today", "Yesterday"],
     repositoryFilter: repositoryFilter,
-    repositoryList: repositories
+    repositoryList: repositories,
   });
 }
 
