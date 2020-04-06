@@ -1,0 +1,21 @@
+extends ../layout
+include ../components/titleBar
+include ../components/tableHeader
+include ../components/tableCell
+include ../components/tableRow
+
+block content
+
+  +titleBar([{title: 'Repositories'}])
+  div(class="flex flex-wrap m-4")
+
+    table(class="table-auto w-full")
+      thead
+        tr
+          +tableHeader('Owner')
+          +tableHeader('Repository')
+      tbody
+        each repo, i in repositories
+          +tableRow('/admin/repositoryAdmin?owner=' + repo.owner + '&repository=' + repo.repository)
+            +tableCell(repo.owner)
+            +tableCell(repo.repository)
