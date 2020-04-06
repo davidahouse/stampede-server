@@ -26,8 +26,8 @@ block content
                 +tableCell('Node')
                 +tableCell(task.node)
               +tableRow()
-                +tableCellButton('Requeue', '/monitor/requeueTask?taskID=' + task.task_id)
                 +tableCellButton('Cancel', '/monitor/cancelTask?taskID=' + task.task_id)
+                +tableCell('')
 
     +infoCard('Task Config')
         table(class="table-auto w-full")
