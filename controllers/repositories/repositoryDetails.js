@@ -15,82 +15,45 @@ async function handle(req, res, dependencies, owners) {
   const owner = req.query.owner;
   const repository = req.query.repository;
 
-  const buildNumber = await dependencies.cache.fetchBuildNumber(
-    owner + "-" + repository + "-buildNumber"
-  );
-
-  const activeBuilds = await dependencies.db.activeBuilds(owner, repository);
   const recentBuilds = await dependencies.db.recentBuilds(
     "Last 8 hours",
     "All",
     owner + "/" + repository
   );
 
-  // Cached Repo config
-  const repoConfig = await dependencies.cache.fetchRepoConfig(
+  const currentRepositoryBuilds = await dependencies.cache.repositoryBuilds.fetchRepositoryBuilds(
     owner,
     repository
   );
-  const configSource =
-    repoConfig != null ? "Cache" : "Repository .stampede.yaml";
-  const configSourceDestination =
-    repoConfig != null ? "viewCachedConfig" : "selectConfigSource";
-  const configSourceAction = repoConfig != null ? "View" : "Upload";
+  const activeBuilds = await dependencies.db.activeBuilds(owner, repository);
+  const repositoryBuilds = [];
+  for (let index = 0; index < currentRepositoryBuilds.length; index++) {
+    let foundActiveBuild = false;
+    for (let bindex = 0; bindex < activeBuilds.rows.length; bindex++) {
+      if (
+        activeBuilds.rows[bindex].build_key === currentRepositoryBuilds[index]
+      ) {
+        foundActiveBuild = true;
+      }
+    }
 
-  // Org and repo defaults and overrides
-  const orgDefaults = await dependencies.cache.orgConfigDefaults.fetchDefaults(
-    owner
-  );
-  const orgDefaultStatus =
-    Object.keys(orgDefaults.defaults).length > 0
-      ? "Has Defaults"
-      : "No Defaults Found";
-
-  const repoDefaults = await dependencies.cache.repoConfigDefaults.fetchDefaults(
-    owner,
-    repository
-  );
-  const repoDefaultStatus =
-    Object.keys(repoDefaults.defaults).length > 0
-      ? "Has Defaults"
-      : "No Defaults Found";
-
-  const orgOverrides = await dependencies.cache.orgConfigOverrides.fetchOverrides(
-    owner
-  );
-  const orgOverrideStatus =
-    Object.keys(orgOverrides.overrides).length > 0
-      ? "Has Overrides"
-      : "No Overrides Found";
-
-  const repoOverrides = await dependencies.cache.repoConfigOverrides.fetchOverrides(
-    owner,
-    repository
-  );
-  const repoOverrideStatus =
-    Object.keys(repoOverrides.overrides).length > 0
-      ? "Has Overrides"
-      : "No Overrides Found";
-
-  const repositoryBuilds = await dependencies.cache.repositoryBuilds.fetchRepositoryBuilds(
-    owner,
-    repository
-  );
-
+    if (foundActiveBuild) {
+      repositoryBuilds.push({
+        build: currentRepositoryBuilds[index],
+        status: "active",
+      });
+    } else {
+      repositoryBuilds.push({
+        build: currentRepositoryBuilds[index],
+        status: "idle",
+      });
+    }
+  }
   res.render(dependencies.viewsPath + "repositories/repositoryDetails", {
     owners: owners,
     owner: owner,
     repository: repository,
-    nextBuildNumber: parseInt(buildNumber) + 1,
-    activeBuilds: activeBuilds.rows,
     recentBuilds: recentBuilds.rows,
-    configSource: configSource,
-    configSourceDestination: configSourceDestination,
-    configSourceAction: configSourceAction,
-    orgDefaultStatus: orgDefaultStatus,
-    repoDefaultStatus: repoDefaultStatus,
-    orgOverrideStatus: orgOverrideStatus,
-    repoOverrideStatus: repoOverrideStatus,
     repositoryBuilds: repositoryBuilds,
   });
 }
