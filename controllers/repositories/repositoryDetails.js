@@ -29,11 +29,13 @@ async function handle(req, res, dependencies, owners) {
   const repositoryBuilds = [];
   for (let index = 0; index < currentRepositoryBuilds.length; index++) {
     let foundActiveBuild = false;
+    let buildID = null;
     for (let bindex = 0; bindex < activeBuilds.rows.length; bindex++) {
       if (
         activeBuilds.rows[bindex].build_key === currentRepositoryBuilds[index]
       ) {
         foundActiveBuild = true;
+        buildID = activeBuilds.rows[bindex].build_id;
       }
     }
 
@@ -47,6 +49,7 @@ async function handle(req, res, dependencies, owners) {
       repositoryBuilds.push({
         build: currentRepositoryBuilds[index],
         status: "active",
+        buildID: buildID,
       });
     } else {
       if (buildDetails.schedule != null) {
@@ -54,7 +57,7 @@ async function handle(req, res, dependencies, owners) {
           build: currentRepositoryBuilds[index],
           status: "scheduled",
           message:
-            "Build is scheduled to run at " +
+            "⏰ Build is scheduled to run at " +
             buildDetails.schedule.hour.toString() +
             ":" +
             buildDetails.schedule.minute.toString() +
