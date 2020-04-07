@@ -21,6 +21,7 @@ async function handle(req, res, dependencies, owners) {
     ? buildDetails.completed_at - buildDetails.started_at
     : null;
   const tasks = [];
+  const artifacts = [];
   for (let index = 0; index < buildTasks.rows.length; index++) {
     const taskDetails = await dependencies.cache.fetchTaskConfig(
       buildTasks.rows[index].task
@@ -30,12 +31,29 @@ async function handle(req, res, dependencies, owners) {
     task.duration =
       task.finished_at != null ? task.finished_at - task.started_at : null;
     tasks.push(task);
+    const detailsRows = await dependencies.db.fetchTaskDetails(task.task_id);
+    const taskResultDetails = detailsRows.rows[0];
+    if (
+      taskResultDetails != null &&
+      taskResultDetails.details != null &&
+      taskResultDetails.details.result != null &&
+      taskResultDetails.details.result.artifacts != null
+    ) {
+      for (
+        let aindex = 0;
+        aindex < taskResultDetails.details.result.artifacts.length;
+        aindex++
+      ) {
+        artifacts.push(taskResultDetails.details.result.artifacts[aindex]);
+      }
+    }
   }
   res.render(dependencies.viewsPath + "history/buildDetails", {
     owners: owners,
     build: buildDetails,
     duration: duration,
     tasks: tasks,
+    artifacts: artifacts,
     prettyMilliseconds: (ms) => (ms != null ? prettyMilliseconds(ms) : ""),
   });
 }
