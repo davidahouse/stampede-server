@@ -23,14 +23,17 @@ block content
                   +tableHeader('Build')
                 each build, i in repositoryBuilds
                   tbody
-                    +tableRow()
-                      +tableCell(build.build)
-                      if build.status == "active" 
-                        +tableCell('Running')
-                      else if build.status == "scheduled"
-                        +tableCell(build.message)
-                      else 
-                        +tableCellButton("Start", `/repositories/executeRepositoryBuild?owner=` + owner + `&repository=` + repository + `&build=` + build.build)
+                    if build.status == "active" 
+                      +tableRow(`/repositories/buildDetails?buildID=`+build.buildID)
+                        +tableCell(build.build)
+                        +tableCell('🐎 Currently running, click for build details')
+                    else
+                      +tableRow()
+                        +tableCell(build.build)
+                        if build.status == "scheduled"
+                          +tableCell(build.message)
+                        else 
+                          +tableCellButton("Start", `/repositories/executeRepositoryBuild?owner=` + owner + `&repository=` + repository + `&build=` + build.build)
 
     div(class="w-full p-3")
         div(class="bg-white border-transparent rounded-lg shadow-lg")
