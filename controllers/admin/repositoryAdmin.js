@@ -82,7 +82,7 @@ async function handle(req, res, dependencies, owners) {
     repoDefaultStatus: repoDefaultStatus,
     orgOverrideStatus: orgOverrideStatus,
     repoOverrideStatus: repoOverrideStatus,
-    repositoryBuilds: repositoryBuilds,
+    repositoryBuilds: repositoryBuilds.sort(),
   });
 }
 
