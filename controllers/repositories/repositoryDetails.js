@@ -49,12 +49,23 @@ async function handle(req, res, dependencies, owners) {
       });
     }
   }
+
+  const sortedBuilds = repositoryBuilds.sort(function (a, b) {
+    if (a.build < b.build) {
+      return -1;
+    } else if (a.build > b.build) {
+      return 1;
+    } else {
+      return 0;
+    }
+  });
+
   res.render(dependencies.viewsPath + "repositories/repositoryDetails", {
     owners: owners,
     owner: owner,
     repository: repository,
     recentBuilds: recentBuilds.rows,
-    repositoryBuilds: repositoryBuilds,
+    repositoryBuilds: sortedBuilds,
   });
 }
 
