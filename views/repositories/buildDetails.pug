@@ -4,6 +4,7 @@ include ../components/tableHeader
 include ../components/tableCell
 include ../components/tableRow
 include ../components/tableCellButton
+include ../components/infoCard
 
 block content
 
@@ -57,3 +58,16 @@ block content
                   +tableCell(task.title)
                   +tableCell(task.status)
                   +tableCell(prettyMilliseconds(task.duration))
+
+  if artifacts.length > 0
+    +infoCard('Artifacts')
+      table(class="table-auto w-full")
+        thead
+          +tableHeader('Artifact')
+          +tableHeader('Action')
+        tbody
+            each artifact, i in artifacts
+                +tableRow(artifact.url)
+                    +tableCell(artifact.title)
+                    if artifact.type == "download"
+                      +tableCellButton("Download", artifact.url)

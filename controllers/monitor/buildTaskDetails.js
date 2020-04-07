@@ -43,6 +43,11 @@ async function handle(req, res, dependencies, owners) {
       taskDetails.details.result.text != null
         ? taskDetails.details.result.text
         : "";
+    const artifacts =
+      taskDetails.details.result != null &&
+      taskDetails.details.result.artifacts != null
+        ? taskDetails.details.result.artifacts
+        : [];
 
     res.render(dependencies.viewsPath + "monitor/buildTaskDetails", {
       owners: owners,
@@ -52,6 +57,7 @@ async function handle(req, res, dependencies, owners) {
       configValues: configValues,
       summary: summary,
       text: text,
+      artifacts: artifacts,
     });
   } else {
     res.render(dependencies.viewsPath + "monitor/buildTaskDetails", {
@@ -62,6 +68,7 @@ async function handle(req, res, dependencies, owners) {
       configValues: [],
       summary: "",
       text: "",
+      artifacts: [],
     });
   }
 }
