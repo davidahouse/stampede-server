@@ -9,7 +9,10 @@ mixin sideBar(activeMenu, owners)
 
                 +sideBarHeader('Repositories', 'address-book')
                 each owner, i in owners
-                    +sideBarItem({title: owner, href: `/repositories?owner=`+owner, class: 'pb-3'})
+                    if i < (owners.length-1)
+                        +sideBarItem({title: owner, href: `/repositories?owner=`+owner})
+                    else
+                        +sideBarItem({title: owner, href: `/repositories?owner=`+owner, class: 'pb-3'})
 
                 +sideBarSection('Monitor', 'desktop', [
                     {title: 'Active Builds', href: '/monitor/activeBuilds'},
