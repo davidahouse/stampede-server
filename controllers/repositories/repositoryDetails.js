@@ -37,16 +37,35 @@ async function handle(req, res, dependencies, owners) {
       }
     }
 
+    const buildDetails = await dependencies.cache.repositoryBuilds.fetchRepositoryBuild(
+      owner,
+      repository,
+      currentRepositoryBuilds[index]
+    );
+
     if (foundActiveBuild) {
       repositoryBuilds.push({
         build: currentRepositoryBuilds[index],
         status: "active",
       });
     } else {
-      repositoryBuilds.push({
-        build: currentRepositoryBuilds[index],
-        status: "idle",
-      });
+      if (buildDetails.schedule != null) {
+        repositoryBuilds.push({
+          build: currentRepositoryBuilds[index],
+          status: "scheduled",
+          message:
+            "Build is scheduled to run at " +
+            buildDetails.schedule.hour.toString() +
+            ":" +
+            buildDetails.schedule.minute.toString() +
+            " every day",
+        });
+      } else {
+        repositoryBuilds.push({
+          build: currentRepositoryBuilds[index],
+          status: "idle",
+        });
+      }
     }
   }
 

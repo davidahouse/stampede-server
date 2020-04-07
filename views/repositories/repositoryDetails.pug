@@ -27,6 +27,8 @@ block content
                       +tableCell(build.build)
                       if build.status == "active" 
                         +tableCell('Running')
+                      else if build.status == "scheduled"
+                        +tableCell(build.message)
                       else 
                         +tableCellButton("Start", `/repositories/executeRepositoryBuild?owner=` + owner + `&repository=` + repository + `&build=` + build.build)
 
