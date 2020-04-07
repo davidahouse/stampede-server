@@ -29,19 +29,19 @@ block content
                 +tableCellButton('Cancel', '/monitor/cancelTask?taskID=' + task.task_id)
                 +tableCell('')
 
-    +infoCard('Task Config')
-        table(class="table-auto w-full")
-            thead
-              +tableHeader('Config Parameter')
-              +tableHeader('Source')
-              +tableHeader('Value')
-            tbody
-                each config, i in configValues
-                    +tableRow()
-                        +tableCell(config.key)
-                        +tableCell(config.source)
-                        +tableCell(config.value)
-
+    if configValues.length > 0
+      +infoCard('Task Config')
+          table(class="table-auto w-full")
+              thead
+                +tableHeader('Config Parameter')
+                +tableHeader('Source')
+                +tableHeader('Value')
+              tbody
+                  each config, i in configValues
+                      +tableRow()
+                          +tableCell(config.key)
+                          +tableCell(config.source)
+                          +tableCell(config.value)
 
     if taskDetails.details.result
         +infoCard('Task Results')
