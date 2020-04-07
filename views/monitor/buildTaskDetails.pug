@@ -53,6 +53,19 @@ block content
                     +tableRow()
                         +tableCell('Title')
                         +tableCell(taskDetails.details.result.title)
+        
+        if artifacts.length > 0
+          +infoCard('Artifacts')
+            table(class="table-auto w-full")
+              thead
+                +tableHeader('Artifact')
+                +tableHeader('Action')
+              tbody
+                  each artifact, i in artifacts
+                      +tableRow(artifact.url)
+                          +tableCell(artifact.title)
+                          if artifact.type == "download"
+                            +tableCellButton("Download", artifact.url)
                         
         +infoCard('Summary')
           div(id="task-result-summary")

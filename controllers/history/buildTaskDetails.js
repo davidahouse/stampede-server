@@ -33,12 +33,18 @@ async function handle(req, res, dependencies, owners) {
     }
     const buildRows = await dependencies.db.fetchBuild(task.build_id);
     const build = buildRows.rows[0];
+    const artifacts =
+      taskDetails.details.result != null &&
+      taskDetails.details.result.artifacts != null
+        ? taskDetails.details.result.artifacts
+        : [];
     res.render(dependencies.viewsPath + "history/buildTaskDetails", {
       owners: owners,
       task: task,
       build: build,
       taskDetails: taskDetails,
       configValues: configValues,
+      artifacts: artifacts,
     });
   } else {
     res.render(dependencies.viewsPath + "history/buildTaskDetails", {
@@ -47,6 +53,7 @@ async function handle(req, res, dependencies, owners) {
       build: {},
       taskDetails: { details: {} },
       configValues: {},
+      artifacts: [],
     });
   }
 }
