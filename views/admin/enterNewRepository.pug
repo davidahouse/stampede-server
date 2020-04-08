@@ -1,0 +1,20 @@
+extends ../layout
+include ../components/titleBar
+include ../components/tableHeader
+include ../components/tableCell
+include ../components/tableRow
+include ../components/formSelect
+include ../components/tableCellButton
+include ../components/formInput
+
+block content
+
+  +titleBar([{title: 'Enter New Repository'}])
+  div(class="flex flex-wrap m-4")
+    form(class="w-full m-4" method="POST" action="/admin/addRepository" encType="multipart/form-data")
+      div(class="w-1/4 md:flex mb-6")
+        +formInput("owner", "owner")
+      div(class="w-1/4 md:flex mb-6")
+        +formInput("repository", "repository")
+      div(class="w-1/5 px-3 mb-6 md:mb-0 md:items-right")
+        button(class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded") Add Repository
