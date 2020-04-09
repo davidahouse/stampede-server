@@ -25,13 +25,32 @@ async function handle(req, res, dependencies, owners) {
     buildID
   );
 
-  repositoryBuild.execute(owner, repository, buildID, buildInfo, dependencies);
+  if (buildInfo.branch === "$select") {
+    res.writeHead(301, {
+      Location:
+        "/repositories/selectRepositoryBuildBranch?owner=" +
+        owner +
+        "&repository=" +
+        repository +
+        "&build=" +
+        buildID,
+    });
+    res.end();
+  } else {
+    repositoryBuild.execute(
+      owner,
+      repository,
+      buildID,
+      buildInfo,
+      dependencies
+    );
 
-  res.render(dependencies.viewsPath + "repositories/executeRepositoryBuild", {
-    owners: owners,
-    owner: owner,
-    repository: repository,
-  });
+    res.render(dependencies.viewsPath + "repositories/executeRepositoryBuild", {
+      owners: owners,
+      owner: owner,
+      repository: repository,
+    });
+  }
 }
 
 module.exports.path = path;
