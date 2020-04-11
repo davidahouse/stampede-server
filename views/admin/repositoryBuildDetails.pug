@@ -15,22 +15,13 @@ block content
   div(class="w-full p-3")
       div(class="bg-white border-transparent rounded-lg shadow-lg")
         div(class="bg-gray-400 uppercase text-gray-800 border-b-2 border-gray-500 rounded-tl-lg rounded-tr-lg p-2")
-          h5(class="font-bold uppercase text-gray-600") Build Information
+          h5(class="font-bold uppercase text-gray-600") Build Details
+        div(class="p-5")
+          pre= buildDetails
+
         div(class="p-5")
           table(class="table-auto w-full")
             tbody
-              +tableRow()
-                +tableCell('Owner')
-                +tableCell(owner)
-              +tableRow()
-                +tableCell('Repository')
-                +tableCell(repository)
-              +tableRow()
-                +tableCell('Build')
-                +tableCell(buildID)
-              +tableRow()
-                +tableCell('Scheduled At')
-                +tableCell(build.scheduled_at)              
               +tableRow()
                 +tableCell('Remove Build')
                 +tableCellButton("Remove", `/admin/removeRepositoryBuild` + `?owner=` + owner + `&repository=` + repository + `&build=` + buildID)

@@ -1,4 +1,6 @@
 const prettyMilliseconds = require("pretty-ms");
+const yaml = require("js-yaml");
+
 /**
  * path this handler will serve
  */
@@ -28,6 +30,7 @@ async function handle(req, res, dependencies, owners) {
     repository: repository,
     buildID: buildID,
     build: build != null ? build : {},
+    buildDetails: build != null ? yaml.safeDump(build) : "",
     prettyMilliseconds: (ms) => (ms != null ? prettyMilliseconds(ms) : ""),
   });
 }
