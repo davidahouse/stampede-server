@@ -63,6 +63,8 @@ block content
                     +tableCell(build)
 
         div(class="p-5")
+          if uploadError != null
+            h5(class="font-bold text-red-600") Error uploading repository build, check the yaml file for incorrect syntax.
           form(class="w-full m-4" method="POST" action="/admin/uploadRepositoryBuild" encType="multipart/form-data")
             div(class="flex -mx-3 mb-6")
               div(class="w-1/2 px-3 mb-6 md:mb-0")
