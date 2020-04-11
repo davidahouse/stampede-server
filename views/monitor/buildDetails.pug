@@ -53,7 +53,10 @@ block content
                 +tableRow(`/monitor/buildTaskDetails?taskID=` + task.task_id)
                   +tableCell(task.task)
                   +tableCell(task.title)
-                  +tableCell(task.status)
+                  if task.status == "completed"
+                    +tableCell(task.conclusion)
+                  else
+                    +tableCell(task.status)
                   +tableCell(prettyMilliseconds(task.duration))
 
   if artifacts.length > 0
