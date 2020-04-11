@@ -83,6 +83,7 @@ async function handle(req, res, dependencies, owners) {
     orgOverrideStatus: orgOverrideStatus,
     repoOverrideStatus: repoOverrideStatus,
     repositoryBuilds: repositoryBuilds.sort(),
+    uploadError: req.query.uploadError,
   });
 }
 

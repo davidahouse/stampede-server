@@ -30,21 +30,27 @@ function requiresAdmin() {
 async function handle(req, res, dependencies) {
   const owner = req.body.owner;
   const repository = req.body.repository;
+  let repositoryAdminURL =
+    "/admin/repositoryAdmin?owner=" + owner + "&repository=" + repository;
+
   if (req.files != null) {
     const uploadData = req.files.uploadFile;
-    const buildInfo = yaml.safeLoad(uploadData.data);
-    if (buildInfo != null) {
-      await dependencies.cache.repositoryBuilds.updateRepositoryBuild(
-        owner,
-        repository,
-        buildInfo
-      );
+    try {
+      const buildInfo = yaml.safeLoad(uploadData.data);
+      if (buildInfo != null) {
+        await dependencies.cache.repositoryBuilds.updateRepositoryBuild(
+          owner,
+          repository,
+          buildInfo
+        );
+      }
+    } catch (e) {
+      repositoryAdminURL += "&uploadError=Invalid build file";
     }
   }
 
   res.writeHead(301, {
-    Location:
-      "/admin/repositoryAdmin?owner=" + owner + "&repository=" + repository,
+    Location: repositoryAdminURL,
   });
   res.end();
 }
