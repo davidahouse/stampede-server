@@ -76,6 +76,7 @@ async function handle(req, res, dependencies, owners) {
 
   res.render(dependencies.viewsPath + "history/dailySummary", {
     owners: owners,
+    isAdmin: req.validAdminSession,
     yesterdayBuilds: yesterdayBuildsCount,
     yesterdayTasks: yesterdayTasksCount,
     todayBuilds: todayBuildsCount,

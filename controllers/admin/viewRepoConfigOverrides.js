@@ -38,6 +38,7 @@ async function handle(req, res, dependencies, owners) {
   }
   res.render(dependencies.viewsPath + "admin/viewRepoConfigOverrides", {
     owners: owners,
+    isAdmin: req.validAdminSession,
     owner: owner,
     repository: repository,
     overrides: configOverrides,

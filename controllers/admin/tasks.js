@@ -33,6 +33,7 @@ async function handle(req, res, dependencies, owners) {
   }
   res.render(dependencies.viewsPath + "admin/tasks", {
     owners: owners,
+    isAdmin: req.validAdminSession,
     tasks: tasks,
   });
 }

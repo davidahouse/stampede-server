@@ -40,6 +40,7 @@ async function handle(req, res, dependencies, owners) {
 
     res.render(dependencies.viewsPath + "history/requeueTask", {
       owners: owners,
+      isAdmin: req.validAdminSession,
       task: task,
       taskDetails: taskDetails,
       build: build,
@@ -47,6 +48,7 @@ async function handle(req, res, dependencies, owners) {
   } else {
     res.render(dependencies.viewsPath + "history/requeueTask", {
       owners: owners,
+      isAdmin: req.validAdminSession,
       task: {},
       taskDetails: { details: {} },
       build: {},

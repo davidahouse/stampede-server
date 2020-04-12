@@ -48,6 +48,7 @@ async function handle(req, res, dependencies, owners) {
 
   res.render(dependencies.viewsPath + "history/taskDetails", {
     owners: owners,
+    isAdmin: req.validAdminSession,
     task: task,
     build: build,
     taskDetails: taskDetails,

@@ -37,6 +37,7 @@ async function handle(req, res, dependencies, owners) {
 
   res.render(dependencies.viewsPath + "repositories/requeueTask", {
     owners: owners,
+    isAdmin: req.validAdminSession,
     task: task,
     taskDetails: taskDetails,
     build: build,

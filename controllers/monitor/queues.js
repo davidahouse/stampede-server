@@ -30,6 +30,7 @@ async function handle(req, res, dependencies, owners) {
   }
   res.render(dependencies.viewsPath + "monitor/queues", {
     owners: owners,
+    isAdmin: req.validAdminSession,
     queues: queues,
   });
 }
