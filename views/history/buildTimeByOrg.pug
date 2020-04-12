@@ -1,0 +1,45 @@
+extends layout
+include ../components/titleBar
+include ../components/tableRow
+include ../components/tableCell
+include ../components/formSelect
+
+block content
+
+  +titleBar([{title: 'Build Time By Org'}])
+
+  div(class="flex flex-wrap m-4")
+    form(class="w-full m-4" method="GET" action="/history/buildTimeByOrg")
+      div(class="flex -mx-3 mb-6")
+        div(class="w-1/5 px-3 mb-6 md:mb-0")
+          +formSelect("Time", "time", timeFilterList, timeFilter)
+      div(class="w-1/4 px-3 mb-6 md:mb-0")
+        button(class="bg-transparent hover:bg-blue-500 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-transparent rounded") Filter
+
+  hr
+  
+
+  div(class="flex flex-wrap m-4")
+
+    div(class="chart-container w-full")
+      canvas(id="buildSummary" height="100")
+        script.
+          var chartData = JSON.parse('!{JSON.stringify(data)}');
+          var ctx = document.getElementById('buildSummary').getContext('2d');
+          var myChart = new Chart(ctx, {
+          type: 'pie',
+          data: chartData,
+          options: {
+            responsive: true,
+            legend: {
+              position: 'left'
+            }
+          }
+          });
+
+    table(class="table-auto w-full mt-4")
+      tbody
+        each org, i in summary
+          +tableRow()
+            +tableCell(org.owner)
+            +tableCell(prettyMilliseconds(org.sum))
