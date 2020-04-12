@@ -21,6 +21,7 @@ async function handle(req, res, dependencies, owners) {
   }
   res.render(dependencies.viewsPath + "monitor/workerDetails", {
     owners: owners,
+    isAdmin: req.validAdminSession,
     worker: worker != null ? worker : { lastTask: {} },
   });
 }

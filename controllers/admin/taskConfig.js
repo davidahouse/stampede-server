@@ -40,6 +40,7 @@ async function handle(req, res, dependencies, owners) {
 
   res.render(dependencies.viewsPath + "admin/taskConfig", {
     owners: owners,
+    isAdmin: req.validAdminSession,
     taskID: req.query.taskID,
     taskDetails: taskDetails,
     config: taskDetails.config != null ? taskDetails.config : [],

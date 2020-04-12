@@ -72,6 +72,7 @@ async function handle(req, res, dependencies, owners) {
 
   res.render(dependencies.viewsPath + "admin/repositoryAdmin", {
     owners: owners,
+    isAdmin: req.validAdminSession,
     owner: owner,
     repository: repository,
     nextBuildNumber: parseInt(buildNumber) + 1,

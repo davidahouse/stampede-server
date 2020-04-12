@@ -31,6 +31,7 @@ async function handle(req, res, dependencies, owners) {
   }
   res.render(dependencies.viewsPath + "admin/overrides", {
     owners: owners,
+    isAdmin: req.validAdminSession,
     overrides: configOverrides,
   });
 }

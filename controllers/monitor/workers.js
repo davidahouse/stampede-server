@@ -31,6 +31,7 @@ async function handle(req, res, dependencies, owners) {
   });
   res.render(dependencies.viewsPath + "monitor/workers", {
     owners: owners,
+    isAdmin: req.validAdminSession,
     workers: sortedWorkers,
     prettyMilliseconds: (ms) => (ms != null ? prettyMilliseconds(ms) : ""),
   });

@@ -23,6 +23,7 @@ function requiresAdmin() {
 async function handle(req, res, dependencies, owners) {
   res.render(dependencies.viewsPath + "admin/login", {
     owners: owners,
+    isAdmin: req.validAdminSession,
   });
 }
 

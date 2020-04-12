@@ -55,6 +55,7 @@ async function handle(req, res, dependencies, owners) {
   };
   res.render(dependencies.viewsPath + "history/buildSummary", {
     owners: owners,
+    isAdmin: req.validAdminSession,
     data: data,
     summary: summary,
   });

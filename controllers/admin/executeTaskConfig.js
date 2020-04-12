@@ -107,6 +107,7 @@ async function handle(req, res, dependencies, owners) {
 
   res.render(dependencies.viewsPath + "admin/executeTaskConfig", {
     owners: owners,
+    isAdmin: req.validAdminSession,
     owner: owner,
     repository: repository,
     task: req.body.task,
