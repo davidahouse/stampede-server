@@ -31,6 +31,7 @@ async function handle(req, res, dependencies, owners) {
 
   res.render(dependencies.viewsPath + "admin/viewCachedConfig", {
     owners: owners,
+    isAdmin: req.validAdminSession,
     owner: owner,
     repository: repository,
     repoConfig: repoConfig != null ? yaml.safeDump(repoConfig) : null,

@@ -17,6 +17,7 @@ async function handle(req, res, dependencies, owners) {
   const builds = await dependencies.db.activeBuilds();
   res.render(dependencies.viewsPath + "monitor/activeBuilds", {
     owners: owners,
+    isAdmin: req.validAdminSession,
     builds: builds.rows,
     prettyMilliseconds: (ms) => (ms != null ? prettyMilliseconds(ms) : ""),
   });

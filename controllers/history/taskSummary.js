@@ -113,6 +113,7 @@ async function handle(req, res, dependencies, owners) {
 
   res.render(dependencies.viewsPath + "history/taskSummary", {
     owners: owners,
+    isAdmin: req.validAdminSession,
     graphs: graphs,
     timeFilter: timeFilter,
     timeFilterList: ["Last 8 hours", "Today", "Yesterday"],

@@ -22,6 +22,7 @@ async function handle(req, res, dependencies, owners) {
   const repositories = await dependencies.db.fetchRepositories();
   res.render(dependencies.viewsPath + "admin/repositories", {
     owners: owners,
+    isAdmin: req.validAdminSession,
     owner: req.query.owner,
     repositories: repositories.rows,
   });

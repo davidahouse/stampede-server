@@ -2,7 +2,7 @@ include sideBarSection
 include sideBarHeader
 include sideBarItem
 
-mixin sideBar(activeMenu, owners)
+mixin sideBar(activeMenu, owners, isAdmin)
     div(class="bg-gray-800 shadow-lg h-16 fixed bottom-0 md:relative md:h-screen z-10 w-full md:w-48")
         div(class="md:mt-12 md:w-48 md:fixed md:left-0 md:top-0 content-center md:content-start text-left justify-between")
             ul(class="list-reset flex flex-row md:flex-col py-0 md:py-3 px-1 md:px-2 text-center md:text-left mt-6")
@@ -27,13 +27,18 @@ mixin sideBar(activeMenu, owners)
                     {title: 'Task Summary', href: '/history/taskSummary'},
                     {title: 'Daily Summary', href: '/history/dailySummary', class: 'pb-3'}
                     ])
-                +sideBarSection('Admin', 'user-cog', [
-                    {title: 'Tasks', href: '/admin/tasks'},
-                    {title: 'Owners', href: '/admin/owners'},
-                    {title: 'Repositories', href: '/admin/repositories'},
-                    {title: 'Defaults', href: '/admin/defaults'},
-                    {title: 'Overrides', href: '/admin/overrides'},
-                    {title: 'Queues', href: '/admin/queues'},
-                    {title: 'Info', href: '/admin/info'},
-                    {title: 'Logout', href: '/admin/logout'}
+                if isAdmin == true
+                    +sideBarSection('Admin', 'user-cog', [
+                        {title: 'Tasks', href: '/admin/tasks'},
+                        {title: 'Owners', href: '/admin/owners'},
+                        {title: 'Repositories', href: '/admin/repositories'},
+                        {title: 'Defaults', href: '/admin/defaults'},
+                        {title: 'Overrides', href: '/admin/overrides'},
+                        {title: 'Queues', href: '/admin/queues'},
+                        {title: 'Info', href: '/admin/info'},
+                        {title: 'Logout', href: '/admin/logout'}
+                        ])
+                else
+                    +sideBarSection('Admin', 'user-cog', [
+                        {title: 'Login', href: '/admin/login'},
                     ])

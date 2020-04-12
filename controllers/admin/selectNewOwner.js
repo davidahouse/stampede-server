@@ -28,6 +28,7 @@ async function handle(req, res, dependencies, owners) {
   }
   res.render(dependencies.viewsPath + "admin/selectNewOwner", {
     owners: owners,
+    isAdmin: req.validAdminSession,
     newOwners: newOwners,
   });
 }
