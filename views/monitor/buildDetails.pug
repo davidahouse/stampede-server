@@ -36,6 +36,9 @@ block content
               +tableRow()
                 +tableCell('Started At')
                 +tableCell(build.started_at)
+              +tableRow()
+                +tableCellButton('Cancel', '/monitor/cancelBuild?buildID=' + build.build_id)
+                +tableCell('')
 
   div(class="w-full p-3")
       div(class="bg-white border-transparent rounded-lg shadow-lg")
