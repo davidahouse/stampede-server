@@ -1,0 +1,12 @@
+extends ../layout
+include ../components/titleBar
+include ../components/tableHeader
+include ../components/tableCell
+include ../components/tableRow
+
+block content
+
+  +titleBar([{title: 'Active Builds', href: '/monitor/activeBuilds'}])
+  div(class="flex flex-wrap m-4")
+
+  h5 Build Cancelled
