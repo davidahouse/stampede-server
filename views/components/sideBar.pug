@@ -26,7 +26,8 @@ mixin sideBar(activeMenu, owners, isAdmin)
                     {title: 'Tasks', href: '/history/tasks'},
                     {title: 'Task Summary', href: '/history/taskSummary'},
                     {title: 'Daily Summary', href: '/history/dailySummary'},
-                    {title: 'Build Time by Org', href: '/history/buildTimeByOrg', class: 'pb-3'}
+                    {title: 'Build Time by Org', href: '/history/buildTimeByOrg'},
+                    {title: 'Build Time by Node', href: '/history/buildTimeByNode', class: 'pb-3'}
                     ])
                 if isAdmin == true
                     +sideBarSection('Admin', 'user-cog', [
