@@ -30,6 +30,9 @@ block content
               +tableRow()
                 +tableCell('Finished')
                 +tableCell(task.finished_at)
+              +tableRow()
+                +tableCellButton('Requeue', '/history/requeueTask?taskID=' + task.task_id)
+                +tableCell('')
 
     +infoCard('Build Information')
         table(class="table-auto w-full")

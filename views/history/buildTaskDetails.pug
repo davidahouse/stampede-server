@@ -24,8 +24,14 @@ block content
                 +tableCell('Conclusion')
                 +tableConclusionCell(task.conclusion)
               +tableRow()
+                +tableCell('Task ID')
+                +tableCell(task.task_id)
+              +tableRow()
                 +tableCell('Node')
                 +tableCell(task.node)
+              +tableRow()
+                +tableCellButton('Requeue', '/history/requeueTask?taskID=' + task.task_id)
+                +tableCell('')
 
     if configValues.length > 0
       +infoCard('Task Config')
