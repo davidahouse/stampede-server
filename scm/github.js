@@ -299,6 +299,7 @@ async function updateCheck(owner, repo, serverConf, update) {
     if (update.output.text != null) {
       systemLogger.error("Text size is: " + update.output.text.length);
     }
+    update.conclusion = "failure";
     update.output = {
       title: "Task Results",
       summary: "Error applying task results, contact your stampede admin.",
