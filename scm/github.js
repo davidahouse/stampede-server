@@ -13,7 +13,7 @@ async function verifyCredentials(serverConf, logger) {
   const app = new App({
     id: serverConf.githubAppID,
     privateKey: serverConf.githubAppPEM,
-    baseUrl: serverConf.githubHost
+    baseUrl: serverConf.githubHost,
   });
   const jwt = app.getSignedJsonWebToken();
   const octokit = Octokit({
@@ -24,8 +24,8 @@ async function verifyCredentials(serverConf, logger) {
       debug: () => {},
       info: () => {},
       warn: console.warn,
-      error: console.error
-    }
+      error: console.error,
+    },
   });
   logger.verbose("Github connection verified");
 }
@@ -41,7 +41,7 @@ async function getAuthorizedOctokit(owner, repo, serverConf) {
   const app = new App({
     id: serverConf.githubAppID,
     privateKey: serverConf.githubAppPEM,
-    baseUrl: serverConf.githubHost
+    baseUrl: serverConf.githubHost,
   });
   const jwt = app.getSignedJsonWebToken();
   const octokit = Octokit({
@@ -52,18 +52,18 @@ async function getAuthorizedOctokit(owner, repo, serverConf) {
       debug: () => {},
       info: () => {},
       warn: console.warn,
-      error: console.error
-    }
+      error: console.error,
+    },
   });
   systemLogger.verbose("getRepoInstallation");
   const installation = await octokit.apps.getRepoInstallation({
     owner,
-    repo
+    repo,
   });
   const installID = installation.data.id;
   systemLogger.verbose("getInstallationAccessToken");
   const accessToken = await app.getInstallationAccessToken({
-    installationId: installID
+    installationId: installID,
   });
   const authorizedOctokit = Octokit({
     auth: "token " + accessToken,
@@ -73,39 +73,43 @@ async function getAuthorizedOctokit(owner, repo, serverConf) {
       debug: () => {},
       info: () => {},
       warn: console.warn,
-      error: console.error
-    }
+      error: console.error,
+    },
   });
   return authorizedOctokit;
 }
 
 async function getAccessToken(owner, repo, serverConf) {
-  const app = new App({
-    id: serverConf.githubAppID,
-    privateKey: serverConf.githubAppPEM,
-    baseUrl: serverConf.githubHost
-  });
-  const jwt = app.getSignedJsonWebToken();
-  const octokit = Octokit({
-    auth: "Bearer " + jwt,
-    userAgent: "octokit/rest.js v1.2.3",
-    baseUrl: serverConf.githubHost,
-    log: {
-      debug: () => {},
-      info: () => {},
-      warn: console.warn,
-      error: console.error
-    }
-  });
-  const installation = await octokit.apps.getRepoInstallation({
-    owner,
-    repo
-  });
-  const installID = installation.data.id;
-  const accessToken = await app.getInstallationAccessToken({
-    installationId: installID
-  });
-  return accessToken;
+  try {
+    const app = new App({
+      id: serverConf.githubAppID,
+      privateKey: serverConf.githubAppPEM,
+      baseUrl: serverConf.githubHost,
+    });
+    const jwt = app.getSignedJsonWebToken();
+    const octokit = Octokit({
+      auth: "Bearer " + jwt,
+      userAgent: "octokit/rest.js v1.2.3",
+      baseUrl: serverConf.githubHost,
+      log: {
+        debug: () => {},
+        info: () => {},
+        warn: console.warn,
+        error: console.error,
+      },
+    });
+    const installation = await octokit.apps.getRepoInstallation({
+      owner,
+      repo,
+    });
+    const installID = installation.data.id;
+    const accessToken = await app.getInstallationAccessToken({
+      installationId: installID,
+    });
+    return accessToken;
+  } catch (e) {
+    return null;
+  }
 }
 
 /**
@@ -130,7 +134,7 @@ async function findRepoConfig(owner, repo, stampedeFile, sha, serverConf) {
       owner: owner,
       repo: repo,
       path: stampedeFile,
-      ref: sha
+      ref: sha,
     });
     if (contents != null) {
       const configFile = await downloadStampedeFile(
@@ -166,7 +170,7 @@ async function findRepoConfig(owner, repo, stampedeFile, sha, serverConf) {
 async function downloadStampedeFile(downloadURL, owner, repo, serverConf) {
   const fileURL = url.parse(downloadURL);
   const token = await getBearerToken(owner, repo, serverConf);
-  return new Promise(resolve => {
+  return new Promise((resolve) => {
     const request = {
       title: "stampedeDownload",
       options: {
@@ -177,12 +181,12 @@ async function downloadStampedeFile(downloadURL, owner, repo, serverConf) {
         path: fileURL.path,
         auth: "token " + token,
         headers: {
-          "User-Agent": owner
-        }
-      }
+          "User-Agent": owner,
+        },
+      },
     };
     const runner = new LynnRequest(request);
-    runner.execute(function(result) {
+    runner.execute(function (result) {
       resolve(result);
     });
   });
@@ -199,7 +203,7 @@ async function getBearerToken(owner, repo, serverConf) {
   const app = new App({
     id: serverConf.githubAppID,
     privateKey: serverConf.githubAppPEM,
-    baseUrl: serverConf.githubHost
+    baseUrl: serverConf.githubHost,
   });
   const jwt = app.getSignedJsonWebToken();
   const octokit = new Octokit({
@@ -210,18 +214,18 @@ async function getBearerToken(owner, repo, serverConf) {
       debug: () => {},
       info: () => {},
       warn: console.warn,
-      error: console.error
-    }
+      error: console.error,
+    },
   });
   systemLogger.verbose("getRepoInstallation");
   const installation = await octokit.apps.getRepoInstallation({
     owner,
-    repo
+    repo,
   });
   const installID = installation.data.id;
   systemLogger.verbose("getInstallationAccessToken");
   const accessToken = await app.getInstallationAccessToken({
-    installationId: installID
+    installationId: installID,
   });
   return accessToken;
 }
@@ -248,9 +252,9 @@ async function createCheckRun(
       head_sha: head_sha,
       status: "queued",
       external_id: external_id,
-      started_at: started_at
+      started_at: started_at,
     })
-    .catch(error => {
+    .catch((error) => {
       systemLogger.error("Error creating check run: " + error);
     });
   if (checkRun.data == null || checkRun.data.id == null) {
@@ -271,7 +275,7 @@ async function getTagInfo(owner, repo, ref, serverConf) {
   const tagInfo = await authorizedOctokit.git.getRef({
     owner: owner,
     repo: repo,
-    ref: ref
+    ref: ref,
   });
   return tagInfo;
 }
@@ -285,7 +289,7 @@ async function getTagInfo(owner, repo, ref, serverConf) {
  */
 async function updateCheck(owner, repo, serverConf, update) {
   const authorizedOctokit = await getAuthorizedOctokit(owner, repo, serverConf);
-  await authorizedOctokit.checks.update(update).catch(error => {
+  await authorizedOctokit.checks.update(update).catch((error) => {
     systemLogger.error("Error updating check in Github: " + error);
     if (update.output.summary != null) {
       systemLogger.error(
@@ -298,7 +302,7 @@ async function updateCheck(owner, repo, serverConf, update) {
     update.output = {
       title: "Task Results",
       summary: "Error applying task results, contact your stampede admin.",
-      text: ""
+      text: "",
     };
     authorizedOctokit.checks.update(update);
   });
@@ -355,7 +359,7 @@ async function createStampedeCheck(
         actions[index].description != null
           ? actions[index].description.substring(0, 30)
           : actions[index].id.substring(0, 30),
-      identifier: index.toString()
+      identifier: index.toString(),
     });
   }
 
@@ -374,9 +378,9 @@ async function createStampedeCheck(
     output: {
       title: "Stampede Information",
       summary: welcomeString,
-      text: ""
+      text: "",
     },
-    actions: actionsList
+    actions: actionsList,
   });
   return checkRun;
 }
