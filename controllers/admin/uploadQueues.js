@@ -39,6 +39,7 @@ async function handle(req, res, dependencies, owners) {
   const queueList = await dependencies.cache.systemQueues.fetchSystemQueues();
   res.render(dependencies.viewsPath + "admin/queues", {
     owners: owners,
+    isAdmin: req.validAdminSession,
     queues: queueList != null ? queueList : [],
   });
 }

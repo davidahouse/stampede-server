@@ -20,6 +20,7 @@ async function handle(req, res, dependencies, owners) {
     dependencies.viewsPath + "repositories/selectRepositoryBuildBranch",
     {
       owners: owners,
+      isAdmin: req.validAdminSession,
       owner: owner,
       repository: repository,
       build: buildID,

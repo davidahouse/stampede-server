@@ -38,6 +38,7 @@ async function handle(req, res, dependencies, owners) {
     taskQueue.close();
     res.render(dependencies.viewsPath + "monitor/cancelTask", {
       owners: owners,
+      isAdmin: req.validAdminSession,
       task: task,
       taskDetails: taskDetails,
       build: build,
@@ -45,6 +46,7 @@ async function handle(req, res, dependencies, owners) {
   } else {
     res.render(dependencies.viewsPath + "monitor/cancelTask", {
       owners: owners,
+      isAdmin: req.validAdminSession,
       task: {},
       taskDetails: { details: {} },
       build: {},

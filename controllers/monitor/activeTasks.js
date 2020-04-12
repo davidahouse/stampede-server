@@ -40,6 +40,7 @@ async function handle(req, res, dependencies, owners) {
 
   res.render(dependencies.viewsPath + "monitor/activeTasks", {
     owners: owners,
+    isAdmin: req.validAdminSession,
     tasks: sortedTasks,
     prettyMilliseconds: (ms) => (ms != null ? prettyMilliseconds(ms) : ""),
   });

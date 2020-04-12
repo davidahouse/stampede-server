@@ -17,6 +17,7 @@ async function handle(req, res, dependencies, owners) {
   );
   res.render(dependencies.viewsPath + "repositories/repositories", {
     owners: owners,
+    isAdmin: req.validAdminSession,
     owner: req.query.owner,
     repositories: repositories.rows,
   });

@@ -14,6 +14,7 @@ function path() {
 async function handle(req, res, dependencies, owners) {
   res.render(dependencies.viewsPath + "admin/enterNewRepository", {
     owners: owners,
+    isAdmin: req.validAdminSession,
   });
 }
 

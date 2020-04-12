@@ -84,6 +84,7 @@ async function handle(req, res, dependencies, owners) {
 
   res.render(dependencies.viewsPath + "history/tasks", {
     owners: owners,
+    isAdmin: req.validAdminSession,
     tasks: tasks.rows,
     timeFilter: timeFilter,
     timeFilterList: ["Last 8 hours", "Today", "Yesterday"],
