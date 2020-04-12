@@ -2,6 +2,7 @@ extends ../layout
 include ../components/titleBar
 include ../components/tableHeader
 include ../components/tableCell
+include ../components/tableConclusionCell
 include ../components/tableRow
 include ../components/tableCellButton
 include ../components/formSelect
@@ -45,5 +46,5 @@ block content
             +tableCell(task.owner)
             +tableCell(task.repository)
             +tableCell(task.task)
-            +tableCell(task.conclusion)
+            +tableConclusionCell(task.conclusion)
             +tableCell(task.node)

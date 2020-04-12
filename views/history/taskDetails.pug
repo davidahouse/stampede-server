@@ -2,6 +2,7 @@ extends ../layout
 include ../components/titleBar
 include ../components/tableHeader
 include ../components/tableCell
+include ../components/tableConclusionCell
 include ../components/tableRow
 include ../components/infoCard
 include ../components/tableCellButton
@@ -19,7 +20,7 @@ block content
                 +tableCell(task.task)
               +tableRow()
                 +tableCell('Conclusion')
-                +tableCell(task.conclusion)
+                +tableConclusionCell(task.conclusion)
               +tableRow()
                 +tableCell('Node')
                 +tableCell(task.node)

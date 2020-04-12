@@ -5,6 +5,7 @@ include ../components/tableCell
 include ../components/tableRow
 include ../components/infoCard
 include ../components/tableCellButton
+include ../components/tableConclusionCell
 
 block content
 
@@ -60,7 +61,7 @@ block content
                   +tableCell(task.task)
                   +tableCell(task.title)
                   if task.status == "completed"
-                    +tableCell(task.conclusion)
+                    +tableConclusionCell(task.conclusion)
                   else
                     +tableCell(task.status)
                   +tableCell(prettyMilliseconds(task.duration))
