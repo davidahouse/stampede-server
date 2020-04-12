@@ -1,0 +1,10 @@
+mixin tableConclusionCell(value)
+  if value == "success"
+    td(class="border px-2 py-2 flex")
+      img(src="/check-icon.png")
+      div(class="align-middle")= value
+  else
+    td(class="border px-2 py-2 flex")
+      img(src="/close-delete-icon.png")
+      div(class="align-middle")= value
+

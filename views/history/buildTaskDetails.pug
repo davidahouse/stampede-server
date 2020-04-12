@@ -5,6 +5,7 @@ include ../components/tableCell
 include ../components/tableRow
 include ../components/infoCard
 include ../components/tableCellButton
+include ../components/tableConclusionCell
 
 block content
 
@@ -21,7 +22,7 @@ block content
                 +tableCell(task.task)
               +tableRow()
                 +tableCell('Conclusion')
-                +tableCell(task.conclusion)
+                +tableConclusionCell(task.conclusion)
               +tableRow()
                 +tableCell('Node')
                 +tableCell(task.node)
