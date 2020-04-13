@@ -22,7 +22,7 @@ async function handle(req, res, dependencies, owners) {
     buildKeyFilter = req.query.buildKey;
   }
 
-  const buildKeyRows = await dependencies.db.fetchRecentBuildKeys();
+  const buildKeyRows = await dependencies.db.fetchRecentBuildKeys(timeFilter);
   let buildKeyList = [];
   buildKeyList.push("All");
   for (let index = 0; index < buildKeyRows.rows.length; index++) {
@@ -56,7 +56,13 @@ async function handle(req, res, dependencies, owners) {
     isAdmin: req.validAdminSession,
     builds: builds.rows,
     timeFilter: timeFilter,
-    timeFilterList: ["Last 8 hours", "Today", "Yesterday"],
+    timeFilterList: [
+      "Last 8 hours",
+      "Today",
+      "Yesterday",
+      "Last 3 Days",
+      "Last 7 Days",
+    ],
     buildKeyFilter: buildKeyFilter,
     buildKeyList: buildKeyList,
     repositoryFilter: repositoryFilter,
