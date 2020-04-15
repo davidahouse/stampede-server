@@ -78,5 +78,7 @@ block content
                     +tableCell(artifact.title)
                     if artifact.type == "download"
                       +tableCellButton("Download", artifact.url)
+                    else if artifact.type == "link"
+                      +tableCellButton("Open", artifact.url)
 
 
