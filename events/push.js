@@ -64,7 +64,7 @@ async function handle(req, serverConf, cache, scm, db, logger) {
     repo: event.repo,
     sha: event.sha,
     branch: event.branch,
-    buildKey: safeBuildKey(event.branch)
+    buildKey: safeBuildKey(event.branch),
   };
 
   const scmDetails = {
@@ -73,8 +73,9 @@ async function handle(req, serverConf, cache, scm, db, logger) {
     sshURL: event.sshURL,
     branch: {
       name: event.branch,
-      sha: event.sha
-    }
+      sha: event.sha,
+    },
+    commitMessage: event.commitMessage,
   };
 
   build.startBuild(
@@ -111,7 +112,8 @@ function parseEvent(req) {
     branch: req.body.ref.replace("refs/heads/", ""),
     sha: req.body.after,
     cloneURL: req.body.repository.clone_url,
-    sshURL: req.body.repository.ssh_url
+    sshURL: req.body.repository.ssh_url,
+    commitMessage: req.body.head_commit.message,
   };
 }
 

@@ -46,6 +46,56 @@ async function handle(req, res, dependencies, owners) {
       ? taskDetails.details.result.artifacts
       : [];
 
+  const scmDetails = [];
+  if (taskDetails.details.scm.pullRequest != null) {
+    scmDetails.push({
+      title: "PR Number",
+      value: taskDetails.details.scm.pullRequest.number,
+    });
+    scmDetails.push({
+      title: "Head",
+      value: taskDetails.details.scm.pullRequest.head.ref,
+    });
+    scmDetails.push({
+      title: "Head SHA",
+      value: taskDetails.details.scm.pullRequest.head.sha,
+    });
+    scmDetails.push({
+      title: "Base",
+      value: taskDetails.details.scm.pullRequest.base.ref,
+    });
+    scmDetails.push({
+      title: "Base SHA",
+      value: taskDetails.details.scm.pullRequest.base.sha,
+    });
+  } else if (taskDetails.details.scm.branch != null) {
+    scmDetails.push({
+      title: "Branch",
+      value: taskDetails.details.scm.branch.name,
+    }),
+      scmDetails.push({
+        title: "SHA",
+        value: taskDetails.details.scm.branch.sha,
+      });
+    scmDetails.push({
+      title: "Commit",
+      value: taskDetails.details.scm.commitMessage,
+    });
+  } else if (taskDetails.details.scm.release != null) {
+    scmDetails.push({
+      title: "Release",
+      value: taskDetails.details.scm.release.name,
+    });
+    scmDetails.push({
+      title: "Tag",
+      value: taskDetails.details.scm.release.tag,
+    });
+    scmDetails.push({
+      title: "SHA",
+      value: taskDetails.details.scm.release.sha,
+    });
+  }
+
   res.render(dependencies.viewsPath + "repositories/taskDetails", {
     owners: owners,
     isAdmin: req.validAdminSession,
@@ -56,6 +106,7 @@ async function handle(req, res, dependencies, owners) {
     summary: summary,
     text: text,
     artifacts: artifacts,
+    scmDetails: scmDetails,
   });
 }
 
