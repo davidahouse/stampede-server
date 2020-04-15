@@ -26,6 +26,10 @@ block content
               +tableRow()
                 +tableCell('Node')
                 +tableCell(task.node)
+              each detail, i in scmDetails
+                +tableRow()
+                  +tableCell(detail.title)
+                  +tableCell(detail.value)
               +tableRow()
                 +tableCellButton('Cancel', '/monitor/cancelTask?taskID=' + task.task_id)
                 +tableCell('')
