@@ -32,14 +32,16 @@ async function handle(req, res, dependencies) {
   const repository = req.body.repository;
   if (req.files != null) {
     const uploadData = req.files.uploadFile;
-    const defaults = yaml.safeLoad(uploadData.data);
-    if (defaults != null) {
-      await dependencies.cache.repoConfigDefaults.storeDefaults(
-        owner,
-        repository,
-        defaults
-      );
-    }
+    try {
+      const defaults = yaml.safeLoad(uploadData.data);
+      if (defaults != null && defaults.defaults != null) {
+        await dependencies.cache.repoConfigDefaults.storeDefaults(
+          owner,
+          repository,
+          defaults
+        );
+      }
+    } catch (e) {}
   }
 
   res.writeHead(301, {
