@@ -32,13 +32,15 @@ async function handle(req, res, dependencies) {
   const repository = req.body.repository;
   if (req.files != null) {
     const uploadData = req.files.uploadFile;
-    const overrides = yaml.safeLoad(uploadData.data);
-    if (overrides != null) {
-      await dependencies.cache.orgConfigOverrides.storeOverrides(
-        owner,
-        overrides
-      );
-    }
+    try {
+      const overrides = yaml.safeLoad(uploadData.data);
+      if (overrides != null && overrides.overrides != null) {
+        await dependencies.cache.orgConfigOverrides.storeOverrides(
+          owner,
+          overrides
+        );
+      }
+    } catch (e) {}
   }
 
   res.writeHead(301, {

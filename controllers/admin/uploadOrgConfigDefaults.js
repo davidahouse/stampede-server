@@ -30,12 +30,18 @@ function requiresAdmin() {
 async function handle(req, res, dependencies) {
   const owner = req.body.owner;
   const repository = req.body.repository;
+
   if (req.files != null) {
     const uploadData = req.files.uploadFile;
-    const defaults = yaml.safeLoad(uploadData.data);
-    if (defaults != null) {
-      await dependencies.cache.orgConfigDefaults.storeDefaults(owner, defaults);
-    }
+    try {
+      const defaults = yaml.safeLoad(uploadData.data);
+      if (defaults != null && defaults.defaults != null) {
+        await dependencies.cache.orgConfigDefaults.storeDefaults(
+          owner,
+          defaults
+        );
+      }
+    } catch (e) {}
   }
 
   res.writeHead(301, {
