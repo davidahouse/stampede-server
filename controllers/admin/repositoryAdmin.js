@@ -34,36 +34,53 @@ async function handle(req, res, dependencies, owners) {
   const orgDefaults = await dependencies.cache.orgConfigDefaults.fetchDefaults(
     owner
   );
-  const orgDefaultStatus =
+  let orgDefaultStatus = "No Defaults Found";
+  if (
+    orgDefaults != null &&
+    orgDefaults.defaults != null &&
     Object.keys(orgDefaults.defaults).length > 0
-      ? "Has Defaults"
-      : "No Defaults Found";
+  ) {
+    orgDefaultStatus = "Has Defaults";
+  }
 
   const repoDefaults = await dependencies.cache.repoConfigDefaults.fetchDefaults(
     owner,
     repository
   );
-  const repoDefaultStatus =
+  let repoDefaultStatus = "No Defaults Found";
+  if (
+    repoDefaults != null &&
+    repoDefaults.defaults != null &&
     Object.keys(repoDefaults.defaults).length > 0
-      ? "Has Defaults"
-      : "No Defaults Found";
+  ) {
+    repoDefaultStatus = "Has Defaults";
+  }
 
   const orgOverrides = await dependencies.cache.orgConfigOverrides.fetchOverrides(
     owner
   );
-  const orgOverrideStatus =
+
+  let orgOverrideStatus = "No Overrides Found";
+  if (
+    orgOverrides != null &&
+    orgOverrides.overrides != null &&
     Object.keys(orgOverrides.overrides).length > 0
-      ? "Has Overrides"
-      : "No Overrides Found";
+  ) {
+    orgOverrideStatus = "Has Overrides";
+  }
 
   const repoOverrides = await dependencies.cache.repoConfigOverrides.fetchOverrides(
     owner,
     repository
   );
-  const repoOverrideStatus =
+  let repoOverrideStatus = "No Overrides Found";
+  if (
+    repoOverrides != null &&
+    repoOverrides.overrides != null &&
     Object.keys(repoOverrides.overrides).length > 0
-      ? "Has Overrides"
-      : "No Overrides Found";
+  ) {
+    repoOverrideStatus = "Has Overrides";
+  }
 
   const repositoryBuilds = await dependencies.cache.repositoryBuilds.fetchRepositoryBuilds(
     owner,
