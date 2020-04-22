@@ -22,6 +22,7 @@ async function handle(req, res, dependencies, owners) {
 
   const total = [];
   const labels = [];
+  const colors = [];
 
   const buildTime = await dependencies.db.fetchBuildTimePerNode(timeFilter);
   let totalms = 0;
@@ -39,6 +40,7 @@ async function handle(req, res, dependencies, owners) {
   for (let index = 0; index < buildTime.rows.length; index++) {
     labels.push(buildTime.rows[index].node);
     total.push(buildTime.rows[index].sum / totalms);
+    colors.push(randomColor());
   }
 
   const data = {
@@ -47,7 +49,7 @@ async function handle(req, res, dependencies, owners) {
       {
         label: "Build Time",
         data: total,
-        backgroundColor: randomColor(),
+        backgroundColor: colors,
       },
     ],
   };
