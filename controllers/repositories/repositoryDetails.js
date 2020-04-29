@@ -26,7 +26,18 @@ async function handle(req, res, dependencies, owners) {
     repository
   );
   const activeBuilds = await dependencies.db.activeBuilds(owner, repository);
+
   const repositoryBuilds = [];
+  // Add all the active builds first
+  for (let bindex = 0; bindex < activeBuilds.rows.length; bindex++) {
+    repositoryBuilds.push({
+      build: activeBuilds.rows[bindex].build_key,
+      status: "active",
+      buildID: activeBuilds.rows[bindex].build_id,
+    });
+  }
+
+  // Now check repository builds and don't add any that are active
   for (let index = 0; index < currentRepositoryBuilds.length; index++) {
     let foundActiveBuild = false;
     let buildID = null;
@@ -45,13 +56,7 @@ async function handle(req, res, dependencies, owners) {
       currentRepositoryBuilds[index]
     );
 
-    if (foundActiveBuild) {
-      repositoryBuilds.push({
-        build: currentRepositoryBuilds[index],
-        status: "active",
-        buildID: buildID,
-      });
-    } else {
+    if (!foundActiveBuild) {
       if (buildDetails.schedule != null) {
         repositoryBuilds.push({
           build: currentRepositoryBuilds[index],
