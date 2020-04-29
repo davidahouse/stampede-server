@@ -16,7 +16,7 @@ async function handle(req, res, dependencies, owners) {
   const repository = req.query.repository;
 
   const recentBuilds = await dependencies.db.recentBuilds(
-    "Last 8 hours",
+    "Last 7 Days",
     "All",
     owner + "/" + repository
   );
