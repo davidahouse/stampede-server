@@ -113,7 +113,10 @@ function parseEvent(req) {
     sha: req.body.after,
     cloneURL: req.body.repository.clone_url,
     sshURL: req.body.repository.ssh_url,
-    commitMessage: req.body.head_commit.message,
+    commitMessage:
+      req.body.head_commit != null && req.body.head_commit.message != null
+        ? req.body.head_commit.message
+        : "",
   };
 }
 
