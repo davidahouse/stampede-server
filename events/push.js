@@ -20,9 +20,9 @@ async function handle(req, serverConf, cache, scm, db, logger) {
 
   await db.storeRepository(event.owner, event.repo);
 
-  if (event.created === true || event.deleted === true) {
-    logger.verbose("Ignoring push since it is created or deleted");
-    return { status: "ignoring due to created or pushed" };
+  if (event.deleted === true) {
+    logger.verbose("Ignoring push since it is for a deleted branch");
+    return { status: "ignoring due to deleted branch" };
   }
 
   const repoConfig = await config.findRepoConfig(
