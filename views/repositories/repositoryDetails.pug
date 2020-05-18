@@ -9,7 +9,7 @@ include ../components/formHidden
 
 block content
 
-  +titleBar([{title: 'Repositories', href: '/repositories'},
+  +titleBar([{title: 'Repositories', href: `/repositories?owner=` + owner + `&=` + repository},
   {title: owner + ' ' + repository}])
   div(class="flex flex-wrap m-4")
 

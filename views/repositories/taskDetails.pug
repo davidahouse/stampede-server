@@ -9,7 +9,7 @@ include ../components/tableConclusionCell
 
 block content
 
-    +titleBar([{title: 'Repositories', href: '/repositories/activeBuilds'}, 
+    +titleBar([{title: 'Repositories', href: `/repositories?owner=` + build.owner + `&=` + build.repository}, 
       {title: build.owner + ' ' + build.repository, href: '/repositories/repositoryDetails?owner=' + build.owner + '&repository=' + build.repository},
       {title: build.owner + '' + build.repository + ' #' + build.build, href: '/repositories/buildDetails?buildID=' + build.build_id},
       {title: task.task}])
