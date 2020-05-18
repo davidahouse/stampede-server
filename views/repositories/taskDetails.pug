@@ -31,9 +31,10 @@ block content
                 +tableRow()
                   +tableCell(detail.title)
                   +tableCell(detail.value)
-              +tableRow()
-                +tableCellButton('Requeue', '/repositories/requeueTask?taskID=' + task.task_id)
-                +tableCell('')
+              if isAdmin == true
+                +tableRow()
+                  +tableCellButton('Requeue', '/repositories/requeueTask?taskID=' + task.task_id)
+                  +tableCell('')
 
     if configValues.length > 0
       +infoCard('Task Config')
