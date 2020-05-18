@@ -59,7 +59,16 @@ async function handle(req, res, dependencies, owners) {
     data: data,
     summary: buildTime.rows,
     timeFilter: timeFilter,
-    timeFilterList: ["Last 8 hours", "Today", "Yesterday"],
+    timeFilterList: [
+      "Last 8 hours",
+      "Last 12 hours",
+      "Today",
+      "Yesterday",
+      "Last 3 Days",
+      "Last 7 Days",
+      "Last 14 Days",
+      "Last 30 Days",
+    ],
     prettyMilliseconds: (ms) => (ms != null ? prettyMilliseconds(ms) : ""),
   });
 }
