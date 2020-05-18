@@ -15,11 +15,11 @@ function path() {
  */
 async function handle(req, res, dependencies) {
   const recentBuilds = await dependencies.db.recentBuilds(
-    8,
-    50,
-    req.query.owner,
-    req.query.repository
+    "Last 7 Days",
+    "All",
+    req.query.owner + "/" + req.query.repository
   );
+
   const builds = [];
   if (recentBuilds != null) {
     for (let index = 0; index < recentBuilds.rows.length; index++) {
@@ -32,7 +32,7 @@ async function handle(req, res, dependencies) {
           buildDetails != null && buildDetails.rows.length > 0
             ? buildDetails.rows[0]
             : {},
-        tasks: tasks.rows
+        tasks: tasks.rows,
       });
     }
   }
