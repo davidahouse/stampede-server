@@ -85,7 +85,7 @@ block content
               marked(document.getElementById('task-result-summary-data').innerHTML, {gfm: true});
 
         +infoCard('Text')
-          div(id="task-result-text")
+          div(id="task-result-text" class="overflow-scroll")
           data(id="task-result-text-data" hidden)
             = text
           script.
