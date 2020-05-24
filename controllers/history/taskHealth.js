@@ -40,7 +40,6 @@ async function handle(req, res, dependencies, owners) {
 
   const tasksRows = await dependencies.db.taskHealth(
     timeFilter,
-    taskFilter,
     repositoryFilter
   );
 
