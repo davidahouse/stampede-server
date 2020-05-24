@@ -14,21 +14,13 @@ function path() {
  * @param {*} dependencies
  */
 async function handle(req, res, dependencies) {
-  const activeBuilds = await dependencies.cache.fetchActiveBuilds();
-  let prefix = req.query.repository != null ? req.query.repository + "-" : "";
-  if (req.query.owner != null) {
-    prefix = req.query.owner + "-" + prefix;
-  }
-  dependencies.logger.verbose("Active build prefix: " + prefix);
-  const filteredBuilds = activeBuilds.filter((build) =>
-    build.startsWith(prefix)
-  );
-  const builds = [];
-  for (let index = 0; index < filteredBuilds.length; index++) {
-    const buildID = filteredBuilds[index];
+  const builds = await dependencies.db.activeBuilds();
+  const activeBuilds = [];
+  for (let index = 0; index < builds.rows.length; index++) {
+    const buildID = builds.rows[index].build_id;
     const buildDetails = await dependencies.db.fetchBuild(buildID);
     const tasks = await dependencies.db.fetchBuildTasks(buildID);
-    builds.push({
+    activeBuilds.push({
       buildID: buildID,
       buildDetails:
         buildDetails != null && buildDetails.rows.length > 0
@@ -37,8 +29,7 @@ async function handle(req, res, dependencies) {
       tasks: tasks.rows,
     });
   }
-  dependencies.logger.verbose("Active build count: " + builds.length);
-  res.send(builds);
+  res.send(activeBuilds);
 }
 
 module.exports.path = path;
