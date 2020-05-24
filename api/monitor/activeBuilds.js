@@ -4,7 +4,7 @@
  * The url path this handler will serve
  */
 function path() {
-  return "/api/activeBuilds";
+  return "/api/monitor/activeBuilds";
 }
 
 /**
