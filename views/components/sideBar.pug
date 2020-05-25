@@ -17,28 +17,19 @@ mixin sideBar(activeMenu, owners, isAdmin)
                 +sideBarSection('Monitor', 'desktop', [
                     {title: 'Active Builds', href: '/monitor/activeBuilds'},
                     {title: 'Active Tasks', href: '/monitor/activeTasks'},
-                    {title: 'Workers', href: '/monitor/workers'},
                     {title: 'Queues', href: '/monitor/queues', class: 'pb-3'}
                     ])
+
                 +sideBarSection('History', 'history', [
                     {title: 'Builds', href: '/history/builds'},
-                    {title: 'Build Summary', href: '/history/buildSummary'},
-                    {title: 'Tasks', href: '/history/tasks'},
-                    {title: 'Task Health', href: '/history/taskHealth'},
-                    {title: 'Task Summary', href: '/history/taskSummary'},
-                    {title: 'Hourly Summary', href: '/history/hourlySummary'},
-                    {title: 'Daily Summary', href: '/history/dailySummary'},
-                    {title: 'Build Time by Org', href: '/history/buildTimeByOrg'},
-                    {title: 'Build Time by Node', href: '/history/buildTimeByNode', class: 'pb-3'}
+                    {title: 'Tasks', href: '/history/tasks', class: 'pb-3'},
                     ])
+
                 if isAdmin == true
                     +sideBarSection('Admin', 'user-cog', [
-                        {title: 'Tasks', href: '/admin/tasks'},
-                        {title: 'Owners', href: '/admin/owners'},
-                        {title: 'Repositories', href: '/admin/repositories'},
-                        {title: 'Defaults', href: '/admin/defaults'},
-                        {title: 'Overrides', href: '/admin/overrides'},
-                        {title: 'Queues', href: '/admin/queues'},
+                        {title: 'Workers', href: '/monitor/workers'},
+                        {title: 'System Config', href: '/admin/systemConfig'},
+                        {title: 'Reports', href: '/admin/reports'},
                         {title: 'Info', href: '/admin/info'},
                         {title: 'Logout', href: '/admin/logout'}
                         ])
