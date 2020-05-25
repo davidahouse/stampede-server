@@ -1,0 +1,32 @@
+extends ../layout
+
+include ../components/titleBar
+include ../components/tableHeader
+include ../components/tableCell
+include ../components/tableRow
+
+block content
+
+  +titleBar([{title: 'System Config'}])
+  div(class="flex flex-wrap m-4")
+
+    table(class="table-auto w-full")
+        tbody
+          +tableRow('/admin/tasks')
+            +tableCell('Tasks')
+            +tableCell('Manage the available tasks in the system')
+          +tableRow('/admin/owners')
+            +tableCell('Owners')
+            +tableCell('Manage the list of owners/orgs visible in the sidebar menu')
+          +tableRow('/admin/repositories')
+            +tableCell('Repositories')
+            +tableCell('Manage cached config, defaults and manual builds for individual repositories')
+          +tableRow('/admin/defaults')
+            +tableCell('System Defaults')
+            +tableCell('Manage the system wide defaults')
+          +tableRow('/admin/overrides')
+            +tableCell('System Overrides')
+            +tableCell('Manage the system wide overrides')
+          +tableRow('/admin/queues')
+            +tableCell('Queues')
+            +tableCell('Manage the system queues')

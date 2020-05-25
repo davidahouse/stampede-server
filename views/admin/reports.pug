@@ -1,0 +1,35 @@
+extends ../layout
+
+include ../components/titleBar
+include ../components/tableHeader
+include ../components/tableCell
+include ../components/tableRow
+
+block content
+
+  +titleBar([{title: 'Reports'}])
+  div(class="flex flex-wrap m-4")
+
+    table(class="table-auto w-full")
+        tbody
+            +tableRow('/history/buildSummary')
+                +tableCell('Build Summary')
+                +tableCell('View a summary of the builds that have completed')
+            +tableRow('/history/taskSummary')
+                +tableCell('Task Summary')
+                +tableCell('View a summary of the tasks that have completed')
+            +tableRow('/history/taskHealth')
+                +tableCell('Task Health')
+                +tableCell('View the health of completed tasks')
+            +tableRow('/history/hourlySummary')
+                +tableCell('Hourly Summary')
+                +tableCell('View an hourly summary of the past 24 hours')
+            +tableRow('/history/dailySummary')
+                +tableCell('Daily Summary')
+                +tableCell('View a daily summary of the past 30 days')
+            +tableRow('/history/buildTimeByOrg')
+                +tableCell('Build Time by Org')
+                +tableCell('View a chart of build time grouped by org')
+            +tableRow('/history/buildTimeByNode')
+                +tableCell('Build Time by Node')
+                +tableCell('View a chart of build time grouped by node')
