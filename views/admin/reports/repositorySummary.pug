@@ -1,0 +1,51 @@
+extends ../../layout
+include ../../components/titleBar
+include ../../components/formSelect
+include ../../components/infoCard
+include ../../components/infoCardPair
+include ../../components/tableRow
+include ../../components/tableCell
+include ../../components/tableHeader
+
+block content
+
+  +titleBar([{title: 'Repository Summary'}])
+
+  div(class="flex flex-wrap m-4")
+
+    div(class="w-full p-3")
+      div(class="bg-white border-transparent rounded-lg shadow-lg")
+        div(class="bg-gray-400 uppercase text-gray-800 border-b-2 border-gray-500 rounded-tl-lg rounded-tr-lg p-2")
+          h5(class="font-bold uppercase text-gray-600") Summary
+        div(class="p-5")
+          table(class="table-auto w-full")
+            thead
+              tr
+                +tableHeader('Owner')
+                +tableHeader('Repository')
+                +tableHeader('# of Builds')
+                +tableHeader('# of Tasks')
+            tbody
+              each s, i in summary
+                +tableRow()
+                  +tableCell(s.owner)
+                  +tableCell(s.repository)
+                  +tableCell(s.buildcount)
+                  +tableCell(s.taskcount)
+
+    div(class="w-full p-3")
+      div(class="bg-white border-transparent rounded-lg shadow-lg")
+        div(class="bg-gray-400 uppercase text-gray-800 border-b-2 border-gray-500 rounded-tl-lg rounded-tr-lg p-2")
+          h5(class="font-bold uppercase text-gray-600") Totals
+        div(class="p-5")
+          table(class="table-auto w-full")
+            tbody
+              +tableRow()
+                +tableCell('Total Repositores')
+                +tableCell(totals.repositories)
+              +tableRow()
+                +tableCell('Total Builds')
+                +tableCell(totals.builds)
+              +tableRow()
+                +tableCell('Total Tasks')
+                +tableCell(totals.tasks)
