@@ -6,3 +6,6 @@ newversion:
 version:
   command: npm view stampede-server version
   description: Show the current version of the package
+runlocal:
+  command: bin/stampede-server.js --config .stampederc-local
+  description: Run the stampede server against a local instance of redis/postgres running in docker
