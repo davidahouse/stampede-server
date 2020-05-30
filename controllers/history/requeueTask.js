@@ -40,6 +40,13 @@ async function handle(req, res, dependencies, owners) {
       sha = taskDetails.scm.pullRequest.head.sha;
     }
 
+    const accessToken = await dependencies.scm.getAccessToken(
+      build.owner,
+      build.repo,
+      dependencies.serverConfig
+    );
+    taskDetails.scm.accessToken = accessToken;
+
     const buildConfig = {
       config: {},
     };
