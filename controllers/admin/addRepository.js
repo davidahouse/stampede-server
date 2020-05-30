@@ -22,7 +22,14 @@ async function handle(req, res, dependencies, owners) {
   const owner = req.body.owner;
   const repository = req.body.repository;
 
-  await dependencies.db.storeRepository(owner, repository);
+  if (
+    owner != null &&
+    owner.length > 0 &&
+    repository != null &&
+    repository.length > 0
+  ) {
+    await dependencies.db.storeRepository(owner, repository);
+  }
   res.writeHead(301, {
     Location: "/admin/repositories",
   });
