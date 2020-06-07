@@ -42,7 +42,7 @@ async function handle(req, res, dependencies, owners) {
 
     const accessToken = await dependencies.scm.getAccessToken(
       build.owner,
-      build.repo,
+      build.repository,
       dependencies.serverConfig
     );
     taskDetails.scm.accessToken = accessToken;

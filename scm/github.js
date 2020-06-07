@@ -80,6 +80,7 @@ async function getAuthorizedOctokit(owner, repo, serverConf) {
 }
 
 async function getAccessToken(owner, repo, serverConf) {
+  systemLogger.verbose("Getting access token for " + owner + " " + repo);
   try {
     const app = new App({
       id: serverConf.githubAppID,
@@ -106,8 +107,10 @@ async function getAccessToken(owner, repo, serverConf) {
     const accessToken = await app.getInstallationAccessToken({
       installationId: installID,
     });
+    systemLogger.verbose("Received access token: " + accessToken);
     return accessToken;
   } catch (e) {
+    systemLogger.verbose("Error getting access token: " + e);
     return null;
   }
 }
