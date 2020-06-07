@@ -9,3 +9,9 @@ version:
 runlocal:
   command: bin/stampede-server.js --config .stampederc-local
   description: Run the stampede server against a local instance of redis/postgres running in docker
+dockerpush:
+  commands:
+    - docker build -t davidahouse/stampede-server .
+    - docker push davidahouse/stampede-server
+    - docker build -t davidahouse/stampede-server:$1 .
+    - docker push davidahouse/stampede-server:$1
