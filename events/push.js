@@ -54,7 +54,7 @@ async function handle(req, serverConf, cache, scm, db, logger) {
     return { status: "branch not configured" };
   }
 
-  if (branchConfig.tasks.length === 0) {
+  if (branchConfig.tasks == null || branchConfig.tasks.length === 0) {
     logger.verbose("Task list was empty. Unable to continue.");
     return { status: "no tasks configured for the branch" };
   }
