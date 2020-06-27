@@ -16,6 +16,26 @@ block content
     div(class="w-full p-3")
         div(class="bg-white border-transparent rounded-lg shadow-lg")
           div(class="bg-gray-400 uppercase text-gray-800 border-b-2 border-gray-500 rounded-tl-lg rounded-tr-lg p-2")
+            h5(class="font-bold uppercase text-gray-600") Active Builds
+          div(class="p-5")
+            if activeBuilds.length > 0
+              table(class="table-auto w-full")
+                  thead
+                    +tableHeader('Build')
+                    +tableHeader('Build #')
+                    +tableHeader('Duration')
+                  each build, i in activeBuilds
+                    tbody
+                        +tableRow(`/repositories/buildDetails?buildID=`+build.build_id)
+                          +tableCell(build.build_key)
+                          +tableCell(build.build)
+                          +tableCell(prettyMilliseconds(new Date() - build.started_at))
+            else
+              p No active builds found...
+                        
+    div(class="w-full p-3")
+        div(class="bg-white border-transparent rounded-lg shadow-lg")
+          div(class="bg-gray-400 uppercase text-gray-800 border-b-2 border-gray-500 rounded-tl-lg rounded-tr-lg p-2")
             h5(class="font-bold uppercase text-gray-600") Repository Builds
           div(class="p-5")
             table(class="table-auto w-full")

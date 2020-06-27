@@ -1,3 +1,5 @@
+const prettyMilliseconds = require("pretty-ms");
+
 /**
  * path this handler will serve
  */
@@ -28,14 +30,6 @@ async function handle(req, res, dependencies, owners) {
   const activeBuilds = await dependencies.db.activeBuilds(owner, repository);
 
   const repositoryBuilds = [];
-  // Add all the active builds first
-  for (let bindex = 0; bindex < activeBuilds.rows.length; bindex++) {
-    repositoryBuilds.push({
-      build: activeBuilds.rows[bindex].build_key,
-      status: "active",
-      buildID: activeBuilds.rows[bindex].build_id,
-    });
-  }
 
   // Now check repository builds and don't add any that are active
   for (let index = 0; index < currentRepositoryBuilds.length; index++) {
@@ -74,6 +68,12 @@ async function handle(req, res, dependencies, owners) {
           status: "idle",
         });
       }
+    } else {
+      repositoryBuilds.push({
+        build: currentRepositoryBuilds[index],
+        status: "active",
+        buildID: buildID,
+      });
     }
   }
 
@@ -92,8 +92,10 @@ async function handle(req, res, dependencies, owners) {
     isAdmin: req.validAdminSession,
     owner: owner,
     repository: repository,
+    activeBuilds: activeBuilds.rows,
     recentBuilds: recentBuilds.rows,
     repositoryBuilds: sortedBuilds,
+    prettyMilliseconds: (ms) => (ms != null ? prettyMilliseconds(ms) : ""),
   });
 }
 
