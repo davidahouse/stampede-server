@@ -292,6 +292,13 @@ async function getTagInfo(owner, repo, ref, serverConf) {
  */
 async function updateCheck(owner, repo, serverConf, update) {
   const authorizedOctokit = await getAuthorizedOctokit(owner, repo, serverConf);
+
+  // Ensure text property can fit in github check
+  if (update.output.text.length > 65535) {
+    update.output.text =
+      "Text too large for GitHub check, contact your stampede admin.";
+  }
+
   await authorizedOctokit.checks.update(update).catch((error) => {
     systemLogger.error("Error updating check in Github: " + error);
     if (update.output.summary != null) {
