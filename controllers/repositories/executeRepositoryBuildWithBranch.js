@@ -26,7 +26,6 @@ async function handle(req, res, dependencies, owners) {
   const repository = req.body.repository;
   const buildID = req.body.build;
   const branch = req.body.branch;
-  console.dir(req.body);
 
   const buildInfo = await dependencies.cache.repositoryBuilds.fetchRepositoryBuild(
     owner,
@@ -34,7 +33,6 @@ async function handle(req, res, dependencies, owners) {
     buildID
   );
 
-  console.dir(buildInfo);
   buildInfo.branch = branch;
   repositoryBuild.execute(owner, repository, buildID, buildInfo, dependencies);
 

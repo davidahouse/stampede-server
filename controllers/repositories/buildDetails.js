@@ -30,7 +30,6 @@ async function handle(req, res, dependencies, owners) {
     task.title = taskDetails.title;
     task.duration =
       task.finished_at != null ? task.finished_at - task.started_at : null;
-    console.dir(task);
     tasks.push(task);
     const detailsRows = await dependencies.db.fetchTaskDetails(task.task_id);
     const taskResultDetails = detailsRows.rows[0];
