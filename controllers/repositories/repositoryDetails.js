@@ -56,6 +56,12 @@ async function handle(req, res, dependencies, owners) {
     }
   });
 
+  // Get the branch builds
+  const branchBuilds = await dependencies.db.fetchRecentBuildKeys(
+    "All",
+    "branch-push"
+  );
+
   res.render(dependencies.viewsPath + "repositories/repositoryDetails", {
     owners: owners,
     isAdmin: req.validAdminSession,
@@ -63,6 +69,7 @@ async function handle(req, res, dependencies, owners) {
     repository: repository,
     activeBuilds: activeBuilds.rows,
     repositoryBuilds: sortedBuilds,
+    branchBuilds: branchBuilds.rows,
     prettyMilliseconds: (ms) => (ms != null ? prettyMilliseconds(ms) : ""),
   });
 }
