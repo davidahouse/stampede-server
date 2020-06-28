@@ -57,9 +57,17 @@ async function handle(req, res, dependencies, owners) {
   });
 
   // Get the branch builds
-  const branchBuilds = await dependencies.db.fetchRecentBuildKeys(
-    "All",
+  const branchBuilds = await dependencies.db.fetchBuildKeys(
+    owner,
+    repository,
     "branch-push"
+  );
+
+  // Get the release builds
+  const releaseBuilds = await dependencies.db.fetchBuildKeys(
+    owner,
+    repository,
+    "release"
   );
 
   res.render(dependencies.viewsPath + "repositories/repositoryDetails", {
@@ -70,6 +78,7 @@ async function handle(req, res, dependencies, owners) {
     activeBuilds: activeBuilds.rows,
     repositoryBuilds: sortedBuilds,
     branchBuilds: branchBuilds.rows,
+    releaseBuilds: releaseBuilds.rows,
     prettyMilliseconds: (ms) => (ms != null ? prettyMilliseconds(ms) : ""),
   });
 }
