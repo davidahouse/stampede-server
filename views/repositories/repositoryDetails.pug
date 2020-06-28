@@ -52,7 +52,7 @@ block content
     div(class="w-full p-3")
         div(class="bg-white border-transparent rounded-lg shadow-lg")
           div(class="bg-gray-400 uppercase text-gray-800 border-b-2 border-gray-500 rounded-tl-lg rounded-tr-lg p-2")
-            h5(class="font-bold uppercase text-gray-600") Branch Builds
+            h5(class="font-bold uppercase text-gray-600") Branches
           div(class="p-5")
             table(class="table-auto w-full")
                 thead
@@ -65,7 +65,7 @@ block content
     div(class="w-full p-3")
         div(class="bg-white border-transparent rounded-lg shadow-lg")
           div(class="bg-gray-400 uppercase text-gray-800 border-b-2 border-gray-500 rounded-tl-lg rounded-tr-lg p-2")
-            h5(class="font-bold uppercase text-gray-600") Release Builds
+            h5(class="font-bold uppercase text-gray-600") Releases
           div(class="p-5")
             table(class="table-auto w-full")
                 thead
@@ -76,3 +76,15 @@ block content
                       +tableUnderlinedCell(build.build_key, "underline")
 
 
+    div(class="w-full p-3")
+        div(class="bg-white border-transparent rounded-lg shadow-lg")
+          div(class="bg-gray-400 uppercase text-gray-800 border-b-2 border-gray-500 rounded-tl-lg rounded-tr-lg p-2")
+            h5(class="font-bold uppercase text-gray-600") Pull Requests
+          div(class="p-5")
+            table(class="table-auto w-full")
+                thead
+                  +tableHeader('Pull Request')
+                each build, i in prBuilds
+                  tbody
+                    +tableRow(`/repositories/repositorySourceDetails?owner=` + owner + `&repository=` + repository + `&build_key=` + build.build_key)
+                      +tableUnderlinedCell(build.build_key, "underline")
