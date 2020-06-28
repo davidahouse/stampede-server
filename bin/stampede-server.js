@@ -39,6 +39,7 @@ const conf = require("rc")("stampede", {
   dbPort: 54320,
   dbCert: null,
   dbLogSlowQueries: "",
+  dbLogSQL: false,
   // Misc
   responseQueue: "response",
   notificationQueues: "",
