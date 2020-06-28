@@ -56,18 +56,25 @@ async function handle(req, res, dependencies, owners) {
     }
   });
 
-  // Get the branch builds
+  // Get the branch list
   const branchBuilds = await dependencies.db.fetchBuildKeys(
     owner,
     repository,
     "branch-push"
   );
 
-  // Get the release builds
+  // Get the release list
   const releaseBuilds = await dependencies.db.fetchBuildKeys(
     owner,
     repository,
     "release"
+  );
+
+  // Get the pull request list
+  const prBuilds = await dependencies.db.fetchBuildKeys(
+    owner,
+    repository,
+    "pull-request"
   );
 
   res.render(dependencies.viewsPath + "repositories/repositoryDetails", {
@@ -79,6 +86,7 @@ async function handle(req, res, dependencies, owners) {
     repositoryBuilds: sortedBuilds,
     branchBuilds: branchBuilds.rows,
     releaseBuilds: releaseBuilds.rows,
+    prBuilds: prBuilds.rows,
     prettyMilliseconds: (ms) => (ms != null ? prettyMilliseconds(ms) : ""),
   });
 }
