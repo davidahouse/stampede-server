@@ -46,9 +46,11 @@ const conf = require("rc")("stampede", {
   stampedeFileName: ".stampede.yaml",
   scm: "github",
   // Control if the server enables the portal functions of the UI & API
-  enablePortal: "true",
+  handlePortal: "enabled",
   // Control if the server enables the incoming endpoints for webhooks
-  enableIncoming: "true",
+  handleIncoming: "enabled",
+  // Control if the server will handle anything in the response queue
+  handleResponseQueue: "enabled",
   // Debug assist properties
   logEventPath: null,
   testModeRepoConfigPath: null,
@@ -122,7 +124,6 @@ const redisConfig = {
   },
 };
 
-// Start the webhook listener
 taskQueue.setRedisConfig(redisConfig);
 
 // Setup the notification queue(s)
@@ -147,23 +148,24 @@ if (conf.scm === "github") {
 }
 scm.verifyCredentials(conf, logger);
 
-// Start our own queue that listens for updates that need to get
-// made back into GitHub
-const responseQueue = taskQueue.createTaskQueue(
-  "stampede-" + conf.responseQueue
-);
-responseQueue.on("error", function (error) {
-  logger.error("Error from response queue: " + error);
-});
+let responseQueue = null;
+if (conf.handleResponseQueue === "enabled") {
+  // Start our own queue that listens for updates that need to get
+  // made back into GitHub
+  responseQueue = taskQueue.createTaskQueue("stampede-" + conf.responseQueue);
+  responseQueue.on("error", function (error) {
+    logger.error("Error from response queue: " + error);
+  });
 
-responseQueue.process(function (job) {
-  if (job.data.response === "taskUpdate") {
-    return taskUpdate.handle(job.data.payload, conf, cache, scm, db, logger);
-  } else if (job.data.response === "heartbeat") {
-    cache.storeWorkerHeartbeat(job.data.payload);
-    notification.workerHeartbeat(job.data.payload);
-  }
-});
+  responseQueue.process(function (job) {
+    if (job.data.response === "taskUpdate") {
+      return taskUpdate.handle(job.data.payload, conf, cache, scm, db, logger);
+    } else if (job.data.response === "heartbeat") {
+      cache.storeWorkerHeartbeat(job.data.payload);
+      notification.workerHeartbeat(job.data.payload);
+    }
+  });
+}
 
 /**
  * Handle shutdown gracefully
@@ -177,7 +179,9 @@ process.on("SIGINT", function () {
  */
 async function gracefulShutdown() {
   logger.verbose("Closing queues");
-  await responseQueue.close();
+  if (responseQueue != null) {
+    await responseQueue.close();
+  }
   await db.stop();
   await cache.stopCache();
   process.exit(0);
