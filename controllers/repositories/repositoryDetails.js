@@ -17,12 +17,6 @@ async function handle(req, res, dependencies, owners) {
   const owner = req.query.owner;
   const repository = req.query.repository;
 
-  const recentBuilds = await dependencies.db.recentBuilds(
-    "Last 7 Days",
-    "All",
-    owner + "/" + repository
-  );
-
   const currentRepositoryBuilds = await dependencies.cache.repositoryBuilds.fetchRepositoryBuilds(
     owner,
     repository
@@ -33,46 +27,21 @@ async function handle(req, res, dependencies, owners) {
 
   // Now check repository builds and don't add any that are active
   for (let index = 0; index < currentRepositoryBuilds.length; index++) {
-    let foundActiveBuild = false;
-    let buildID = null;
-    for (let bindex = 0; bindex < activeBuilds.rows.length; bindex++) {
-      if (
-        activeBuilds.rows[bindex].build_key === currentRepositoryBuilds[index]
-      ) {
-        foundActiveBuild = true;
-        buildID = activeBuilds.rows[bindex].build_id;
-      }
-    }
-
-    const buildDetails = await dependencies.cache.repositoryBuilds.fetchRepositoryBuild(
+    const recentBuild = await dependencies.db.mostRecentBuild(
       owner,
       repository,
       currentRepositoryBuilds[index]
     );
 
-    if (!foundActiveBuild) {
-      if (buildDetails.schedule != null) {
-        repositoryBuilds.push({
-          build: currentRepositoryBuilds[index],
-          status: "scheduled",
-          message:
-            "⏰ Build is scheduled to run at " +
-            buildDetails.schedule.hour.toString() +
-            ":" +
-            buildDetails.schedule.minute.toString() +
-            " every day",
-        });
-      } else {
-        repositoryBuilds.push({
-          build: currentRepositoryBuilds[index],
-          status: "idle",
-        });
-      }
+    if (recentBuild.rows.length > 0) {
+      repositoryBuilds.push({
+        build: currentRepositoryBuilds[index],
+        message: recentBuild.rows[0].started_at,
+      });
     } else {
       repositoryBuilds.push({
         build: currentRepositoryBuilds[index],
-        status: "active",
-        buildID: buildID,
+        message: "",
       });
     }
   }
@@ -93,7 +62,6 @@ async function handle(req, res, dependencies, owners) {
     owner: owner,
     repository: repository,
     activeBuilds: activeBuilds.rows,
-    recentBuilds: recentBuilds.rows,
     repositoryBuilds: sortedBuilds,
     prettyMilliseconds: (ms) => (ms != null ? prettyMilliseconds(ms) : ""),
   });

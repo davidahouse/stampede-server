@@ -2,6 +2,7 @@ extends ../layout
 include ../components/titleBar
 include ../components/tableHeader
 include ../components/tableCell
+include ../components/tableUnderlinedCell
 include ../components/tableRow
 include ../components/tableCellButton
 include ../components/formFile
@@ -27,7 +28,7 @@ block content
                   each build, i in activeBuilds
                     tbody
                         +tableRow(`/repositories/buildDetails?buildID=`+build.build_id)
-                          +tableCell(build.build_key)
+                          +tableUnderlinedCell(build.build_key)
                           +tableCell(build.build)
                           +tableCell(prettyMilliseconds(new Date() - build.started_at))
             else
@@ -41,33 +42,10 @@ block content
             table(class="table-auto w-full")
                 thead
                   +tableHeader('Build')
+                  +tableHeader('Last Executed')
                 each build, i in repositoryBuilds
                   tbody
-                    if build.status == "active" 
-                      +tableRow(`/repositories/buildDetails?buildID=`+build.buildID)
-                        +tableCell(build.build)
-                        +tableCell('🐎 Currently running, click for build details')
-                    else
-                      +tableRow()
-                        +tableCell(build.build)
-                        if build.status == "scheduled"
-                          +tableCell(build.message)
-                        else 
-                          +tableCellButton("Start", `/repositories/executeRepositoryBuild?owner=` + owner + `&repository=` + repository + `&build=` + build.build)
+                    +tableRow(`/repositories/repositoryBuildDetails?owner=` + owner + `&repository=` + repository + `&build=` + build.build)
+                      +tableUnderlinedCell(build.build, "underline")
+                      +tableCell(build.message, "underline")
 
-    div(class="w-full p-3")
-        div(class="bg-white border-transparent rounded-lg shadow-lg")
-          div(class="bg-gray-400 uppercase text-gray-800 border-b-2 border-gray-500 rounded-tl-lg rounded-tr-lg p-2")
-            h5(class="font-bold uppercase text-gray-600") Recent Builds
-          div(class="p-5")
-            table(class="table-auto w-full")
-                thead
-                  +tableHeader('Build')
-                  +tableHeader('Build #')
-                  +tableHeader('Completed At')
-                each build, i in recentBuilds
-                  tbody
-                    +tableRow(`/repositories/buildDetails?buildID=` + build.build_id)
-                      +tableCell(build.build_key)
-                      +tableCell(build.build)
-                      +tableCell(build.completed_at)
