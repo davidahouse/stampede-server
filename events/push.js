@@ -89,7 +89,8 @@ async function handle(req, serverConf, cache, scm, db, logger) {
     cache,
     serverConf,
     db,
-    logger
+    logger,
+    "branch-push"
   );
   return { status: "branch tasks created" };
 }

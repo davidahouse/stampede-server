@@ -83,7 +83,7 @@ function parseEvent(req) {
     sshURL:
       req.body.pull_request.head.repo.ssh_url != null
         ? req.body.pull_request.head.repo.ssh_url
-        : req.body.repository.ssh_url
+        : req.body.repository.ssh_url,
   };
 }
 
@@ -146,12 +146,12 @@ async function pullRequestEdit(
     number: pullRequest.number,
     head: {
       ref: pullRequest.head.ref,
-      sha: pullRequest.head.sha
+      sha: pullRequest.head.sha,
     },
     base: {
       ref: pullRequest.base.ref,
-      sha: pullRequest.base.sha
-    }
+      sha: pullRequest.base.sha,
+    },
   };
 
   const buildDetails = {
@@ -159,14 +159,14 @@ async function pullRequestEdit(
     repo: repo,
     sha: sha,
     pullRequest: pullRequestDetails,
-    buildKey: "pullrequest-" + pullRequest.number
+    buildKey: "pullrequest-" + pullRequest.number,
   };
 
   const scmDetails = {
     id: serverConf.scm,
     cloneURL: cloneURL,
     sshURL: sshURL,
-    pullRequest: pullRequestDetails
+    pullRequest: pullRequestDetails,
   };
 
   build.startBuild(
@@ -180,7 +180,8 @@ async function pullRequestEdit(
     cache,
     serverConf,
     db,
-    logger
+    logger,
+    "pull-request"
   );
 }
 

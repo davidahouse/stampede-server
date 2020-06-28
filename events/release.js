@@ -91,7 +91,7 @@ async function handle(req, serverConf, cache, scm, db, logger) {
     repo: event.repo,
     sha: event.sha,
     release: event.release,
-    buildKey: safeBuildKey(event.release)
+    buildKey: safeBuildKey(event.release),
   };
 
   const scmDetails = {
@@ -102,8 +102,8 @@ async function handle(req, serverConf, cache, scm, db, logger) {
       name: event.release,
       tag: event.tag,
       sha: sha,
-      body: event.body
-    }
+      body: event.body,
+    },
   };
 
   build.startBuild(
@@ -117,7 +117,8 @@ async function handle(req, serverConf, cache, scm, db, logger) {
     cache,
     serverConf,
     db,
-    logger
+    logger,
+    "release"
   );
   return { status: "tasks created for the release" };
 }
@@ -145,7 +146,7 @@ function parseEvent(req) {
     prerelease: req.body.release.prerelease,
     body: req.body.release.body,
     draft: req.body.release.draft,
-    target: req.body.release.target_commitish
+    target: req.body.release.target_commitish,
   };
 }
 
