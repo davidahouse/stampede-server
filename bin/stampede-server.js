@@ -45,6 +45,10 @@ const conf = require("rc")("stampede", {
   notificationQueues: "",
   stampedeFileName: ".stampede.yaml",
   scm: "github",
+  // Control if the server enables the portal functions of the UI & API
+  enablePortal: "true",
+  // Control if the server enables the incoming endpoints for webhooks
+  enableIncoming: "true",
   // Debug assist properties
   logEventPath: null,
   testModeRepoConfigPath: null,
