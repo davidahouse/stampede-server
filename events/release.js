@@ -13,9 +13,9 @@ const notification = require("../lib/notification");
  * @param {*} cache
  * @param {*} scm
  */
-async function handle(req, serverConf, cache, scm, db, logger) {
+async function handle(body, serverConf, cache, scm, db, logger) {
   // Parse the incoming body into the parts we care about
-  const event = parseEvent(req);
+  const event = parseEvent(body);
   logger.info("ReleaseEvent:");
   notification.repositoryEventReceived("release", event);
 
@@ -125,28 +125,28 @@ async function handle(req, serverConf, cache, scm, db, logger) {
 
 /**
  * parse body into an event object
- * @param {*} req
+ * @param {*} body
  * @return {object} event
  */
-function parseEvent(req) {
-  const fullName = req.body.repository.full_name;
+function parseEvent(body) {
+  const fullName = body.repository.full_name;
   const parts = fullName.split("/");
   const owner = parts[0];
   const repo = parts[1];
   return {
     owner: owner,
     repo: repo,
-    action: req.body.action,
-    created: req.body.created,
-    deleted: req.body.deleted,
-    release: req.body.release.name,
-    tag: req.body.release.tag_name,
-    cloneURL: req.body.repository.clone_url,
-    sshURL: req.body.repository.ssh_url,
-    prerelease: req.body.release.prerelease,
-    body: req.body.release.body,
-    draft: req.body.release.draft,
-    target: req.body.release.target_commitish,
+    action: body.action,
+    created: body.created,
+    deleted: body.deleted,
+    release: body.release.name,
+    tag: body.release.tag_name,
+    cloneURL: body.repository.clone_url,
+    sshURL: body.repository.ssh_url,
+    prerelease: body.release.prerelease,
+    body: body.release.body,
+    draft: body.release.draft,
+    target: body.release.target_commitish,
   };
 }
 
