@@ -7,13 +7,13 @@ const build = require("../lib/build");
 
 /**
  * handle event
- * @param {*} req
+ * @param {*} body
  * @param {*} serverConf
  * @param {*} cache
  */
-async function handle(req, serverConf, cache, scm, db, logger) {
+async function handle(body, serverConf, cache, scm, db, logger) {
   // Parse the incoming body into the parts we care about
-  const event = parseEvent(req);
+  const event = parseEvent(body);
   logger.info("PullRequestEvent:");
   if (serverConf.logLevel === "verbose") {
     logger.verbose(JSON.stringify(event, null, 2));
@@ -62,28 +62,28 @@ async function handle(req, serverConf, cache, scm, db, logger) {
 
 /**
  * parse body into an event object
- * @param {*} req
+ * @param {*} body
  * @return {object} event
  */
-function parseEvent(req) {
-  const fullName = req.body.repository.full_name;
+function parseEvent(body) {
+  const fullName = body.repository.full_name;
   const parts = fullName.split("/");
   const owner = parts[0];
   const repo = parts[1];
   return {
     owner: owner,
     repo: repo,
-    action: req.body.action,
-    pullRequest: req.body.pull_request,
-    sha: req.body.pull_request.head.sha,
+    action: body.action,
+    pullRequest: body.pull_request,
+    sha: body.pull_request.head.sha,
     cloneURL:
-      req.body.pull_request.head.repo.clone_url != null
-        ? req.body.pull_request.head.repo.clone_url
-        : req.body.repository.clone_url,
+      body.pull_request.head.repo.clone_url != null
+        ? body.pull_request.head.repo.clone_url
+        : body.repository.clone_url,
     sshURL:
-      req.body.pull_request.head.repo.ssh_url != null
-        ? req.body.pull_request.head.repo.ssh_url
-        : req.body.repository.ssh_url,
+      body.pull_request.head.repo.ssh_url != null
+        ? body.pull_request.head.repo.ssh_url
+        : body.repository.ssh_url,
   };
 }
 

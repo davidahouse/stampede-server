@@ -5,14 +5,14 @@ const notification = require("../lib/notification");
 
 /**
  * handle event
- * @param {*} req
+ * @param {*} body
  * @param {*} serverConf
  * @param {*} cache
  * @return {Object} response to the event
  */
-async function handle(req, serverConf, cache, scm, db, logger) {
+async function handle(body, serverConf, cache, scm, db, logger) {
   // Parse the incoming body into the parts we care about
-  const event = parseEvent(req);
+  const event = parseEvent(body);
   logger.info("CheckSuiteEvent:");
   if (serverConf.logLevel === "verbose") {
     logger.verbose(JSON.stringify(event, null, 2));
@@ -52,26 +52,26 @@ async function handle(req, serverConf, cache, scm, db, logger) {
 
 /**
  * parse body into an event object
- * @param {*} req
+ * @param {*} body
  * @return {object} event
  */
-function parseEvent(req) {
-  const fullName = req.body.repository.full_name;
+function parseEvent(body) {
+  const fullName = body.repository.full_name;
   const parts = fullName.split("/");
   const owner = parts[0];
   const repo = parts[1];
   return {
-    appID: req.body.check_suite.app.id,
+    appID: body.check_suite.app.id,
     owner: owner,
     repo: repo,
-    action: req.body.action,
+    action: body.action,
     pullRequests:
-      req.body.check_suite.pull_requests != null
-        ? req.body.check_suite.pull_requests
+      body.check_suite.pull_requests != null
+        ? body.check_suite.pull_requests
         : [],
-    sha: req.body.check_suite.head_sha,
-    cloneURL: req.body.repository.clone_url,
-    sshURL: req.body.repository.ssh_url
+    sha: body.check_suite.head_sha,
+    cloneURL: body.repository.clone_url,
+    sshURL: body.repository.ssh_url,
   };
 }
 

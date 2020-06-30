@@ -16,6 +16,7 @@ const taskUpdate = require("../lib/taskUpdate");
 const notification = require("../lib/notification");
 const db = require("../lib/db");
 const repositoryBuild = require("../lib/repositoryBuild");
+const incomingHandler = require("../lib/incomingHandler");
 
 const fiveMinuteInterval = 1000 * 60 * 5;
 const conf = require("rc")("stampede", {
@@ -42,6 +43,7 @@ const conf = require("rc")("stampede", {
   dbLogSQL: false,
   // Misc
   responseQueue: "response",
+  incomingQueue: "incoming",
   notificationQueues: "",
   stampedeFileName: ".stampede.yaml",
   scm: "github",
@@ -49,6 +51,8 @@ const conf = require("rc")("stampede", {
   handlePortal: "enabled",
   // Control if the server enables the incoming endpoints for webhooks
   handleIncoming: "enabled",
+  // Control if the server will handle anything in the incoming queue
+  handleIncomingQueue: "enabled",
   // Control if the server will handle anything in the response queue
   handleResponseQueue: "enabled",
   // Control if the server looks for builds that need to be auto-started
@@ -169,6 +173,18 @@ if (conf.handleResponseQueue === "enabled") {
   });
 }
 
+let incomingQueue = null;
+if (conf.handleIncomingQueue === "enabled") {
+  incomingQueue = taskQueue.createTaskQueue("stampede-" + conf.incomingQueue);
+  incomingQueue.on("error", function (error) {
+    logger.error("Error from incoming queue: " + error);
+  });
+
+  incomingQueue.process(function (job) {
+    return incomingHandler.handle(job.data, dependencies);
+  });
+}
+
 /**
  * Handle shutdown gracefully
  */
@@ -266,6 +282,7 @@ const dependencies = {
   redisConfig: redisConfig,
   viewsPath: viewsPath,
   logger: logger,
+  incomingQueue: incomingQueue,
 };
 
 web.startRESTApi(dependencies);
