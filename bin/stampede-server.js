@@ -15,8 +15,9 @@ const taskQueue = require("../lib/taskQueue");
 const taskUpdate = require("../lib/taskUpdate");
 const notification = require("../lib/notification");
 const db = require("../lib/db");
-const repositoryBuild = require("../lib/repositoryBuild");
 const incomingHandler = require("../lib/incomingHandler");
+const retentionHandler = require("../lib/retentionHandler");
+const buildScheduleHandler = require("../lib/buildScheduleHandler");
 
 const fiveMinuteInterval = 1000 * 60 * 5;
 const conf = require("rc")("stampede", {
@@ -57,6 +58,8 @@ const conf = require("rc")("stampede", {
   handleResponseQueue: "enabled",
   // Control if the server looks for builds that need to be auto-started
   handleBuildScheduler: "enabled",
+  // Control if the server executes the retention policy handler
+  handleRetentionScheduler: "enabled",
   // Debug assist properties
   logEventPath: null,
   testModeRepoConfigPath: null,
@@ -64,6 +67,10 @@ const conf = require("rc")("stampede", {
   adminPassword: "stampede",
   // Logging
   logLevel: "info",
+  // Retention
+  defaultBuildRetentionDays: 30,
+  defaultReleaseBuildRetentionDays: 3000,
+  cleanupArtifactTask: null,
 });
 
 // Configure winston logging
@@ -207,70 +214,20 @@ async function gracefulShutdown() {
 
 db.start(conf, logger);
 
-if (conf.handleBuildScheduler === "enabled") {
+if (
+  conf.handleBuildScheduler === "enabled" ||
+  conf.handleRetentionScheduler === "enabled"
+) {
   setInterval(buildSchedule, fiveMinuteInterval);
+}
 
-  async function buildSchedule() {
-    const currentDate = new Date();
-    logger.verbose(
-      "Checking for any builds that need to be started at hour " +
-        currentDate.getHours() +
-        " minute " +
-        currentDate.getMinutes()
-    );
-    // loop through any scheduled builds defined in the system
-    // check the last run date and if a different date then check time
-    // if we have passed the time to start the build, start it!
-    const repositories = await db.fetchRepositories();
-    for (let index = 0; index < repositories.rows.length; index++) {
-      const repositoryBuilds = await cache.repositoryBuilds.fetchRepositoryBuilds(
-        repositories.rows[index].owner,
-        repositories.rows[index].repository
-      );
-      if (repositoryBuilds != null) {
-        for (
-          let buildIndex = 0;
-          buildIndex < repositoryBuilds.length;
-          buildIndex++
-        ) {
-          const buildInfo = await cache.repositoryBuilds.fetchRepositoryBuild(
-            repositories.rows[index].owner,
-            repositories.rows[index].repository,
-            repositoryBuilds[buildIndex]
-          );
-          if (
-            buildInfo.schedule != null &&
-            (buildInfo.lastExecuteDate == null ||
-              new Date(buildInfo.lastExecuteDate).getDate() !=
-                currentDate.getDate() ||
-              new Date(buildInfo.lastExecuteDate).getMonth() !=
-                currentDate.getMonth() ||
-              new Date(buildInfo.lastExecuteDate).getFullYear() !=
-                currentDate.getFullYear())
-          ) {
-            if (
-              currentDate.getHours() >= buildInfo.schedule.hour &&
-              currentDate.getMinutes() >= buildInfo.schedule.minute
-            ) {
-              logger.verbose("Executing a repository build:");
-              buildInfo.lastExecuteDate = currentDate;
-              await cache.repositoryBuilds.updateRepositoryBuild(
-                repositories.rows[index].owner,
-                repositories.rows[index].repository,
-                buildInfo
-              );
-              repositoryBuild.execute(
-                repositories.rows[index].owner,
-                repositories.rows[index].repository,
-                repositoryBuilds[buildIndex],
-                buildInfo,
-                dependencies
-              );
-            }
-          }
-        }
-      }
-    }
+async function buildSchedule() {
+  if (conf.handleBuildScheduler === "enabled") {
+    await buildScheduleHandler.handle(dependencies);
+  }
+
+  if (conf.handleRetentionScheduler === "enabled") {
+    await retentionHandler.handle(dependencies);
   }
 }
 
