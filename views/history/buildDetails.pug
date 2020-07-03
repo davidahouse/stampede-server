@@ -43,7 +43,11 @@ block content
               +tableRow()
                 +tableCell('Duration')
                 +tableCell(prettyMilliseconds(duration))
-
+              if isAdmin == true
+                +tableRow()
+                  +tableCellButton('Delete', '/history/deleteBuild?buildID=' + build.build_id)
+                  +tableCell('')
+                  
   div(class="w-full p-3")
       div(class="bg-white border-transparent rounded-lg shadow-lg")
         div(class="bg-gray-400 uppercase text-gray-800 border-b-2 border-gray-500 rounded-tl-lg rounded-tr-lg p-2")
