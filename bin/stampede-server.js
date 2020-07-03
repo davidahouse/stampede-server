@@ -67,6 +67,10 @@ const conf = require("rc")("stampede", {
   adminPassword: "stampede",
   // Logging
   logLevel: "info",
+  // Retention
+  defaultBuildRetentionDays: 30,
+  defaultReleaseBuildRetentionDays: 3000,
+  cleanupArtifactTask: null,
 });
 
 // Configure winston logging
