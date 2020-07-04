@@ -39,8 +39,11 @@ block content
               +tableRow()
                 +tableCell('Started At')
                 +tableCell(build.started_at)
+              if build.archived == "Y"
+                +tableRow()
+                  +tableCell('Archived')
+                  +tableCell('')
               
-
   div(class="w-full p-3")
       div(class="bg-white border-transparent rounded-lg shadow-lg")
         div(class="bg-gray-400 uppercase text-gray-800 border-b-2 border-gray-500 rounded-tl-lg rounded-tr-lg p-2")

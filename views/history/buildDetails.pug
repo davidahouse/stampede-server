@@ -43,6 +43,10 @@ block content
               +tableRow()
                 +tableCell('Duration')
                 +tableCell(prettyMilliseconds(duration))
+              if build.archived == "Y"
+                +tableRow()
+                  +tableCell('Archived')
+                  +tableCell('')
               if isAdmin == true
                 +tableRow()
                   +tableCellButton('Delete', '/history/deleteBuild?buildID=' + build.build_id)
