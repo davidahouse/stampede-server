@@ -19,7 +19,7 @@ const incomingHandler = require("../lib/incomingHandler");
 const retentionHandler = require("../lib/retentionHandler");
 const buildScheduleHandler = require("../lib/buildScheduleHandler");
 
-const fiveMinuteInterval = 1000 * 60 * 5;
+const fiveMinuteInterval = 1000 * 60 * 0.5;
 const conf = require("rc")("stampede", {
   // redis
   redisHost: "localhost",
@@ -68,9 +68,8 @@ const conf = require("rc")("stampede", {
   // Logging
   logLevel: "info",
   // Retention
-  defaultBuildRetentionDays: 30,
+  defaultBuildRetentionDays: 0,
   defaultReleaseBuildRetentionDays: 3000,
-  cleanupArtifactTask: null,
 });
 
 // Configure winston logging
