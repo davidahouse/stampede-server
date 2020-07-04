@@ -18,6 +18,17 @@ async function handle(req, res, dependencies) {
   let found = {};
   if (build.rows.length > 0) {
     found = build.rows[0];
+    const buildTasks = await dependencies.db.fetchBuildTasks(found.build_id);
+    const tasks = [];
+    for (let index = 0; index < buildTasks.rows.length; index++) {
+      const task = buildTasks.rows[index];
+      const detailsRows = await dependencies.db.fetchTaskDetails(task.task_id);
+      if (detailsRows.rows.length > 0) {
+        task.details = detailsRows.rows[0].details;
+      }
+      tasks.push(task);
+    }
+    found.tasks = tasks;
   }
   res.send(found);
 }
