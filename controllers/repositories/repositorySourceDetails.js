@@ -19,7 +19,7 @@ async function handle(req, res, dependencies, owners) {
   const build_key = req.query.build_key;
 
   const recentBuilds = await dependencies.db.recentBuilds(
-    "Last 30 Days",
+    "All",
     build_key,
     owner + "/" + repository
   );
