@@ -48,7 +48,7 @@ async function handle(req, res, dependencies, owners) {
   }
 
   const recentBuilds = await dependencies.db.recentBuilds(
-    "Last 7 Days",
+    "All",
     build,
     owner + "/" + repository
   );
