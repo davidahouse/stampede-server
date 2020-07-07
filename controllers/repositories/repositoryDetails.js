@@ -69,6 +69,12 @@ async function handle(req, res, dependencies, owners) {
     repository,
     "release"
   );
+  const releases = [];
+  for (let index = 0; index < releaseBuilds.rows.length; index++) {
+    if (!releases.includes(releaseBuilds.rows[index].build_key)) {
+      releases.push(releaseBuilds.rows[index].build_key);
+    }
+  }
 
   // Get the pull request list
   const prBuilds = await dependencies.db.fetchBuildKeys(
@@ -85,7 +91,7 @@ async function handle(req, res, dependencies, owners) {
     activeBuilds: activeBuilds.rows,
     repositoryBuilds: sortedBuilds,
     branchBuilds: branchBuilds.rows,
-    releaseBuilds: releaseBuilds.rows,
+    releases: releases,
     prBuilds: prBuilds.rows,
     prettyMilliseconds: (ms) => (ms != null ? prettyMilliseconds(ms) : ""),
   });
