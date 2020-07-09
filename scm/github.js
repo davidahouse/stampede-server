@@ -294,7 +294,11 @@ async function updateCheck(owner, repo, serverConf, update) {
   const authorizedOctokit = await getAuthorizedOctokit(owner, repo, serverConf);
 
   // Ensure text property can fit in github check
-  if (update.output.text.length > 65535) {
+  if (
+    update.output != null &&
+    update.output.text != null &&
+    update.output.text.length > 65535
+  ) {
     update.output.text =
       "Text too large for GitHub check, contact your stampede admin.";
   }
