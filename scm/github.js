@@ -256,6 +256,8 @@ async function createCheckRun(
       status: "queued",
       external_id: external_id,
       started_at: started_at,
+      details_url:
+        serverConf.webURL + "/history/buildTaskDetails?taskID=" + external_id,
     })
     .catch((error) => {
       systemLogger.error("Error creating check run: " + error);
