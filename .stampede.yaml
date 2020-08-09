@@ -17,3 +17,4 @@ releases:
     tasks:
       - id: npm-publish
       - id: release-notes
+      - id: docker-hub-publish
