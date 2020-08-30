@@ -26,7 +26,7 @@ block content
     each graph, i in graphs
 
       +infoCard(graph.task)
-        if graph.summary.total > 0
+        if graph.summary.total.count > 0
           div(class="chart-container w-full")
             canvas(id=``+graph.task height="100")
               script.
@@ -55,22 +55,32 @@ block content
           table(class="table-auto w-full mt-4")
             tbody
               +tableRow()
-                +tableCell('# of Executions')
-                +tableCell(graph.summary.total)
-              +tableRow()
-                +tableCell('# Success')
-                +tableCell(graph.summary.success)
-              +tableRow()
-                +tableCell('# Failure')
-                +tableCell(graph.summary.failure)
+                +tableCell('Total # of Executions')
+                +tableCell(graph.summary.total.count)
+                +tableCell('Total # of Success')
+                +tableCell(graph.summary.success.count)
+                +tableCell('Total # of Failure')
+                +tableCell(graph.summary.failure.count)
               +tableRow()
                 +tableCell('Avg Duration (s)')
-                +tableCell(graph.summary.avgDuration)
+                +tableCell(prettyMilliseconds(graph.summary.total.avgDuration * 1000.0))
+                +tableCell('Avg Duration Success (s)')
+                +tableCell(prettyMilliseconds(graph.summary.success.avgDuration * 1000.0))
+                +tableCell('Avg Duration Failure (s)')
+                +tableCell(prettyMilliseconds(graph.summary.failure.avgDuration * 1000.0))
               +tableRow()
                 +tableCell('Min Duration (s)')
-                +tableCell(graph.summary.minDuration)
+                +tableCell(prettyMilliseconds(graph.summary.total.minDuration * 1000.0))
+                +tableCell('Min Duration Success (s)')
+                +tableCell(prettyMilliseconds(graph.summary.success.minDuration * 1000.0))
+                +tableCell('Min Duration Failure (s)')
+                +tableCell(prettyMilliseconds(graph.summary.failure.minDuration * 1000.0))
               +tableRow()
                 +tableCell('Max Duration (s)')
-                +tableCell(graph.summary.maxDuration)
+                +tableCell(prettyMilliseconds(graph.summary.total.maxDuration * 1000.0))
+                +tableCell('Max Duration Success (s)')
+                +tableCell(prettyMilliseconds(graph.summary.success.maxDuration * 1000.0))
+                +tableCell('Max Duration Failure (s)')
+                +tableCell(prettyMilliseconds(graph.summary.failure.maxDuration * 1000.0))
         else
           p No task executions found with this filter criteria
