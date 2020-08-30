@@ -32,7 +32,7 @@
     "glob": "^7.1.6",
     "js-yaml": "^3.13.1",
     "lynn-request": "^0.4.6",
-    "morgan": "^1.9.1",
+    "morgan": "^1.10.0",
     "pg": "^7.18.2",
     "pkginfo": "^0.4.1",
     "postcss-cli": "^6.1.3",
