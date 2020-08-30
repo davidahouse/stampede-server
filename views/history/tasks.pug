@@ -39,6 +39,7 @@ block content
           +tableHeader('Repository')
           +tableHeader('Task')
           +tableHeader('Conclusion')
+          +tableHeader('Duration')
           +tableHeader('Node')
       tbody
         each task, i in tasks
@@ -47,4 +48,5 @@ block content
             +tableCell(task.repository)
             +tableCell(task.task)
             +tableConclusionCell(task.conclusion)
+            +tableCell(prettyMilliseconds(task.finished_at != null ? task.finished_at - task.started_at : null))
             +tableCell(task.node)

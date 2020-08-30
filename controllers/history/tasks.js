@@ -1,3 +1,5 @@
+const prettyMilliseconds = require("pretty-ms");
+
 /**
  * path this handler will serve
  */
@@ -107,6 +109,7 @@ async function handle(req, res, dependencies, owners) {
     nodeFilter: nodeFilter,
     sortList: sortList,
     sorted: sorted,
+    prettyMilliseconds: (ms) => (ms != null ? prettyMilliseconds(ms) : ""),
   });
 }
 
