@@ -1,7 +1,7 @@
 # Dockerfile
 
 # Node version
-FROM node:8
+FROM node:10
 # Working directory
 WORKDIR /var/stampede
 # install app dependencies
