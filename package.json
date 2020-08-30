@@ -14,7 +14,7 @@
     "stampede-server": "bin/stampede-server.js"
   },
   "engines": {
-    "node": "8.11.4"
+    "node": "10.16.0"
   },
   "author": "David House",
   "license": "MIT",
