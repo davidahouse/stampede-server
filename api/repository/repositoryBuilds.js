@@ -92,7 +92,7 @@ async function handle(req, res, dependencies) {
 function docs() {
   return {
     get: {
-      summary: "repository-recentBuilds",
+      summary: "repository-repositoryBuilds",
       parameters: [
         {
           in: "query",
