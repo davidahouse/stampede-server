@@ -27,6 +27,16 @@ block content
               +tableRow()
                 +tableCell('Node')
                 +tableCell(task.node)
+              +tableRow()
+                +tableCell('Started')
+                +tableCell(task.started_at)
+              if task.finished_at != null
+                +tableRow()
+                  +tableCell('Finished')
+                  +tableCell(task.finished_at)
+                +tableRow()
+                  +tableCell('Duration')
+                  +tableCell(prettyMilliseconds(task.finished_at - task.started_at))
               each detail, i in scmDetails
                 +tableRow()
                   +tableCell(detail.title)

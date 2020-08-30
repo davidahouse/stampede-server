@@ -1,3 +1,5 @@
+const prettyMilliseconds = require("pretty-ms");
+
 /**
  * path this handler will serve
  */
@@ -102,6 +104,7 @@ async function handle(req, res, dependencies, owners) {
       configValues: configValues,
       artifacts: artifacts,
       scmDetails: scmDetails,
+      prettyMilliseconds: (ms) => (ms != null ? prettyMilliseconds(ms) : ""),
     });
   } else {
     res.render(dependencies.viewsPath + "history/buildTaskDetails", {
@@ -113,6 +116,7 @@ async function handle(req, res, dependencies, owners) {
       configValues: {},
       artifacts: [],
       scmDetails: [],
+      prettyMilliseconds: (ms) => (ms != null ? prettyMilliseconds(ms) : ""),
     });
   }
 }
