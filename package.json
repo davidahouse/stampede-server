@@ -19,7 +19,7 @@
   "author": "David House",
   "license": "MIT",
   "dependencies": {
-    "@octokit/app": "^4.2.0",
+    "@octokit/app": "^4.2.1",
     "@octokit/request": "^5.4.7",
     "@octokit/rest": "^16.43.1",
     "body-parser": "^1.18.3",
