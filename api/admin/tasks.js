@@ -23,11 +23,29 @@ async function handle(req, res, dependencies) {
     );
     tasks.push({
       id: sortedTasks[index],
-      config: taskDetails
+      config: taskDetails,
     });
   }
   res.send(tasks);
 }
 
+/**
+ * The OpenAPI docs
+ */
+function docs() {
+  return {
+    get: {
+      summary: "admin-tasks",
+      parameters: [],
+      responses: {
+        200: {
+          description: "",
+        },
+      },
+    },
+  };
+}
+
 module.exports.path = path;
 module.exports.handle = handle;
+module.exports.docs = docs;

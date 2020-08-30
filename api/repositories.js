@@ -18,5 +18,22 @@ async function handle(req, res, dependencies) {
   res.send(repositories != null ? repositories.rows : []);
 }
 
+/**
+ * The OpenAPI docs
+ */
+function docs() {
+  return {
+    get: {
+      summary: "repositories",
+      responses: {
+        200: {
+          description: "",
+        },
+      },
+    },
+  };
+}
+
 module.exports.path = path;
 module.exports.handle = handle;
+module.exports.docs = docs;

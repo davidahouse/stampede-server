@@ -70,6 +70,8 @@ const conf = require("rc")("stampede", {
   // Retention
   defaultBuildRetentionDays: 30,
   defaultReleaseBuildRetentionDays: 3000,
+  // API Docs
+  enableApiDocs: false,
 });
 
 // Configure winston logging

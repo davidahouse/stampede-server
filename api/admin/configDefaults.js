@@ -17,12 +17,30 @@ async function handle(req, res, dependencies) {
   const systemDefaults = await dependencies.cache.fetchSystemDefaults();
   let defaults = {};
   if (systemDefaults != null) {
-    Object.keys(systemDefaults.defaults).forEach(function(key) {
+    Object.keys(systemDefaults.defaults).forEach(function (key) {
       defaults[key] = systemDefaults.defaults[key].toString();
     });
   }
   res.send({ defaults: defaults });
 }
 
+/**
+ * The OpenAPI docs
+ */
+function docs() {
+  return {
+    get: {
+      summary: "admin-configDefaults",
+      parameters: [],
+      responses: {
+        200: {
+          description: "",
+        },
+      },
+    },
+  };
+}
+
 module.exports.path = path;
 module.exports.handle = handle;
+module.exports.docs = docs;

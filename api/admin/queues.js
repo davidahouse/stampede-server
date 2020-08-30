@@ -18,5 +18,23 @@ async function handle(req, res, dependencies) {
   res.send(queueList);
 }
 
+/**
+ * The OpenAPI docs
+ */
+function docs() {
+  return {
+    get: {
+      summary: "admin-queues",
+      parameters: [],
+      responses: {
+        200: {
+          description: "",
+        },
+      },
+    },
+  };
+}
+
 module.exports.path = path;
 module.exports.handle = handle;
+module.exports.docs = docs;
