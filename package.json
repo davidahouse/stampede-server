@@ -42,6 +42,7 @@
     "rc": "^1.2.8",
     "sanitize-filename": "^1.6.3",
     "stampede-cache": "^0.15.0",
+    "swagger-ui-express": "^4.1.4",
     "uuid": "^3.4.0",
     "winston": "^3.3.3",
     "ws": "^6.0.0"
