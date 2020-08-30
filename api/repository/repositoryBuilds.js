@@ -21,55 +21,26 @@ async function handle(req, res, dependencies) {
     owner,
     repository
   );
-  const activeBuilds = await dependencies.db.activeBuilds(owner, repository);
-
   const repositoryBuilds = [];
-  // Add all the active builds first
-  for (let bindex = 0; bindex < activeBuilds.rows.length; bindex++) {
-    repositoryBuilds.push({
-      build: activeBuilds.rows[bindex].build_key,
-      status: "active",
-      buildID: activeBuilds.rows[bindex].build_id,
-    });
-  }
 
   // Now check repository builds and don't add any that are active
   for (let index = 0; index < currentRepositoryBuilds.length; index++) {
-    let foundActiveBuild = false;
-    let buildID = null;
-    for (let bindex = 0; bindex < activeBuilds.rows.length; bindex++) {
-      if (
-        activeBuilds.rows[bindex].build_key === currentRepositoryBuilds[index]
-      ) {
-        foundActiveBuild = true;
-        buildID = activeBuilds.rows[bindex].build_id;
-      }
-    }
-
-    const buildDetails = await dependencies.cache.repositoryBuilds.fetchRepositoryBuild(
+    const recentBuild = await dependencies.db.mostRecentBuild(
       owner,
       repository,
       currentRepositoryBuilds[index]
     );
 
-    if (!foundActiveBuild) {
-      if (buildDetails.schedule != null) {
-        repositoryBuilds.push({
-          build: currentRepositoryBuilds[index],
-          status: "scheduled",
-          message:
-            "⏰ Build is scheduled to run at " +
-            buildDetails.schedule.hour.toString() +
-            ":" +
-            buildDetails.schedule.minute.toString() +
-            " every day",
-        });
-      } else {
-        repositoryBuilds.push({
-          build: currentRepositoryBuilds[index],
-          status: "idle",
-        });
-      }
+    if (recentBuild.rows.length > 0) {
+      repositoryBuilds.push({
+        build: currentRepositoryBuilds[index],
+        lastExecuted: recentBuild.rows[0].started_at,
+      });
+    } else {
+      repositoryBuilds.push({
+        build: currentRepositoryBuilds[index],
+        lastExecuted: "",
+      });
     }
   }
 
@@ -83,7 +54,7 @@ async function handle(req, res, dependencies) {
     }
   });
 
-  res.send(repositoryBuilds);
+  res.send(sortedBuilds);
 }
 
 /**
