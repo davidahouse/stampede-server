@@ -31,5 +31,23 @@ async function handle(req, res, dependencies) {
   res.send(tasks);
 }
 
+/**
+ * The OpenAPI docs
+ */
+function docs() {
+  return {
+    get: {
+      summary: "monitor-activeTasks",
+      parameters: [],
+      responses: {
+        200: {
+          description: "",
+        },
+      },
+    },
+  };
+}
+
 module.exports.path = path;
 module.exports.handle = handle;
+module.exports.docs = docs;

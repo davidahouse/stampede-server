@@ -39,5 +39,38 @@ async function handle(req, res, dependencies) {
   res.send(builds);
 }
 
+/**
+ * The OpenAPI docs
+ */
+function docs() {
+  return {
+    get: {
+      summary: "repository-recentBuilds",
+      parameters: [
+        {
+          in: "query",
+          name: "owner",
+          schema: {
+            type: "string",
+          },
+        },
+        {
+          in: "query",
+          name: "repository",
+          schema: {
+            type: "string",
+          },
+        },
+      ],
+      responses: {
+        200: {
+          description: "",
+        },
+      },
+    },
+  };
+}
+
 module.exports.path = path;
 module.exports.handle = handle;
+module.exports.docs = docs;

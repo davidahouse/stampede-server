@@ -23,9 +23,35 @@ async function handle(req, res, dependencies) {
       buildDetails != null && buildDetails.rows.length > 0
         ? buildDetails.rows[0]
         : {},
-    tasks: tasks.rows
+    tasks: tasks.rows,
   });
+}
+
+/**
+ * The OpenAPI docs
+ */
+function docs() {
+  return {
+    get: {
+      summary: "buildDetails",
+      parameters: [
+        {
+          in: "query",
+          name: "buildID",
+          schema: {
+            type: "string",
+          },
+        },
+      ],
+      responses: {
+        200: {
+          description: "",
+        },
+      },
+    },
+  };
 }
 
 module.exports.path = path;
 module.exports.handle = handle;
+module.exports.docs = docs;
