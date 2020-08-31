@@ -4,7 +4,7 @@
  * The url path this handler will serve
  */
 function path() {
-  return "/api/repository/recentBuilds";
+  return "/api/repository/activeBuilds";
 }
 
 /**
@@ -14,16 +14,14 @@ function path() {
  * @param {*} dependencies
  */
 async function handle(req, res, dependencies) {
-  const recentBuilds = await dependencies.db.recentBuilds(
-    "Last 7 Days",
-    "All",
-    req.query.owner + "/" + req.query.repository
-  );
+  const owner = req.query.owner;
+  const repository = req.query.repository;
+  const activeBuilds = await dependencies.db.activeBuilds(owner, repository);
 
   const builds = [];
-  if (recentBuilds != null) {
-    for (let index = 0; index < recentBuilds.rows.length; index++) {
-      const buildID = recentBuilds.rows[index].build_id;
+  if (activeBuilds != null) {
+    for (let index = 0; index < activeBuilds.rows.length; index++) {
+      const buildID = activeBuilds.rows[index].build_id;
       const buildDetails = await dependencies.db.fetchBuild(buildID);
       const tasks = await dependencies.db.fetchBuildTasks(buildID);
       builds.push({
@@ -45,7 +43,7 @@ async function handle(req, res, dependencies) {
 function docs() {
   return {
     get: {
-      summary: "repository-recentBuilds",
+      summary: "repository-activeBuilds",
       parameters: [
         {
           in: "query",
