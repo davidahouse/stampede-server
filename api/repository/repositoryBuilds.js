@@ -39,7 +39,6 @@ async function handle(req, res, dependencies) {
     } else {
       repositoryBuilds.push({
         build: currentRepositoryBuilds[index],
-        lastExecuted: "",
       });
     }
   }
