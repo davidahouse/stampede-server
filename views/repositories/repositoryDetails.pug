@@ -39,52 +39,69 @@ block content
           div(class="bg-gray-400 uppercase text-gray-800 border-b-2 border-gray-500 rounded-tl-lg rounded-tr-lg p-2")
             h5(class="font-bold uppercase text-gray-600") Repository Builds
           div(class="p-5")
-            table(class="table-auto w-full")
-                thead
-                  +tableHeader('Build')
-                  +tableHeader('Last Executed')
-                each build, i in repositoryBuilds
-                  tbody
-                    +tableRow(`/repositories/repositoryBuildDetails?owner=` + owner + `&repository=` + repository + `&build=` + build.build)
-                      +tableUnderlinedCell(build.build, "underline")
-                      +tableCell(build.message, "underline")
+            if repositoryBuilds.length > 0
+              table(class="table-fixed w-full")
+                  thead
+                    +tableHeader('Build', 'w-1/2')
+                    +tableHeader('Last Executed', 'w-1/2')
+                  each build, i in repositoryBuilds
+                    tbody
+                      +tableRow(`/repositories/repositoryBuildDetails?owner=` + owner + `&repository=` + repository + `&build=` + build.buildKey)
+                        +tableUnderlinedCell(build.buildKey, "underline")
+                        +tableCell(build.message, "underline")
+            else
+              p No repository builds have been configured
 
     div(class="w-full p-3")
         div(class="bg-white border-transparent rounded-lg shadow-lg")
           div(class="bg-gray-400 uppercase text-gray-800 border-b-2 border-gray-500 rounded-tl-lg rounded-tr-lg p-2")
             h5(class="font-bold uppercase text-gray-600") Branches
           div(class="p-5")
-            table(class="table-auto w-full")
-                thead
-                  +tableHeader('Branch')
-                each build, i in branchBuilds
-                  tbody
-                    +tableRow(`/repositories/repositorySourceDetails?owner=` + owner + `&repository=` + repository + `&build_key=` + build.build_key)
-                      +tableUnderlinedCell(build.build_key, "underline")
+            if branchBuilds.length > 0
+              table(class="table-fixed w-full")
+                  thead
+                    +tableHeader('Branch', 'w-1/2')
+                    +tableHeader('Last Executed', 'w-1/2')
+                  each build, i in branchBuilds
+                    tbody
+                      +tableRow(`/repositories/repositorySourceDetails?owner=` + owner + `&repository=` + repository + `&build_key=` + build.buildKey)
+                        +tableUnderlinedCell(build.buildKey, "underline")
+                        +tableCell(build.message, "underline")
+            else
+              p No branch builds found...
 
     div(class="w-full p-3")
         div(class="bg-white border-transparent rounded-lg shadow-lg")
           div(class="bg-gray-400 uppercase text-gray-800 border-b-2 border-gray-500 rounded-tl-lg rounded-tr-lg p-2")
             h5(class="font-bold uppercase text-gray-600") Releases
           div(class="p-5")
-            table(class="table-auto w-full")
-                thead
-                  +tableHeader('Release')
-                each release, i in releases
-                  tbody
-                    +tableRow(`/repositories/repositorySourceDetails?owner=` + owner + `&repository=` + repository + `&build_key=` + release)
-                      +tableUnderlinedCell(release, "underline")
-
+            if releases.length > 0
+              table(class="table-fixed w-full")
+                  thead
+                    +tableHeader('Release', 'w-1/2')
+                    +tableHeader('Last Executed', 'w-1/2')
+                  each release, i in releases
+                    tbody
+                      +tableRow(`/repositories/repositorySourceDetails?owner=` + owner + `&repository=` + repository + `&build_key=` + release.buildKey)
+                        +tableUnderlinedCell(release.buildKey, "underline")
+                        +tableCell(release.message, "underline")
+            else
+              p No release builds found...
 
     div(class="w-full p-3")
         div(class="bg-white border-transparent rounded-lg shadow-lg")
           div(class="bg-gray-400 uppercase text-gray-800 border-b-2 border-gray-500 rounded-tl-lg rounded-tr-lg p-2")
             h5(class="font-bold uppercase text-gray-600") Pull Requests
           div(class="p-5")
-            table(class="table-auto w-full")
-                thead
-                  +tableHeader('Pull Request')
-                each build, i in prBuilds
-                  tbody
-                    +tableRow(`/repositories/repositorySourceDetails?owner=` + owner + `&repository=` + repository + `&build_key=` + build.build_key)
-                      +tableUnderlinedCell(build.build_key, "underline")
+            if prBuilds.length > 0
+              table(class="table-fixed w-full")
+                  thead
+                    +tableHeader('Pull Request', 'w-1/2')
+                    +tableHeader('Last Executed', 'w-1/2')
+                  each build, i in prBuilds
+                    tbody
+                      +tableRow(`/repositories/repositorySourceDetails?owner=` + owner + `&repository=` + repository + `&build_key=` + build.buildKey)
+                        +tableUnderlinedCell(build.buildKey, "underline")
+                        +tableCell(build.message, "underline")
+            else
+              p No pull request builds found...
