@@ -23,29 +23,12 @@ async function handle(req, res, dependencies, owners) {
   );
   const activeBuilds = await dependencies.db.activeBuilds(owner, repository);
 
-  const repositoryBuilds = [];
-
-  // Now check repository builds and don't add any that are active
-  for (let index = 0; index < currentRepositoryBuilds.length; index++) {
-    const recentBuild = await dependencies.db.mostRecentBuild(
-      owner,
-      repository,
-      currentRepositoryBuilds[index]
-    );
-
-    if (recentBuild.rows.length > 0) {
-      repositoryBuilds.push({
-        build: currentRepositoryBuilds[index],
-        message: recentBuild.rows[0].started_at,
-      });
-    } else {
-      repositoryBuilds.push({
-        build: currentRepositoryBuilds[index],
-        message: "",
-      });
-    }
-  }
-
+  const repositoryBuilds = await buildKeyList(
+    owner,
+    repository,
+    currentRepositoryBuilds,
+    dependencies
+  );
   const sortedBuilds = repositoryBuilds.sort(function (a, b) {
     if (a.build < b.build) {
       return -1;
@@ -57,31 +40,45 @@ async function handle(req, res, dependencies, owners) {
   });
 
   // Get the branch list
-  const branchBuilds = await dependencies.db.fetchBuildKeys(
+  const branchBuildKeys = await dependencies.db.fetchBuildKeys(
     owner,
     repository,
     "branch-push"
   );
+  const branchBuilds = await buildKeyList(
+    owner,
+    repository,
+    uniqueBuildKeys(branchBuildKeys.rows),
+    dependencies
+  );
 
   // Get the release list
-  const releaseBuilds = await dependencies.db.fetchBuildKeys(
+  const releaseKeys = await dependencies.db.fetchBuildKeys(
     owner,
     repository,
     "release"
   );
-  const releases = [];
-  for (let index = 0; index < releaseBuilds.rows.length; index++) {
-    if (!releases.includes(releaseBuilds.rows[index].build_key)) {
-      releases.push(releaseBuilds.rows[index].build_key);
-    }
-  }
+  const releases = await buildKeyList(
+    owner,
+    repository,
+    uniqueBuildKeys(releaseKeys.rows),
+    dependencies
+  );
 
   // Get the pull request list
-  const prBuilds = await dependencies.db.fetchBuildKeys(
+  const prBuildKeys = await dependencies.db.fetchBuildKeys(
     owner,
     repository,
     "pull-request"
   );
+  console.dir(prBuildKeys.rows);
+  const prBuilds = await buildKeyList(
+    owner,
+    repository,
+    uniqueBuildKeys(prBuildKeys.rows),
+    dependencies
+  );
+  console.dir(prBuilds);
 
   res.render(dependencies.viewsPath + "repositories/repositoryDetails", {
     owners: owners,
@@ -90,11 +87,56 @@ async function handle(req, res, dependencies, owners) {
     repository: repository,
     activeBuilds: activeBuilds.rows,
     repositoryBuilds: sortedBuilds,
-    branchBuilds: branchBuilds.rows,
+    branchBuilds: branchBuilds,
     releases: releases,
-    prBuilds: prBuilds.rows,
+    prBuilds: prBuilds,
     prettyMilliseconds: (ms) => (ms != null ? prettyMilliseconds(ms) : ""),
   });
+}
+
+function uniqueBuildKeys(buildKeys) {
+  console.log("buildKeys: ");
+  console.dir(buildKeys);
+  const uniqueKeys = [];
+  if (buildKeys == null) {
+    return uniqueKeys;
+  }
+
+  for (let index = 0; index < buildKeys.length; index++) {
+    console.log(buildKeys[index]);
+    if (!uniqueKeys.includes(buildKeys[index].build_key)) {
+      uniqueKeys.push(buildKeys[index].build_key);
+    } else {
+      console.log("skipping: " + buildKeys[index].build_key);
+    }
+  }
+  return uniqueKeys;
+}
+
+async function buildKeyList(owner, repository, buildKeys, dependencies) {
+  const builds = [];
+  console.log("buildKeyList:");
+  console.dir(buildKeys);
+  for (let index = 0; index < buildKeys.length; index++) {
+    const recentBuild = await dependencies.db.mostRecentBuild(
+      owner,
+      repository,
+      buildKeys[index]
+    );
+
+    if (recentBuild.rows.length > 0) {
+      builds.push({
+        buildKey: buildKeys[index],
+        message: recentBuild.rows[0].started_at,
+      });
+    } else {
+      builds.push({
+        buildKey: buildKeys[index],
+        message: "",
+      });
+    }
+  }
+  return builds;
 }
 
 module.exports.path = path;

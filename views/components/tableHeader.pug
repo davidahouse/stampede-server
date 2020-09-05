@@ -1,2 +1,2 @@
-mixin tableHeader(title)
-    th(class="text-left")=title
+mixin tableHeader(title, additionalClass)
+    th(class=`text-left ` + additionalClass)=title
