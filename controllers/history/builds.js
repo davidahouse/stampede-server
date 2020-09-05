@@ -45,10 +45,24 @@ async function handle(req, res, dependencies, owners) {
     );
   }
 
+  let sourceFilter = "All";
+  if (req.query.source != null) {
+    sourceFilter = req.query.source;
+  }
+
+  const sources = [
+    "All",
+    "Pull Request",
+    "Branch",
+    "Release",
+    "Repository Build",
+  ];
+
   const builds = await dependencies.db.recentBuilds(
     timeFilter,
     buildKeyFilter,
-    repositoryFilter
+    repositoryFilter,
+    sourceFilter
   );
 
   res.render(dependencies.viewsPath + "history/builds", {
@@ -75,6 +89,8 @@ async function handle(req, res, dependencies, owners) {
     buildKeyList: buildKeyList,
     repositoryFilter: repositoryFilter,
     repositoryList: repositories,
+    sourceFilter: sourceFilter,
+    sourceList: sources,
   });
 }
 

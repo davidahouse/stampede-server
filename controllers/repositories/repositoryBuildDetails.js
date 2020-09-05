@@ -50,7 +50,8 @@ async function handle(req, res, dependencies, owners) {
   const recentBuilds = await dependencies.db.recentBuilds(
     "All",
     build,
-    owner + "/" + repository
+    owner + "/" + repository,
+    "All"
   );
 
   res.render(dependencies.viewsPath + "repositories/repositoryBuildDetails", {
