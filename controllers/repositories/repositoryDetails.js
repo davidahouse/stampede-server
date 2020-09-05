@@ -71,14 +71,12 @@ async function handle(req, res, dependencies, owners) {
     repository,
     "pull-request"
   );
-  console.dir(prBuildKeys.rows);
   const prBuilds = await buildKeyList(
     owner,
     repository,
     uniqueBuildKeys(prBuildKeys.rows),
     dependencies
   );
-  console.dir(prBuilds);
 
   res.render(dependencies.viewsPath + "repositories/repositoryDetails", {
     owners: owners,
@@ -95,19 +93,14 @@ async function handle(req, res, dependencies, owners) {
 }
 
 function uniqueBuildKeys(buildKeys) {
-  console.log("buildKeys: ");
-  console.dir(buildKeys);
   const uniqueKeys = [];
   if (buildKeys == null) {
     return uniqueKeys;
   }
 
   for (let index = 0; index < buildKeys.length; index++) {
-    console.log(buildKeys[index]);
     if (!uniqueKeys.includes(buildKeys[index].build_key)) {
       uniqueKeys.push(buildKeys[index].build_key);
-    } else {
-      console.log("skipping: " + buildKeys[index].build_key);
     }
   }
   return uniqueKeys;
@@ -115,8 +108,6 @@ function uniqueBuildKeys(buildKeys) {
 
 async function buildKeyList(owner, repository, buildKeys, dependencies) {
   const builds = [];
-  console.log("buildKeyList:");
-  console.dir(buildKeys);
   for (let index = 0; index < buildKeys.length; index++) {
     const recentBuild = await dependencies.db.mostRecentBuild(
       owner,
