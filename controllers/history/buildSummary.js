@@ -24,6 +24,7 @@ async function handle(req, res, dependencies, owners) {
   const builds = await dependencies.db.recentBuilds(
     "Last 12 hours",
     "All",
+    "All",
     "All"
   );
   const recentBuilds = builds.rows;
