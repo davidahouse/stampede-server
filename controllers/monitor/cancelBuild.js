@@ -22,19 +22,24 @@ async function handle(req, res, dependencies, owners) {
     const detailsRows = await dependencies.db.fetchTaskDetails(
       remainingTasks[index]
     );
-    const taskDetails = detailsRows.rows[0].details;
-    taskDetails.stats.finished_at = new Date();
-    taskDetails.status = "completed";
-    taskDetails.result = {
-      conclusion: "cancelled",
-    };
+    if (detailsRows != null && detailsRows.rows.length > 0) {
+      const taskDetails = detailsRows.rows[0].details;
+      taskDetails.stats.finished_at = new Date();
+      taskDetails.status = "completed";
+      taskDetails.result = {
+        conclusion: "cancelled",
+      };
 
-    const taskQueue = new Queue("stampede-response", dependencies.redisConfig);
-    taskQueue.add(
-      { response: "taskUpdate", payload: taskDetails },
-      { removeOnComplete: true, removeOnFail: true }
-    );
-    taskQueue.close();
+      const taskQueue = new Queue(
+        "stampede-response",
+        dependencies.redisConfig
+      );
+      taskQueue.add(
+        { response: "taskUpdate", payload: taskDetails },
+        { removeOnComplete: true, removeOnFail: true }
+      );
+      taskQueue.close();
+    }
   }
 
   try {
