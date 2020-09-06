@@ -2,45 +2,31 @@
 
 const checkRun = require("../lib/checkRun");
 const notification = require("../lib/notification");
+const task = require("../lib/task");
 
 /**
  * handle event
  * @param {*} body
- * @param {*} serverConf
- * @param {*} cache
+ * @param {*} dependencies
  */
-async function handle(body, serverConf, cache, scm, db, logger) {
+async function handle(body, dependencies) {
   // Parse the incoming body into the parts we care about
   const event = parseEvent(body);
-  logger.info("CheckRunEvent:");
-  if (serverConf.logLevel === "verbose") {
-    logger.verbose(JSON.stringify(event, null, 2));
+  dependencies.logger.info("CheckRunEvent:");
+  if (dependencies.serverConfig.logLevel === "verbose") {
+    dependencies.logger.verbose(JSON.stringify(event, null, 2));
   }
   notification.repositoryEventReceived("check_run", event);
 
   // Ignore check_suite events not for this app
-  if (event.appID !== parseInt(serverConf.githubAppID)) {
+  if (event.appID !== parseInt(dependencies.serverConfig.githubAppID)) {
     return { status: "ignored, not our app id" };
   }
 
-  await db.storeRepository(event.owner, event.repo);
+  await dependencies.db.storeRepository(event.owner, event.repo);
 
   if (event.action === "rerequested") {
-    for (let index = 0; index < event.pullRequests.length; index++) {
-      await checkRun.createCheckRun(
-        event.owner,
-        event.repo,
-        event.sha,
-        event.pullRequests[index],
-        event.cloneURL,
-        event.sshURL,
-        scm,
-        cache,
-        serverConf,
-        db,
-        logger
-      );
-    }
+    await requeueTask(event.checkRunID, dependencies);
   } else if (event.action === "requested_action") {
     for (let index = 0; index < event.pullRequests.length; index++) {
       await checkRun.createCheckRunForAction(
@@ -52,18 +38,91 @@ async function handle(body, serverConf, cache, scm, db, logger) {
         event.sshURL,
         event.actionID,
         event.externalID,
-        scm,
-        cache,
-        serverConf,
-        db,
-        logger
+        dependencies.scm,
+        dependencies.cache,
+        dependencies.serverConfig,
+        dependencies.db,
+        dependencies.logger
       );
     }
   } else {
-    logger.verbose("ignoring check run, not a rerequested one");
+    dependencies.logger.verbose("ignoring check run, not a rerequested one");
     return { status: "check run ignored as it was not a rerequested check" };
   }
   return { status: "check runs created" };
+}
+
+async function requeueTask(taskID, dependencies) {
+  const taskRows = await dependencies.db.fetchTask(taskID);
+  const existingTask = taskRows.rows[0];
+  if (existingTask != null) {
+    const detailsRows = await dependencies.db.fetchTaskDetails(
+      req.query.taskID
+    );
+    const taskDetails = detailsRows.rows[0].details;
+    const buildRows = await dependencies.db.fetchBuild(existingTask.build_id);
+    const build = buildRows.rows[0];
+
+    const buildTasks = await dependencies.db.fetchBuildTasks(
+      existingTask.build_id
+    );
+    const taskNumber = buildTasks.rows.length + 1;
+    const buildPath =
+      build.owner + "-" + build.repository + "-" + build.build_key;
+
+    let sha = "";
+    if (taskDetails.scm.branch != null) {
+      sha = taskDetails.scm.branch.sha;
+    } else if (taskDetails.scm.release != null) {
+      sha = taskDetails.scm.release.sha;
+    } else if (taskDetails.scm.pullRequest != null) {
+      sha = taskDetails.scm.pullRequest.head.sha;
+    }
+
+    const accessToken = await dependencies.scm.getAccessToken(
+      build.owner,
+      build.repository,
+      dependencies.serverConfig
+    );
+    taskDetails.scm.accessToken = accessToken;
+
+    const buildConfig = {
+      config: {},
+    };
+
+    const repoConfig = {
+      config: {},
+    };
+
+    const requeuedTask = {
+      id: taskDetails.task.id,
+      config: {},
+    };
+
+    Object.keys(taskDetails.config).forEach(function (key) {
+      requeuedTask.config[key] = taskDetails.config[key].value;
+    });
+
+    task.startSingleTask(
+      build.owner,
+      build.repository,
+      build.build_key,
+      sha,
+      requeuedTask,
+      taskNumber,
+      buildPath,
+      build.build,
+      dependencies.scm,
+      taskDetails.scm,
+      taskDetails.taskQueue,
+      dependencies.cache,
+      repoConfig,
+      buildConfig,
+      dependencies.serverConfig,
+      dependencies.db,
+      dependencies.logger
+    );
+  }
 }
 
 /**
