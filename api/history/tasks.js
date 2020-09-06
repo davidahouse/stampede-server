@@ -52,7 +52,11 @@ async function handle(req, res, dependencies) {
     nodeFilter,
     sorted
   );
-  res.send(tasks.rows);
+  if (tasks != null) {
+    res.send(tasks.rows);
+  } else {
+    res.send([]);
+  }
 }
 
 /**

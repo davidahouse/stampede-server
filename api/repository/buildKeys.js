@@ -23,14 +23,18 @@ async function handle(req, res, dependencies) {
     repository,
     source
   );
-  const details = await buildKeyList(
-    owner,
-    repository,
-    uniqueBuildKeys(buildKeys.rows),
-    dependencies
-  );
+  if (buildKeys != null) {
+    const details = await buildKeyList(
+      owner,
+      repository,
+      uniqueBuildKeys(buildKeys.rows),
+      dependencies
+    );
 
-  res.send(details);
+    res.send(details);
+  } else {
+    res.send([]);
+  }
 }
 
 function uniqueBuildKeys(buildKeys) {

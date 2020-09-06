@@ -31,7 +31,7 @@ async function handle(req, res, dependencies) {
       currentRepositoryBuilds[index]
     );
 
-    if (recentBuild.rows.length > 0) {
+    if (recentBuild != null && recentBuild.rows.length > 0) {
       repositoryBuilds.push({
         build: currentRepositoryBuilds[index],
         lastExecuted: recentBuild.rows[0].started_at,
