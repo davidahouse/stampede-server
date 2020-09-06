@@ -6,25 +6,24 @@ const notification = require("../lib/notification");
 /**
  * handle event
  * @param {*} body
- * @param {*} serverConf
- * @param {*} cache
+ * @param {*} dependencies
  * @return {Object} response to the event
  */
-async function handle(body, serverConf, cache, scm, db, logger) {
+async function handle(body, dependencies) {
   // Parse the incoming body into the parts we care about
   const event = parseEvent(body);
-  logger.info("CheckSuiteEvent:");
-  if (serverConf.logLevel === "verbose") {
-    logger.verbose(JSON.stringify(event, null, 2));
+  dependencies.logger.info("CheckSuiteEvent:");
+  if (dependencies.serverConfig.logLevel === "verbose") {
+    dependencies.logger.verbose(JSON.stringify(event, null, 2));
   }
   notification.repositoryEventReceived("check_suite", event);
 
   // Ignore check_suite events not for this app
-  if (event.appID !== parseInt(serverConf.githubAppID)) {
+  if (event.appID !== parseInt(dependencies.serverConfig.githubAppID)) {
     return { status: "ignored, not our app id" };
   }
 
-  await db.storeRepository(event.owner, event.repo);
+  await dependencies.db.storeRepository(event.owner, event.repo);
 
   // Ignore actions we don't care about
   if (event.action !== "rerequested") {
@@ -40,11 +39,11 @@ async function handle(body, serverConf, cache, scm, db, logger) {
       event.pullRequests[index],
       event.cloneURL,
       event.sshURL,
-      scm,
-      cache,
-      serverConf,
-      db,
-      logger
+      dependencies.scm,
+      dependencies.cache,
+      dependencies.serverConfig,
+      dependencies.db,
+      dependencies.logger
     );
   }
   return { status: "check runs created" };

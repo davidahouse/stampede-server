@@ -9,20 +9,20 @@ const notification = require("../lib/notification");
 /**
  * handle event
  * @param {*} req
- * @param {*} serverConf
- * @param {*} cache
- * @param {*} scm
+ * @param {*} dependencies
  */
-async function handle(body, serverConf, cache, scm, db, logger) {
+async function handle(body, dependencies) {
   // Parse the incoming body into the parts we care about
   const event = parseEvent(body);
-  logger.info("ReleaseEvent:");
+  dependencies.logger.info("ReleaseEvent:");
   notification.repositoryEventReceived("release", event);
 
-  await db.storeRepository(event.owner, event.repo);
+  await dependencies.db.storeRepository(event.owner, event.repo);
 
   if (event.action !== "published") {
-    logger.verbose("Ignoring as the release is not marked as published");
+    dependencies.logger.verbose(
+      "Ignoring as the release is not marked as published"
+    );
     return { status: "not a published release, ignoring" };
   }
 
@@ -30,45 +30,51 @@ async function handle(body, serverConf, cache, scm, db, logger) {
   // case, we need to just try and find the sha from the target branch
   let ref = "";
   if (event.draft === true) {
-    logger.verbose("Trying to find head sha for branch " + event.target);
+    dependencies.logger.verbose(
+      "Trying to find head sha for branch " + event.target
+    );
     ref = "heads/" + event.target;
   } else {
-    logger.verbose("Trying to find sha for " + event.tag);
+    dependencies.logger.verbose("Trying to find sha for " + event.tag);
     ref = "tags/" + event.tag;
   }
 
-  const tagInfo = await scm.getTagInfo(
+  const tagInfo = await dependencies.scm.getTagInfo(
     event.owner,
     event.repo,
     ref,
-    serverConf
+    dependencies.serverConfig
   );
   if (tagInfo.data.object == null || tagInfo.data.object.sha == null) {
-    logger.verbose("Unable to find sha for tag, unlable to continue");
+    dependencies.logger.verbose(
+      "Unable to find sha for tag, unlable to continue"
+    );
     return { status: "unable to find sha for this tag" };
   }
 
   const sha = tagInfo.data.object.sha;
-  logger.verbose("Found sha: " + sha);
+  dependencies.logger.verbose("Found sha: " + sha);
 
   const repoConfig = await config.findRepoConfig(
     event.owner,
     event.repo,
     sha,
-    serverConf.stampedeFileName,
-    scm,
-    cache,
-    serverConf
+    dependencies.serverConfig.stampedeFileName,
+    dependencies.scm,
+    dependencies.cache,
+    dependencies.serverConfig
   );
   if (repoConfig == null) {
-    logger.verbose(
+    dependencies.logger.verbose(
       "Unable to determine config, no found in Redis or the project. Unable to continue"
     );
     return { status: "config not found" };
   }
 
   if (repoConfig.releases == null) {
-    logger.verbose("No release builds configured, unable to continue.");
+    dependencies.logger.verbose(
+      "No release builds configured, unable to continue."
+    );
     return { status: "releases config not found" };
   }
 
@@ -77,12 +83,14 @@ async function handle(body, serverConf, cache, scm, db, logger) {
       ? repoConfig.releases.draft
       : repoConfig.releases.published;
   if (releaseConfig == null) {
-    logger.verbose("No release config found under draft or published.");
+    dependencies.logger.verbose(
+      "No release config found under draft or published."
+    );
     return { status: "releases config not found" };
   }
 
   if (releaseConfig.tasks.length === 0) {
-    logger.verbose("Task list was empty. Unable to continue.");
+    dependencies.logger.verbose("Task list was empty. Unable to continue.");
     return { status: "task list was empty" };
   }
 
@@ -95,7 +103,7 @@ async function handle(body, serverConf, cache, scm, db, logger) {
   };
 
   const scmDetails = {
-    id: serverConf.scm,
+    id: dependencies.serverConfig.scm,
     cloneURL: event.cloneURL,
     sshURL: event.sshURL,
     release: {
@@ -108,16 +116,16 @@ async function handle(body, serverConf, cache, scm, db, logger) {
 
   build.startBuild(
     buildDetails,
-    scm,
+    dependencies.scm,
     scmDetails,
     repoConfig,
     releaseConfig,
     releaseConfig.tasks,
     [],
-    cache,
-    serverConf,
-    db,
-    logger,
+    dependencies.cache,
+    dependencies.serverConfig,
+    dependencies.db,
+    dependencies.logger,
     "release"
   );
   return { status: "tasks created for the release" };

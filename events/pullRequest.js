@@ -8,19 +8,18 @@ const build = require("../lib/build");
 /**
  * handle event
  * @param {*} body
- * @param {*} serverConf
- * @param {*} cache
+ * @param {*} dependencies
  */
-async function handle(body, serverConf, cache, scm, db, logger) {
+async function handle(body, dependencies) {
   // Parse the incoming body into the parts we care about
   const event = parseEvent(body);
-  logger.info("PullRequestEvent:");
-  if (serverConf.logLevel === "verbose") {
-    logger.verbose(JSON.stringify(event, null, 2));
+  dependencies.logger.info("PullRequestEvent:");
+  if (dependencies.serverConfig.logLevel === "verbose") {
+    dependencies.logger.verbose(JSON.stringify(event, null, 2));
   }
   notification.repositoryEventReceived("pull_request", event);
 
-  await db.storeRepository(event.owner, event.repo);
+  await dependencies.db.storeRepository(event.owner, event.repo);
 
   if (
     event.action === "opened" ||
@@ -34,11 +33,11 @@ async function handle(body, serverConf, cache, scm, db, logger) {
       event.pullRequest,
       event.cloneURL,
       event.sshURL,
-      scm,
-      cache,
-      serverConf,
-      db,
-      logger
+      dependencies.scm,
+      dependencies.cache,
+      dependencies.serverConfig,
+      dependencies.db,
+      dependencies.logger
     );
     return { status: "pull request tasks created" };
   } else if (event.action === "edited") {
@@ -49,11 +48,11 @@ async function handle(body, serverConf, cache, scm, db, logger) {
       event.pullRequest,
       event.cloneURL,
       event.sshURL,
-      scm,
-      cache,
-      serverConf,
-      db,
-      logger
+      dependencies.scm,
+      dependencies.cache,
+      dependencies.serverConfig,
+      dependencies.db,
+      dependencies.logger
     );
   } else {
     return { status: "ignored, pull request not opened or reopened" };
@@ -163,7 +162,7 @@ async function pullRequestEdit(
   };
 
   const scmDetails = {
-    id: serverConf.scm,
+    id: dependencies.serverConfig.scm,
     cloneURL: cloneURL,
     sshURL: sshURL,
     pullRequest: pullRequestDetails,
