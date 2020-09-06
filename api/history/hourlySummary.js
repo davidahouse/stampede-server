@@ -16,20 +16,24 @@ function path() {
 async function handle(req, res, dependencies) {
   const buildSummary = await dependencies.db.summarizeHourlyBuilds();
   const builds = [];
-  for (let index = 0; index < buildSummary.rows.length; index++) {
-    builds.push({
-      hour: buildSummary.rows[index].hour,
-      count: buildSummary.rows[index].count,
-    });
+  if (buildSummary != null) {
+    for (let index = 0; index < buildSummary.rows.length; index++) {
+      builds.push({
+        hour: buildSummary.rows[index].hour,
+        count: buildSummary.rows[index].count,
+      });
+    }
   }
 
   const taskSummary = await dependencies.db.summarizeHourlyTasks();
   const tasks = [];
-  for (let index = 0; index < taskSummary.rows.length; index++) {
-    tasks.push({
-      hour: taskSummary.rows[index].hour,
-      count: taskSummary.rows[index].count,
-    });
+  if (taskSummary != null) {
+    for (let index = 0; index < taskSummary.rows.length; index++) {
+      tasks.push({
+        hour: taskSummary.rows[index].hour,
+        count: taskSummary.rows[index].count,
+      });
+    }
   }
   res.send({ builds: builds, tasks: tasks });
 }
