@@ -26,7 +26,7 @@ async function handle(body, dependencies) {
   await dependencies.db.storeRepository(event.owner, event.repo);
 
   if (event.action === "rerequested") {
-    await requeueTask(event.checkRunID, dependencies);
+    await requeueTask(event.externalID, dependencies);
   } else if (event.action === "requested_action") {
     for (let index = 0; index < event.pullRequests.length; index++) {
       await checkRun.createCheckRunForAction(
