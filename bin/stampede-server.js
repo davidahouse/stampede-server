@@ -3,7 +3,6 @@
 const clear = require("clear");
 const figlet = require("figlet");
 const fs = require("fs");
-const cache = require("stampede-cache");
 const os = require("os");
 require("pkginfo")(module);
 const viewsPath = __dirname + "/../views/";
@@ -18,6 +17,7 @@ const db = require("../lib/db");
 const incomingHandler = require("../lib/incomingHandler");
 const retentionHandler = require("../lib/retentionHandler");
 const buildScheduleHandler = require("../lib/buildScheduleHandler");
+const cache = require("../lib/cache/cache");
 
 const fiveMinuteInterval = 1000 * 60 * 5;
 const conf = require("rc")("stampede", {
@@ -168,7 +168,7 @@ if (conf.handleResponseQueue === "enabled") {
   // made back into GitHub
   responseQueue = taskQueue.createTaskQueue("stampede-" + conf.responseQueue);
   responseQueue.on("error", function (error) {
-    logger.error("Error from response queue: " + error);
+    // logger.error("Error from response queue: " + error);
   });
 
   responseQueue.process(function (job) {
@@ -185,7 +185,7 @@ let incomingQueue = null;
 if (conf.handleIncomingQueue === "enabled") {
   incomingQueue = taskQueue.createTaskQueue("stampede-" + conf.incomingQueue);
   incomingQueue.on("error", function (error) {
-    logger.error("Error from incoming queue: " + error);
+    // logger.error("Error from incoming queue: " + error);
   });
 
   incomingQueue.process(function (job) {
@@ -208,8 +208,12 @@ async function gracefulShutdown() {
   if (responseQueue != null) {
     await responseQueue.close();
   }
+  if (incomingQueue != null) {
+    await incomingQueue.close();
+  }
   await db.stop();
   await cache.stopCache();
+  await web.stop();
   process.exit(0);
 }
 
@@ -243,4 +247,4 @@ const dependencies = {
   incomingQueue: incomingQueue,
 };
 
-web.startRESTApi(dependencies);
+web.start(dependencies);
