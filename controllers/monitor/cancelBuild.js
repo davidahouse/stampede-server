@@ -1,3 +1,5 @@
+const Queue = require("bull");
+
 /**
  * path this handler will serve
  */
@@ -14,23 +16,25 @@ function path() {
 async function handle(req, res, dependencies, owners) {
   const buildID = req.query.buildID;
   await dependencies.cache.removeBuildFromActiveList(buildID);
+
   const remainingTasks = await dependencies.cache.fetchActiveTasks(buildID);
   for (let index = 0; index < remainingTasks.length; index++) {
-    await dependencies.cache.removeTaskFromActiveList(
-      buildID,
+    const detailsRows = await dependencies.db.fetchTaskDetails(
       remainingTasks[index]
     );
-    try {
-      await dependencies.db.storeTaskCompleted(
-        remainingTasks[index],
-        "cancelled",
-        new Date(),
-        new Date(),
-        "cancelled"
-      );
-    } catch (e) {
-      logger.error("Error storing task completed details: " + e);
-    }
+    const taskDetails = detailsRows.rows[0].details;
+    taskDetails.stats.finished_at = new Date();
+    taskDetails.status = "completed";
+    taskDetails.result = {
+      conclusion: "cancelled",
+    };
+
+    const taskQueue = new Queue("stampede-response", dependencies.redisConfig);
+    taskQueue.add(
+      { response: "taskUpdate", payload: taskDetails },
+      { removeOnComplete: true, removeOnFail: true }
+    );
+    taskQueue.close();
   }
 
   try {

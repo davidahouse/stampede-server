@@ -17,16 +17,18 @@ async function handle(req, res, dependencies, owners) {
   const queueList = await dependencies.cache.systemQueues.fetchSystemQueues();
   const queues = [];
 
-  for (let index = 0; index < queueList.length; index++) {
-    const q = new Queue(
-      "stampede-" + queueList[index].id,
-      dependencies.redisConfig
-    );
-    const stats = await q.getJobCounts();
-    queues.push({
-      queue: queueList[index].id,
-      stats: stats,
-    });
+  if (queueList != null) {
+    for (let index = 0; index < queueList.length; index++) {
+      const q = new Queue(
+        "stampede-" + queueList[index].id,
+        dependencies.redisConfig
+      );
+      const stats = await q.getJobCounts();
+      queues.push({
+        queue: queueList[index].id,
+        stats: stats,
+      });
+    }
   }
   res.render(dependencies.viewsPath + "monitor/queues", {
     owners: owners,

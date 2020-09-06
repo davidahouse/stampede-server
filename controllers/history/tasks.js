@@ -25,7 +25,7 @@ async function handle(req, res, dependencies, owners) {
   }
 
   const taskList = await dependencies.cache.fetchTasks();
-  const sortedTasks = taskList.sort();
+  const sortedTasks = taskList != null ? taskList.sort() : [];
   sortedTasks.unshift("All");
 
   let repositoryFilter = "All";
