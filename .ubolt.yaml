@@ -18,3 +18,6 @@ dockerpush:
     - docker push davidahouse/stampede-server
     - docker build -t davidahouse/stampede-server:$1 .
     - docker push davidahouse/stampede-server:$1
+tailwind:
+  command: npx tailwindcss build css/tailwind.css -o public/css/styles.css
+  description: Update the styles.css with the latest tailwind installed
