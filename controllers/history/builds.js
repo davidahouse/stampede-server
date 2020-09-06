@@ -22,16 +22,19 @@ async function handle(req, res, dependencies, owners) {
     buildKeyFilter = req.query.buildKey;
   }
 
-  const buildKeyRows = await dependencies.db.fetchRecentBuildKeys(timeFilter);
+  let repositoryFilter = "All";
+  if (req.query.repository != null) {
+    repositoryFilter = req.query.repository;
+  }
+
+  const buildKeyRows = await dependencies.db.fetchRecentBuildKeys(
+    timeFilter,
+    repositoryFilter
+  );
   let buildKeyList = [];
   buildKeyList.push("All");
   for (let index = 0; index < buildKeyRows.rows.length; index++) {
     buildKeyList.push(buildKeyRows.rows[index].build_key);
-  }
-
-  let repositoryFilter = "All";
-  if (req.query.repository != null) {
-    repositoryFilter = req.query.repository;
   }
 
   const repositoriesRows = await dependencies.db.fetchRepositories();
