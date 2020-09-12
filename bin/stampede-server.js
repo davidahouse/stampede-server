@@ -12,6 +12,7 @@ const winston = require("winston");
 const web = require("../lib/web");
 const taskQueue = require("../lib/taskQueue");
 const taskUpdate = require("../lib/taskUpdate");
+const taskArtifact = require("../lib/taskArtifact");
 const notification = require("../lib/notification");
 const db = require("../lib/db");
 const incomingHandler = require("../lib/incomingHandler");
@@ -174,6 +175,8 @@ if (conf.handleResponseQueue === "enabled") {
   responseQueue.process(function (job) {
     if (job.data.response === "taskUpdate") {
       return taskUpdate.handle(job.data.payload, conf, cache, scm, db, logger);
+    } else if (job.data.response === "taskArtifact") {
+      return taskArtifact.handle(job.data.payload, dependencies);
     } else if (job.data.response === "heartbeat") {
       cache.storeWorkerHeartbeat(job.data.payload);
       notification.workerHeartbeat(job.data.payload);

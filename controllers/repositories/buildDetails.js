@@ -47,6 +47,12 @@ async function handle(req, res, dependencies, owners) {
         artifacts.push(taskResultDetails.details.result.artifacts[aindex]);
       }
     }
+    const artifactRows = await dependencies.db.fetchTaskArtifacts(task.task_id);
+    if (artifactRows != null && artifactRows.rows != null) {
+      for (let aindex = 0; aindex < artifactRows.rows.length; aindex++) {
+        artifacts.push(artifactRows.rows[aindex]);
+      }
+    }
   }
   res.render(dependencies.viewsPath + "repositories/buildDetails", {
     owners: owners,

@@ -99,6 +99,15 @@ async function handle(req, res, dependencies, owners) {
       });
     }
 
+    const artifactRows = await dependencies.db.fetchTaskArtifacts(
+      req.query.taskID
+    );
+    if (artifactRows != null && artifactRows.rows != null) {
+      for (let aindex = 0; aindex < artifactRows.rows.length; aindex++) {
+        artifacts.push(artifactRows.rows[aindex]);
+      }
+    }
+
     res.render(dependencies.viewsPath + "monitor/buildTaskDetails", {
       owners: owners,
       isAdmin: req.validAdminSession,

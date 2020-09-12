@@ -92,6 +92,15 @@ async function handle(req, res, dependencies, owners) {
         });
       }
     }
+    const artifactRows = await dependencies.db.fetchTaskArtifacts(
+      req.query.taskID
+    );
+    if (artifactRows != null && artifactRows.rows != null) {
+      for (let aindex = 0; aindex < artifactRows.rows.length; aindex++) {
+        artifacts.push(artifactRows.rows[aindex]);
+      }
+    }
+
     const buildRows = await dependencies.db.fetchBuild(task.build_id);
     const build = buildRows.rows[0];
 
