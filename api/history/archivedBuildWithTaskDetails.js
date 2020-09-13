@@ -29,6 +29,17 @@ async function handle(req, res, dependencies) {
         if (detailsRows.rows.length > 0) {
           task.details = detailsRows.rows[0].details;
         }
+        const artifactRows = await dependencies.db.fetchTaskArtifacts(
+          task.task_id
+        );
+        if (artifactRows != null && artifactRows.rows.length > 0) {
+          if (task.artifacts == null) {
+            task.artifacts = [];
+          }
+          for (let aindex = 0; aindex < artifactRows.rows.length; aindex++) {
+            task.artifacts.push(artifactRows.rows[aindex]);
+          }
+        }
         tasks.push(task);
       }
       found.tasks = tasks;

@@ -20,6 +20,7 @@ function method() {
 async function handle(req, res, dependencies) {
   const buildID = req.query.buildID;
   await dependencies.db.removeTaskDetails(buildID);
+  await dependencies.db.removeTaskArtifacts(buildID);
   res.send({ status: "OK" });
 }
 
