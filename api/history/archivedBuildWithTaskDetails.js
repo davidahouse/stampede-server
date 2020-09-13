@@ -33,11 +33,11 @@ async function handle(req, res, dependencies) {
           task.task_id
         );
         if (artifactRows != null && artifactRows.rows.length > 0) {
-          if (task.details.artifacts == null) {
-            task.details.artifacts = [];
+          if (task.artifacts == null) {
+            task.artifacts = [];
           }
           for (let aindex = 0; aindex < artifactRows.rows.length; aindex++) {
-            task.details.artifacts.push(artifactRows.rows[aindex]);
+            task.artifacts.push(artifactRows.rows[aindex]);
           }
         }
         tasks.push(task);
