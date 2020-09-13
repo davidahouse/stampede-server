@@ -54,11 +54,12 @@ async function handle(body, dependencies) {
 
 async function requeueTask(taskID, dependencies) {
   const taskRows = await dependencies.db.fetchTask(taskID);
+  if (taskRows == null) {
+    return;
+  }
   const existingTask = taskRows.rows[0];
   if (existingTask != null) {
-    const detailsRows = await dependencies.db.fetchTaskDetails(
-      req.query.taskID
-    );
+    const detailsRows = await dependencies.db.fetchTaskDetails(taskID);
     const taskDetails = detailsRows.rows[0].details;
     const buildRows = await dependencies.db.fetchBuild(existingTask.build_id);
     const build = buildRows.rows[0];
