@@ -19,6 +19,7 @@ const incomingHandler = require("../lib/incomingHandler");
 const retentionHandler = require("../lib/retentionHandler");
 const buildScheduleHandler = require("../lib/buildScheduleHandler");
 const cache = require("../lib/cache/cache");
+const slack = require("../lib/notificationChannels/slack");
 
 const fiveMinuteInterval = 1000 * 60 * 5;
 const conf = require("rc")("stampede", {
@@ -73,6 +74,8 @@ const conf = require("rc")("stampede", {
   defaultReleaseBuildRetentionDays: 3000,
   // API Docs
   enableApiDocs: false,
+  // Notification channels
+  handleSlackNotifications: "disabled",
 });
 
 // Configure winston logging
@@ -193,6 +196,26 @@ if (conf.handleIncomingQueue === "enabled") {
 
   incomingQueue.process(function (job) {
     return incomingHandler.handle(job.data, dependencies);
+  });
+}
+
+let slackNotificationQueue = null;
+if (conf.handleSlackNotifications === "enabled") {
+  // Start our own queue that listens for updates that need to get
+  // made back into GitHub
+  slackNotificationQueue = taskQueue.createTaskQueue(
+    "stampede-slack-notifications"
+  );
+  slackNotificationQueue.on("error", function (error) {
+    // logger.error("Error from response queue: " + error);
+  });
+
+  slackNotificationQueue.process(function (job) {
+    try {
+      slack.sendNotification(job.data, dependencies);
+    } catch (e) {
+      logger.error("Error handling slack notification: " + e);
+    }
   });
 }
 
