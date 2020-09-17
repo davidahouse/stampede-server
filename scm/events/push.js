@@ -2,9 +2,9 @@
 
 const sanitize = require("sanitize-filename");
 
-const config = require("../lib/config");
-const build = require("../lib/build");
-const notification = require("../lib/notification");
+const config = require("../../lib/config");
+const build = require("../../lib/build");
+const notification = require("../../lib/notification");
 
 /**
  * handle event

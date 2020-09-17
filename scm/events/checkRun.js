@@ -1,8 +1,8 @@
 "use strict";
 
-const checkRun = require("../lib/checkRun");
-const notification = require("../lib/notification");
-const task = require("../lib/task");
+const checkRun = require("../../lib/checkRun");
+const notification = require("../../lib/notification");
+const task = require("../../lib/task");
 
 /**
  * handle event
