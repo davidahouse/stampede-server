@@ -1,11 +1,35 @@
 "use strict";
 
+const taskQueue = require("../lib/taskQueue");
+
 // Event handlers
 const checkSuiteEvent = require("../scm/events/checkSuite");
 const checkRunEvent = require("../scm/events/checkRun");
 const pullRequestEvent = require("../scm/events/pullRequest");
 const pushEvent = require("../scm/events/push");
 const releaseEvent = require("../scm/events/release");
+
+let incomingQueue = null;
+
+/**
+ * start
+ * @param {*} dependencies
+ */
+function start(dependencies) {
+  if (dependencies.serverConfig.handleIncomingQueue === "enabled") {
+    incomingQueue = taskQueue.createTaskQueue(
+      "stampede-" + dependencies.serverConfig.incomingQueue
+    );
+    incomingQueue.on("error", function (error) {
+      // logger.error("Error from incoming queue: " + error);
+    });
+
+    incomingQueue.process(function (job) {
+      return handle(job.data, dependencies);
+    });
+  }
+  return incomingQueue;
+}
 
 /**
  * handle task update
@@ -30,4 +54,12 @@ async function handle(job, dependencies) {
   }
 }
 
-module.exports.handle = handle;
+/**
+ * shutdown
+ */
+async function shutdown() {
+  await incomingQueue.close();
+}
+
+module.exports.start = start;
+module.exports.shutdown = shutdown;

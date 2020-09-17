@@ -17,10 +17,10 @@ const web = require("../services/web");
 const notification = require("../services/notification");
 const responseQueue = require("../services/responseQueue");
 const slackNotificationQueue = require("../services/slackNotificationQueue");
+const incomingQueue = require("../services/incomingQueue");
 
 // Other libs
 const taskQueue = require("../lib/taskQueue");
-const incomingHandler = require("../lib/incomingHandler");
 const retentionHandler = require("../lib/retentionHandler");
 const buildScheduleHandler = require("../lib/buildScheduleHandler");
 
@@ -163,18 +163,6 @@ if (conf.scm === "github") {
 }
 scm.verifyCredentials(conf, logger);
 
-let incomingQueue = null;
-if (conf.handleIncomingQueue === "enabled") {
-  incomingQueue = taskQueue.createTaskQueue("stampede-" + conf.incomingQueue);
-  incomingQueue.on("error", function (error) {
-    // logger.error("Error from incoming queue: " + error);
-  });
-
-  incomingQueue.process(function (job) {
-    return incomingHandler.handle(job.data, dependencies);
-  });
-}
-
 /**
  * Handle shutdown gracefully
  */
@@ -189,9 +177,7 @@ async function gracefulShutdown() {
   logger.verbose("Closing queues");
   await responseQueue.shutdown();
   await slackNotificationQueue.shutdown();
-  if (incomingQueue != null) {
-    await incomingQueue.close();
-  }
+  await incomingQueue.shutdown();
   await db.stop();
   await cache.stopCache();
   await web.stop();
@@ -225,10 +211,11 @@ const dependencies = {
   redisConfig: redisConfig,
   viewsPath: viewsPath,
   logger: logger,
-  incomingQueue: incomingQueue,
 };
 
 // Start all our services
+let incomingEventQueue = incomingQueue.start(dependencies);
+dependencies.incomingQueue = incomingEventQueue;
 notification.start(dependencies);
 responseQueue.start(dependencies);
 slackNotificationQueue.start(dependencies);
