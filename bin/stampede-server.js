@@ -15,15 +15,14 @@ const cache = require("../lib/cache/cache");
 // Services
 const web = require("../services/web");
 const notification = require("../services/notification");
+const responseQueue = require("../services/responseQueue");
+const slackNotificationQueue = require("../services/slackNotificationQueue");
 
 // Other libs
 const taskQueue = require("../lib/taskQueue");
-const taskUpdate = require("../lib/taskUpdate");
-const taskArtifact = require("../lib/taskArtifact");
 const incomingHandler = require("../lib/incomingHandler");
 const retentionHandler = require("../lib/retentionHandler");
 const buildScheduleHandler = require("../lib/buildScheduleHandler");
-const slack = require("../lib/notificationChannels/slack");
 
 const fiveMinuteInterval = 1000 * 60 * 5;
 const conf = require("rc")("stampede", {
@@ -164,27 +163,6 @@ if (conf.scm === "github") {
 }
 scm.verifyCredentials(conf, logger);
 
-let responseQueue = null;
-if (conf.handleResponseQueue === "enabled") {
-  // Start our own queue that listens for updates that need to get
-  // made back into GitHub
-  responseQueue = taskQueue.createTaskQueue("stampede-" + conf.responseQueue);
-  responseQueue.on("error", function (error) {
-    // logger.error("Error from response queue: " + error);
-  });
-
-  responseQueue.process(function (job) {
-    if (job.data.response === "taskUpdate") {
-      return taskUpdate.handle(job.data.payload, conf, cache, scm, db, logger);
-    } else if (job.data.response === "taskArtifact") {
-      return taskArtifact.handle(job.data.payload, dependencies);
-    } else if (job.data.response === "heartbeat") {
-      cache.storeWorkerHeartbeat(job.data.payload);
-      notification.workerHeartbeat(job.data.payload);
-    }
-  });
-}
-
 let incomingQueue = null;
 if (conf.handleIncomingQueue === "enabled") {
   incomingQueue = taskQueue.createTaskQueue("stampede-" + conf.incomingQueue);
@@ -194,26 +172,6 @@ if (conf.handleIncomingQueue === "enabled") {
 
   incomingQueue.process(function (job) {
     return incomingHandler.handle(job.data, dependencies);
-  });
-}
-
-let slackNotificationQueue = null;
-if (conf.handleSlackNotifications === "enabled") {
-  // Start our own queue that listens for updates that need to get
-  // made back into GitHub
-  slackNotificationQueue = taskQueue.createTaskQueue(
-    "stampede-slack-notifications"
-  );
-  slackNotificationQueue.on("error", function (error) {
-    // logger.error("Error from response queue: " + error);
-  });
-
-  slackNotificationQueue.process(function (job) {
-    try {
-      slack.sendNotification(job.data, dependencies);
-    } catch (e) {
-      logger.error("Error handling slack notification: " + e);
-    }
   });
 }
 
@@ -229,9 +187,8 @@ process.on("SIGINT", function () {
  */
 async function gracefulShutdown() {
   logger.verbose("Closing queues");
-  if (responseQueue != null) {
-    await responseQueue.close();
-  }
+  await responseQueue.shutdown();
+  await slackNotificationQueue.shutdown();
   if (incomingQueue != null) {
     await incomingQueue.close();
   }
@@ -273,4 +230,6 @@ const dependencies = {
 
 // Start all our services
 notification.start(dependencies);
+responseQueue.start(dependencies);
+slackNotificationQueue.start(dependencies);
 web.start(dependencies);
