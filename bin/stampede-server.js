@@ -8,17 +8,19 @@ require("pkginfo")(module);
 const viewsPath = __dirname + "/../views/";
 const winston = require("winston");
 
-// Internal modules
-const web = require("../lib/web");
+// Dependencies
+const db = require("../lib/db");
+const cache = require("../lib/cache/cache");
+
+// Services
+const web = require("../services/web");
 const taskQueue = require("../lib/taskQueue");
 const taskUpdate = require("../lib/taskUpdate");
 const taskArtifact = require("../lib/taskArtifact");
 const notification = require("../lib/notification");
-const db = require("../lib/db");
 const incomingHandler = require("../lib/incomingHandler");
 const retentionHandler = require("../lib/retentionHandler");
 const buildScheduleHandler = require("../lib/buildScheduleHandler");
-const cache = require("../lib/cache/cache");
 const slack = require("../lib/notificationChannels/slack");
 
 const fiveMinuteInterval = 1000 * 60 * 5;

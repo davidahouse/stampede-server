@@ -12,7 +12,7 @@ function router(dependencies) {
 
   // Find all the UI Controllers and add their routes
   glob
-    .sync(__dirname + "/../controllers/**/*.js")
+    .sync(__dirname + "/../../controllers/**/*.js")
     .map((filename) => require(`${filename}`))
     .forEach((handler) => {
       if (handler.path != null) {
