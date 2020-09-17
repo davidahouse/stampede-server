@@ -8,18 +8,21 @@ require("pkginfo")(module);
 const viewsPath = __dirname + "/../views/";
 const winston = require("winston");
 
-// Internal modules
-const web = require("../lib/web");
-const taskQueue = require("../lib/taskQueue");
-const taskUpdate = require("../lib/taskUpdate");
-const taskArtifact = require("../lib/taskArtifact");
-const notification = require("../lib/notification");
+// Dependencies
 const db = require("../lib/db");
-const incomingHandler = require("../lib/incomingHandler");
+const cache = require("../lib/cache/cache");
+
+// Services
+const web = require("../services/web");
+const notification = require("../services/notification");
+const responseQueue = require("../services/responseQueue");
+const slackNotificationQueue = require("../services/slackNotificationQueue");
+const incomingQueue = require("../services/incomingQueue");
+
+// Other libs
+const taskQueue = require("../lib/taskQueue");
 const retentionHandler = require("../lib/retentionHandler");
 const buildScheduleHandler = require("../lib/buildScheduleHandler");
-const cache = require("../lib/cache/cache");
-const slack = require("../lib/notificationChannels/slack");
 
 const fiveMinuteInterval = 1000 * 60 * 5;
 const conf = require("rc")("stampede", {
@@ -104,6 +107,8 @@ logger.info("SCM: " + conf.scm);
 logger.info("GitHub APP ID: " + conf.githubAppID);
 logger.info("GitHub PEM Path: " + conf.githubAppPEMPath);
 
+// Initialize all our dependencies
+
 if (conf.scm === "github") {
   // Load up our key for this GitHub app. You get this key from GitHub
   // when you create the app.
@@ -144,14 +149,6 @@ const redisConfig = {
 
 taskQueue.setRedisConfig(redisConfig);
 
-// Setup the notification queue(s)
-notification.setRedisConfig(redisConfig);
-if (conf.notificationQueues != null && conf.notificationQueues.length > 0) {
-  notification.setNotificationQueues(conf.notificationQueues.split(","));
-} else {
-  notification.setNotificationQueues([]);
-}
-
 // Setup our scm based on what is configured
 let scm = {};
 if (conf.scm === "github") {
@@ -166,59 +163,6 @@ if (conf.scm === "github") {
 }
 scm.verifyCredentials(conf, logger);
 
-let responseQueue = null;
-if (conf.handleResponseQueue === "enabled") {
-  // Start our own queue that listens for updates that need to get
-  // made back into GitHub
-  responseQueue = taskQueue.createTaskQueue("stampede-" + conf.responseQueue);
-  responseQueue.on("error", function (error) {
-    // logger.error("Error from response queue: " + error);
-  });
-
-  responseQueue.process(function (job) {
-    if (job.data.response === "taskUpdate") {
-      return taskUpdate.handle(job.data.payload, conf, cache, scm, db, logger);
-    } else if (job.data.response === "taskArtifact") {
-      return taskArtifact.handle(job.data.payload, dependencies);
-    } else if (job.data.response === "heartbeat") {
-      cache.storeWorkerHeartbeat(job.data.payload);
-      notification.workerHeartbeat(job.data.payload);
-    }
-  });
-}
-
-let incomingQueue = null;
-if (conf.handleIncomingQueue === "enabled") {
-  incomingQueue = taskQueue.createTaskQueue("stampede-" + conf.incomingQueue);
-  incomingQueue.on("error", function (error) {
-    // logger.error("Error from incoming queue: " + error);
-  });
-
-  incomingQueue.process(function (job) {
-    return incomingHandler.handle(job.data, dependencies);
-  });
-}
-
-let slackNotificationQueue = null;
-if (conf.handleSlackNotifications === "enabled") {
-  // Start our own queue that listens for updates that need to get
-  // made back into GitHub
-  slackNotificationQueue = taskQueue.createTaskQueue(
-    "stampede-slack-notifications"
-  );
-  slackNotificationQueue.on("error", function (error) {
-    // logger.error("Error from response queue: " + error);
-  });
-
-  slackNotificationQueue.process(function (job) {
-    try {
-      slack.sendNotification(job.data, dependencies);
-    } catch (e) {
-      logger.error("Error handling slack notification: " + e);
-    }
-  });
-}
-
 /**
  * Handle shutdown gracefully
  */
@@ -231,12 +175,9 @@ process.on("SIGINT", function () {
  */
 async function gracefulShutdown() {
   logger.verbose("Closing queues");
-  if (responseQueue != null) {
-    await responseQueue.close();
-  }
-  if (incomingQueue != null) {
-    await incomingQueue.close();
-  }
+  await responseQueue.shutdown();
+  await slackNotificationQueue.shutdown();
+  await incomingQueue.shutdown();
   await db.stop();
   await cache.stopCache();
   await web.stop();
@@ -270,7 +211,12 @@ const dependencies = {
   redisConfig: redisConfig,
   viewsPath: viewsPath,
   logger: logger,
-  incomingQueue: incomingQueue,
 };
 
+// Start all our services
+let incomingEventQueue = incomingQueue.start(dependencies);
+dependencies.incomingQueue = incomingEventQueue;
+notification.start(dependencies);
+responseQueue.start(dependencies);
+slackNotificationQueue.start(dependencies);
 web.start(dependencies);

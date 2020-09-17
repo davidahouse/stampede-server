@@ -4,9 +4,9 @@ const fileUpload = require("express-fileupload");
 const cookieParser = require("cookie-parser");
 
 // Routers
-const api = require("./api");
-const ui = require("./ui");
-const incoming = require("./incoming");
+const api = require("./web/api");
+const ui = require("./web/ui");
+const incoming = require("./web/incoming");
 
 let app = express();
 let server = null;

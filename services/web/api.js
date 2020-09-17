@@ -13,7 +13,7 @@ function router(dependencies) {
 
   // Find all the API handlers and add them to our Router
   glob
-    .sync(__dirname + "/../api/**/*.js")
+    .sync(__dirname + "/../../api/**/*.js")
     .map((filename) => require(`${filename}`))
     .forEach((handler) => {
       if (handler.path != null) {
