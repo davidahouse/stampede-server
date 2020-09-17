@@ -1,7 +1,7 @@
 "use strict";
 
 const checkRun = require("../../lib/checkRun");
-const notification = require("../../lib/notification");
+const notification = require("../../services/notification");
 const config = require("../../lib/config");
 const build = require("../../lib/build");
 

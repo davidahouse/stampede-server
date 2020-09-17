@@ -4,7 +4,7 @@ const sanitize = require("sanitize-filename");
 
 const config = require("../../lib/config");
 const build = require("../../lib/build");
-const notification = require("../../lib/notification");
+const notification = require("../../services/notification");
 
 /**
  * handle event

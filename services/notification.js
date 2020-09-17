@@ -8,19 +8,19 @@ let notificationQueues = [];
 // Public methods
 
 /**
- * setRedisConfig
- * @param {*} config
+ * start
+ * @param {*} dependencies
  */
-function setRedisConfig(config) {
-  redisConfig = config;
-}
-
-/**
- * setNotificationQueues
- * @param {*} queues
- */
-function setNotificationQueues(queues) {
-  notificationQueues = queues;
+function start(dependencies) {
+  redisConfig = dependencies.redisConfig;
+  if (
+    dependencies.serverConfig.notificationQueues != null &&
+    dependencies.serverConfig.notificationQueues.length > 0
+  ) {
+    notificationQueues = dependencies.serverConfig.notificationQueues.split(
+      ","
+    );
+  }
 }
 
 /**
@@ -239,8 +239,7 @@ async function sendToNotificationChannels(
   }
 }
 
-module.exports.setRedisConfig = setRedisConfig;
-module.exports.setNotificationQueues = setNotificationQueues;
+module.exports.start = start;
 module.exports.repositoryEventReceived = repositoryEventReceived;
 module.exports.buildStarted = buildStarted;
 module.exports.buildCompleted = buildCompleted;

@@ -14,10 +14,12 @@ const cache = require("../lib/cache/cache");
 
 // Services
 const web = require("../services/web");
+const notification = require("../services/notification");
+
+// Other libs
 const taskQueue = require("../lib/taskQueue");
 const taskUpdate = require("../lib/taskUpdate");
 const taskArtifact = require("../lib/taskArtifact");
-const notification = require("../lib/notification");
 const incomingHandler = require("../lib/incomingHandler");
 const retentionHandler = require("../lib/retentionHandler");
 const buildScheduleHandler = require("../lib/buildScheduleHandler");
@@ -106,6 +108,8 @@ logger.info("SCM: " + conf.scm);
 logger.info("GitHub APP ID: " + conf.githubAppID);
 logger.info("GitHub PEM Path: " + conf.githubAppPEMPath);
 
+// Initialize all our dependencies
+
 if (conf.scm === "github") {
   // Load up our key for this GitHub app. You get this key from GitHub
   // when you create the app.
@@ -145,14 +149,6 @@ const redisConfig = {
 };
 
 taskQueue.setRedisConfig(redisConfig);
-
-// Setup the notification queue(s)
-notification.setRedisConfig(redisConfig);
-if (conf.notificationQueues != null && conf.notificationQueues.length > 0) {
-  notification.setNotificationQueues(conf.notificationQueues.split(","));
-} else {
-  notification.setNotificationQueues([]);
-}
 
 // Setup our scm based on what is configured
 let scm = {};
@@ -275,4 +271,6 @@ const dependencies = {
   incomingQueue: incomingQueue,
 };
 
+// Start all our services
+notification.start(dependencies);
 web.start(dependencies);
