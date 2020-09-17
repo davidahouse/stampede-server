@@ -18,6 +18,7 @@ const notification = require("../services/notification");
 const responseQueue = require("../services/responseQueue");
 const slackNotificationQueue = require("../services/slackNotificationQueue");
 const incomingQueue = require("../services/incomingQueue");
+const prCommentNotificationQueue = require("../services/prCommentNotificationQueue");
 
 // Other libs
 const taskQueue = require("../lib/taskQueue");
@@ -79,6 +80,7 @@ const conf = require("rc")("stampede", {
   enableApiDocs: false,
   // Notification channels
   handleSlackNotifications: "disabled",
+  handlePRCommentNotifications: "disabled",
 });
 
 // Configure winston logging
@@ -177,6 +179,7 @@ async function gracefulShutdown() {
   logger.verbose("Closing queues");
   await responseQueue.shutdown();
   await slackNotificationQueue.shutdown();
+  await prCommentNotificationQueue.shutdown();
   await incomingQueue.shutdown();
   await db.stop();
   await cache.stopCache();
@@ -219,4 +222,5 @@ dependencies.incomingQueue = incomingEventQueue;
 notification.start(dependencies);
 responseQueue.start(dependencies);
 slackNotificationQueue.start(dependencies);
+prCommentNotificationQueue.start(dependencies);
 web.start(dependencies);

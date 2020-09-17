@@ -402,6 +402,45 @@ async function createStampedeCheck(
   return checkRun;
 }
 
+/**
+ * commentOnPR
+ * @param {*} owner
+ * @param {*} repo
+ * @param {*} prNumber
+ * @param {*} serverConfig
+ */
+async function commentOnPR(owner, repo, prNumber, comment, serverConfig) {
+  // Do the stuff to comment on this PR
+  const authorizedOctokit = await getAuthorizedOctokit(owner, repo, serverConf);
+
+  // Find all comments on this PR to see if there is an existing comment we can update
+  let commentID = null;
+  const comments = await authorizedOctokit.issues.listComments({
+    owner: owner,
+    repo: repo,
+    issue_number: prNumber,
+  });
+
+  // TODO: Loop through the comments and try to find any created by the app
+
+  if (commentID == null) {
+    const result = await authorizedOctokit.issues.createComment({
+      owner: owner,
+      repo: repo,
+      number: prNumber,
+      body: comment,
+    });
+  } else {
+    const result = await authorizedOctokit.issues.updateComment({
+      owner: owner,
+      repo: repo,
+      comment_id: commentID,
+      body: comment,
+    });
+  }
+  return result;
+}
+
 module.exports.verifyCredentials = verifyCredentials;
 module.exports.findRepoConfig = findRepoConfig;
 module.exports.createCheckRun = createCheckRun;
@@ -409,3 +448,4 @@ module.exports.updateCheck = updateCheck;
 module.exports.getTagInfo = getTagInfo;
 module.exports.createStampedeCheck = createStampedeCheck;
 module.exports.getAccessToken = getAccessToken;
+module.exports.commentOnPR = commentOnPR;

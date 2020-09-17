@@ -65,8 +65,8 @@ async function createCheckRun(
   systemLogger.verbose("started_at: " + started_at);
   return {
     data: {
-      id: "123"
-    }
+      id: "123",
+    },
   };
 }
 
@@ -80,9 +80,9 @@ async function getTagInfo(owner, repo, ref, serverConf) {
   return {
     data: {
       object: {
-        sha: "123"
-      }
-    }
+        sha: "123",
+      },
+    },
   };
 }
 
@@ -121,6 +121,22 @@ async function getAccessToken(owner, repo, serverConf) {
   return "123456789101112";
 }
 
+/**
+ * commentOnPR
+ * @param {*} owner
+ * @param {*} repo
+ * @param {*} prNumber
+ * @param {*} serverConfig
+ */
+async function commentOnPR(owner, repository, prNumber, comment, serverConfig) {
+  // Do the stuff to comment on this PR
+  systemLogger.info("commentOnPR:");
+  systemLogger.info(`owner: ${owner}`);
+  systemLogger.info(`repository: ${repository}`);
+  systemLogger.info(`prNumber: ${prNumber}`);
+  systemLogger.info(`comment: ${comment}`);
+}
+
 module.exports.verifyCredentials = verifyCredentials;
 module.exports.findRepoConfig = findRepoConfig;
 module.exports.createCheckRun = createCheckRun;
@@ -128,3 +144,4 @@ module.exports.getTagInfo = getTagInfo;
 module.exports.updateCheck = updateCheck;
 module.exports.createStampedeCheck = createStampedeCheck;
 module.exports.getAccessToken = getAccessToken;
+module.exports.commentOnPR = commentOnPR;
