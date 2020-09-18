@@ -139,7 +139,6 @@ async function findRepoConfig(owner, repo, stampedeFile, sha, serverConf) {
       path: stampedeFile,
       ref: sha,
     });
-    console.dir(contents);
     if (contents != null) {
       const configFile = await downloadStampedeFile(
         contents.data.download_url,
@@ -191,7 +190,6 @@ async function downloadStampedeFile(downloadURL, owner, repo, serverConf) {
     };
     const runner = new LynnRequest(request);
     runner.execute(function (result) {
-      console.dir(result);
       resolve(result);
     });
   });
