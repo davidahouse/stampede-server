@@ -139,6 +139,7 @@ async function findRepoConfig(owner, repo, stampedeFile, sha, serverConf) {
       path: stampedeFile,
       ref: sha,
     });
+    console.dir(contents);
     if (contents != null) {
       const configFile = await downloadStampedeFile(
         contents.data.download_url,
@@ -190,6 +191,7 @@ async function downloadStampedeFile(downloadURL, owner, repo, serverConf) {
     };
     const runner = new LynnRequest(request);
     runner.execute(function (result) {
+      console.dir(result);
       resolve(result);
     });
   });
@@ -411,7 +413,11 @@ async function createStampedeCheck(
  */
 async function commentOnPR(owner, repo, prNumber, comment, serverConfig) {
   // Do the stuff to comment on this PR
-  const authorizedOctokit = await getAuthorizedOctokit(owner, repo, serverConf);
+  const authorizedOctokit = await getAuthorizedOctokit(
+    owner,
+    repo,
+    serverConfig
+  );
 
   // Find all comments on this PR to see if there is an existing comment we can update
   let commentID = null;
@@ -421,13 +427,22 @@ async function commentOnPR(owner, repo, prNumber, comment, serverConfig) {
     issue_number: prNumber,
   });
 
-  // TODO: Loop through the comments and try to find any created by the app
+  if (comments != null && comments.data != null) {
+    for (let index = 0; index < comments.data.length; index++) {
+      if (
+        comments.data[index].user.type === "Bot" &&
+        comments.data[index].user.login.includes("stampede")
+      ) {
+        commentID = comments.data[index].id;
+      }
+    }
+  }
 
   if (commentID == null) {
     const result = await authorizedOctokit.issues.createComment({
       owner: owner,
       repo: repo,
-      number: prNumber,
+      issue_number: prNumber,
       body: comment,
     });
   } else {
@@ -438,7 +453,6 @@ async function commentOnPR(owner, repo, prNumber, comment, serverConfig) {
       body: comment,
     });
   }
-  return result;
 }
 
 module.exports.verifyCredentials = verifyCredentials;

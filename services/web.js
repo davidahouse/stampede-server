@@ -16,7 +16,6 @@ let bodyParser = require("body-parser");
 
 function start(dependencies) {
   // If we don't have any web enabled, we can just exit
-  console.dir(dependencies.serverConfig);
   if (
     dependencies.serverConfig.handlePortal != "enabled" &&
     dependencies.serverConfig.handleIncoming != "enabled"
