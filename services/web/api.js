@@ -60,7 +60,6 @@ function router(dependencies) {
     ],
     paths: docs,
   };
-  console.dir(swaggerDocument);
 
   if (dependencies.serverConfig.enableApiDocs == true) {
     basicRouter.use("/api/api-docs", swaggerUi.serve);
