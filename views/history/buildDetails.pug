@@ -88,5 +88,7 @@ block content
                       +tableCellButton("Download", artifact.url)
                     else if artifact.type == "link"
                       +tableCellButton("Open", artifact.url)
+                    else if artifact.type == "cloc"
+                      +tableCellButton("View", artifact.url)
 
 

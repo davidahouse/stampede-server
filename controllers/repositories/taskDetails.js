@@ -110,7 +110,11 @@ async function handle(req, res, dependencies, owners) {
   );
   if (artifactRows != null && artifactRows.rows != null) {
     for (let aindex = 0; aindex < artifactRows.rows.length; aindex++) {
-      artifacts.push(artifactRows.rows[aindex]);
+      const artifact = artifactRows.rows[aindex];
+      if (artifact.type == "cloc") {
+        artifact.url = `/artifacts/viewCloc?taskID=${task.task_id}&artifact=${artifact.title}`;
+      }
+      artifacts.push(artifact);
     }
   }
 

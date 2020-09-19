@@ -34,7 +34,9 @@ function start(dependencies) {
  * shutdown
  */
 async function shutdown() {
-  await slackNotificationQueue.close();
+  if (slackNotificationQueue != null) {
+    await slackNotificationQueue.close();
+  }
 }
 
 module.exports.start = start;
