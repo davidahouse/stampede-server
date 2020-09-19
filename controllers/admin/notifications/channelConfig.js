@@ -28,7 +28,7 @@ async function handle(req, res, dependencies, owners) {
     isAdmin: req.validAdminSession,
     channelID: req.query.channelID,
     title: channelConfig.title,
-    config: channelConfig.config,
+    config: channelConfig.config != null ? channelConfig.config : [],
   });
 }
 
