@@ -34,7 +34,9 @@ function start(dependencies) {
  * shutdown
  */
 async function shutdown() {
-  await prCommentNotificationQueue.close();
+  if (prCommentNotificationQueue != null) {
+    await prCommentNotificationQueue.close();
+  }
 }
 
 module.exports.start = start;
