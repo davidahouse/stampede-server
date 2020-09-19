@@ -13,13 +13,14 @@ pullrequests:
     all:
       - id: prcomment
 
-master:
-  tasks:
-    - id: lines-of-code
-      config:
-        excludeFolders: node_modules
-    - id: lint-nodejs
-    - id: unit-tests-nodejs
+branches:
+  master:
+    tasks:
+      - id: lines-of-code
+        config:
+          excludeFolders: node_modules
+      - id: lint-nodejs
+      - id: unit-tests-nodejs
 
 pullrequestedit:
   tasks:
