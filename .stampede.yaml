@@ -6,6 +6,9 @@ pullrequests:
         prBodyCheck: true
     - id: lint-nodejs
     - id: unit-tests-nodejs
+  notifications:
+    all:
+      - id: prcomment
 pullrequestedit:
   tasks:
     - id: pr-standards
@@ -18,3 +21,6 @@ releases:
       - id: npm-publish
       - id: release-notes
       - id: docker-hub-publish
+    notifications:
+      all:
+        - id: slack-stampede-dev
