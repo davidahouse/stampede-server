@@ -6,9 +6,21 @@ pullrequests:
         prBodyCheck: true
     - id: lint-nodejs
     - id: unit-tests-nodejs
+    - id: lines-of-code
+      config:
+        excludeFolders: node_modules
   notifications:
     all:
       - id: prcomment
+
+master:
+  tasks:
+    - id: lines-of-code
+      config:
+        excludeFolders: node_modules
+    - id: lint-nodejs
+    - id: unit-tests-nodejs
+
 pullrequestedit:
   tasks:
     - id: pr-standards
