@@ -95,6 +95,7 @@ async function getTagInfo(owner, repo, ref, serverConf) {
  */
 async function updateCheck(owner, repo, serverConf, update) {
   systemLogger.verbose("updateCheck");
+  systemLogger.verbose(JSON.stringify(update));
 }
 
 /**
