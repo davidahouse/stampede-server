@@ -94,12 +94,18 @@ async function handle(body, dependencies) {
     return { status: "task list was empty" };
   }
 
+  let release = safeBuildKey(event.release);
+  if (release == null || release.length == 0) {
+    dependencies.logger.verbose("Release title was empty. Unable to continue.");
+    return { status: "release title was empty" };
+  }
+
   const buildDetails = {
     owner: event.owner,
     repo: event.repo,
     sha: event.sha,
     release: event.release,
-    buildKey: safeBuildKey(event.release),
+    buildKey: release,
   };
 
   const scmDetails = {
@@ -165,6 +171,9 @@ function parseEvent(body) {
  * @param {*} release
  */
 function safeBuildKey(release) {
+  if (release == null) {
+    return "";
+  }
   const spacesRemoved = release.replace(/ /g, "_");
   const openParamRemoved = spacesRemoved.replace(/\(/g, "_");
   const closedParamRemoved = openParamRemoved.replace(/\)/g, "_");
