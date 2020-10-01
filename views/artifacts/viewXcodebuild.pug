@@ -1,0 +1,69 @@
+extends ../layout
+include ../components/titleBar
+include ../components/tableHeader
+include ../components/tableCell
+include ../components/tableRow
+include ../components/tableCellButton
+include ../components/infoCard
+include ../components/tableConclusionCell
+
+block content
+
+  +titleBar([{title: 'Repositories', href: `/repositories?owner=` + build.owner + `&=` + build.repository}, 
+      {title: build.owner + ' ' + build.repository, href: '/repositories/repositoryDetails?owner=' + build.owner + '&repository=' + build.repository},
+      {title: build.owner + '' + build.repository + ' #' + build.build, href: '/repositories/buildDetails?buildID=' + build.build_id},
+      {title: task.task, href: '/repositories/taskDetails?taskID=' + task.task_id},
+      {title: title}])
+  div(class="flex flex-wrap m-4")
+
+  div(class="w-full p-3")
+    div(class="bg-white border-transparent rounded-lg shadow-lg")
+        div(class="bg-gray-400 uppercase text-gray-800 border-b-2 border-gray-500 rounded-tl-lg rounded-tr-lg p-2")
+            h5(class="font-bold uppercase text-gray-600") Xcode Test Results
+        div(class="p-5")
+            table(class="table-auto w-full")
+                tbody
+                    +tableRow()
+                        +tableCell("Total # of Tests")
+                        +tableCell(summary.allTests)
+                    +tableRow()
+                        +tableCell("Success Tests")
+                        +tableCell(summary.successTests)
+                    +tableRow()
+                        +tableCell("Failed Tests")
+                        +tableCell(summary.failedTests)
+                    +tableRow()
+                        +tableCell("Code Coverage %")
+                        +tableCell(summary.coverage)
+
+  div(class="w-full p-3")
+    div(class="bg-white border-transparent rounded-lg shadow-lg")
+        div(class="bg-gray-400 uppercase text-gray-800 border-b-2 border-gray-500 rounded-tl-lg rounded-tr-lg p-2")
+            h5(class="font-bold uppercase text-gray-600") Test Execution
+        div(class="p-5")
+            table(class="table-auto w-full")
+                thead
+                    +tableHeader('Test Class')
+                    +tableHeader('Test Name')
+                    +tableHeader('Status')
+                tbody
+                    each test, i in tests
+                        +tableRow()
+                            +tableCell(test.className)
+                            +tableCell(test.testName)
+                            +tableCell(test.status)
+
+  div(class="w-full p-3")
+    div(class="bg-white border-transparent rounded-lg shadow-lg")
+        div(class="bg-gray-400 uppercase text-gray-800 border-b-2 border-gray-500 rounded-tl-lg rounded-tr-lg p-2")
+            h5(class="font-bold uppercase text-gray-600") Code Coverage
+        div(class="p-5")
+            table(class="table-auto w-full")
+                thead
+                    +tableHeader('File')
+                    +tableHeader('Coverage %')
+                tbody
+                    each cov, i in coverage
+                        +tableRow()
+                            +tableCell(cov.file)
+                            +tableCell(cov.coverage)
