@@ -72,7 +72,6 @@ async function handle(req, res, dependencies, owners) {
     }
   }
 
-  console.dir(artifacts);
   res.render(dependencies.viewsPath + "repositories/buildDetails", {
     owners: owners,
     isAdmin: req.validAdminSession,
