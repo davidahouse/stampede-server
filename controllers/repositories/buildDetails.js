@@ -51,9 +51,18 @@ async function handle(req, res, dependencies, owners) {
     if (artifactRows != null && artifactRows.rows != null) {
       for (let aindex = 0; aindex < artifactRows.rows.length; aindex++) {
         const artifact = artifactRows.rows[aindex];
+
         if (artifact.type == "cloc") {
           artifact.url =
             "/artifacts/viewCloc?taskID=" +
+            task.task_id +
+            "&artifact=" +
+            encodeURI(artifact.title);
+        } else if (artifact.type == "download") {
+        } else if (artifact.type == "link") {
+        } else {
+          artifact.url =
+            "/artifacts/viewUnknown?taskID=" +
             task.task_id +
             "&artifact=" +
             encodeURI(artifact.title);
@@ -62,6 +71,8 @@ async function handle(req, res, dependencies, owners) {
       }
     }
   }
+
+  console.dir(artifacts);
   res.render(dependencies.viewsPath + "repositories/buildDetails", {
     owners: owners,
     isAdmin: req.validAdminSession,
