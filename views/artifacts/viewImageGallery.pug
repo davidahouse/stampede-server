@@ -20,8 +20,8 @@ block content
     div(class="bg-white border-transparent rounded-lg shadow-lg")
         div(class="bg-gray-400 uppercase text-gray-800 border-b-2 border-gray-500 rounded-tl-lg rounded-tr-lg p-2")
             h5(class="font-bold uppercase text-gray-600") Image Gallery
-        div(class="p-5")
+        div(class="p-5 grid grid-cols-3 gap-4 bg-gray-800")
             each image, i in images
                 a(href=``+image.url)
-                    h1= image.title
+                    h1(class="text-white")= image.title
                     img(src=``+image.url alt=``+image.title)
