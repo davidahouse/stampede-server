@@ -80,7 +80,9 @@ const conf = require("rc")("stampede", {
   enableApiDocs: false,
   // Notification channels
   handleSlackNotifications: "disabled",
+  slackNotificationMoreInfoURL: null,
   handlePRCommentNotifications: "disabled",
+  prCommentNotificationMoreInfoURL: null
 });
 
 // Configure winston logging
