@@ -78,17 +78,19 @@ block content
             table(class="table-auto w-full")
               thead
                 +tableHeader('Artifact')
-                +tableHeader('Info')
+                if isAdmin == true
+                  +tableHeader('Info')
                 +tableHeader('Action')
               tbody
                   each artifact, i in artifacts
                       +tableRow(artifact.url)
                           +tableCell(artifact.title)
 
-                          if artifact.metadataurl != null
-                            +tableCellButton("Info", artifact.metadataurl)
-                          else
-                            +tableCell("")
+                          if isAdmin == true
+                            if artifact.metadataurl != null
+                              +tableCellButton("Info", artifact.metadataurl)
+                            else
+                              +tableCell("")
 
                           if artifact.type == "download"
                             +tableCellButton("Download", artifact.url)
