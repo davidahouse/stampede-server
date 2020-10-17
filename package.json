@@ -20,7 +20,7 @@
   "license": "MIT",
   "dependencies": {
     "@octokit/app": "^4.2.1",
-    "@octokit/request": "^5.4.8",
+    "@octokit/request": "^5.4.9",
     "@octokit/rest": "^16.43.2",
     "async-redis": "^1.1.7",
     "body-parser": "^1.18.3",
