@@ -57,7 +57,7 @@ async function handle(req, res, dependencies) {
     if (taskDetails.details.scm.pullRequest != null) {
       scmDetails.push({
         title: "PR Number",
-        value: taskDetails.details.scm.pullRequest.number,
+        value: taskDetails.details.scm.pullRequest.number.toString(),
       });
       scmDetails.push({
         title: "Head",
@@ -91,11 +91,11 @@ async function handle(req, res, dependencies) {
     } else if (taskDetails.details.scm.release != null) {
       scmDetails.push({
         title: "Release",
-        value: taskDetails.details.scm.release.name,
+        value: taskDetails.details.scm.release.name.toString(),
       });
       scmDetails.push({
         title: "Tag",
-        value: taskDetails.details.scm.release.tag,
+        value: taskDetails.details.scm.release.tag.toString(),
       });
       scmDetails.push({
         title: "SHA",
