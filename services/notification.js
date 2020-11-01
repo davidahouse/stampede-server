@@ -91,8 +91,6 @@ async function buildCompleted(build, payload, cache) {
     payload: payload,
   };
   await sendNotification(notification);
-  console.log("buildCompleted notification --->>>")
-  console.dir(notification)
 
   // If build has any notifications configured, send them
   if (
@@ -116,27 +114,27 @@ async function buildCompleted(build, payload, cache) {
         "buildCompleted",
         "all",
         payload,
-        notifications.complete,
+        notifications.completed,
         cache
       );
     }
-    if (notifications.completed != null) {
+    if (notifications.completedSuccess != null) {
       await sendToNotificationChannels(
         build,
         "buildCompleted",
         "success",
         payload,
-        notifications.completeSuccess,
+        notifications.completedSuccess,
         cache
       );
     }
-    if (notifications.completed != null) {
+    if (notifications.completedFailure != null) {
       await sendToNotificationChannels(
         build,
         "buildCompleted",
         "failure",
         payload,
-        notifications.completeFailure,
+        notifications.completedFailure,
         cache
       );
     }
