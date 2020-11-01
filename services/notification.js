@@ -66,13 +66,13 @@ async function buildStarted(build, payload, cache) {
         cache
       );
     }
-    if (notifications.start != null) {
+    if (notifications.started != null) {
       await sendToNotificationChannels(
         build,
         "buildStarted",
         "all",
         payload,
-        notifications.start,
+        notifications.started,
         cache
       );
     }
@@ -114,27 +114,27 @@ async function buildCompleted(build, payload, cache) {
         "buildCompleted",
         "all",
         payload,
-        notifications.complete,
+        notifications.completed,
         cache
       );
     }
-    if (notifications.completed != null) {
+    if (notifications.completedSuccess != null) {
       await sendToNotificationChannels(
         build,
         "buildCompleted",
         "success",
         payload,
-        notifications.completeSuccess,
+        notifications.completedSuccess,
         cache
       );
     }
-    if (notifications.completed != null) {
+    if (notifications.completedFailure != null) {
       await sendToNotificationChannels(
         build,
         "buildCompleted",
         "failure",
         payload,
-        notifications.completeFailure,
+        notifications.completedFailure,
         cache
       );
     }
