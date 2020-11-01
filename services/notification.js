@@ -66,13 +66,13 @@ async function buildStarted(build, payload, cache) {
         cache
       );
     }
-    if (notifications.start != null) {
+    if (notifications.started != null) {
       await sendToNotificationChannels(
         build,
         "buildStarted",
         "all",
         payload,
-        notifications.start,
+        notifications.started,
         cache
       );
     }
