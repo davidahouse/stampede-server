@@ -91,6 +91,8 @@ async function buildCompleted(build, payload, cache) {
     payload: payload,
   };
   await sendNotification(notification);
+  console.log("buildCompleted notification --->>>")
+  console.dir(notification)
 
   // If build has any notifications configured, send them
   if (
