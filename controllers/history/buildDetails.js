@@ -69,6 +69,12 @@ async function handle(req, res, dependencies, owners) {
             task.task_id +
             "&artifact=" +
             encodeURI(artifact.title);
+        } else if (artifact.type == "imagediff") {
+          artifact.url =
+            "/artifacts/viewImageGalleryDiff?taskID=" +
+            task.task_id +
+            "&artifact=" +
+            encodeURI(artifact.title);
         } else if (artifact.type == "download") {
         } else if (artifact.type == "link") {
         } else {
