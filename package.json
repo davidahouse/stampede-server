@@ -19,7 +19,7 @@
   "author": "David House",
   "license": "MIT",
   "dependencies": {
-    "@octokit/app": "^4.2.1",
+    "@octokit/app": "^4.3.0",
     "@octokit/request": "^5.4.9",
     "@octokit/rest": "^16.43.2",
     "async-redis": "^1.1.7",
