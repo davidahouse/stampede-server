@@ -24,7 +24,9 @@ const prCommentNotificationQueue = require("../services/prCommentNotificationQue
 const taskQueue = require("../lib/taskQueue");
 const retentionHandler = require("../lib/retentionHandler");
 const buildScheduleHandler = require("../lib/buildScheduleHandler");
+const queueHeartbeatHandler = require("../lib/queueHeartbeatHandler");
 
+const thirtySeconds = 1000 * 30;
 const fiveMinuteInterval = 1000 * 60 * 5;
 const conf = require("rc")("stampede", {
   // redis
@@ -52,6 +54,7 @@ const conf = require("rc")("stampede", {
   responseQueue: "response",
   incomingQueue: "incoming",
   notificationQueues: "",
+  handleQueueHeartbeatNotification: "enabled",
   stampedeFileName: ".stampede.yaml",
   scm: "github",
   // Control if the server enables the portal functions of the UI & API
@@ -193,20 +196,32 @@ db.start(conf, logger);
 
 if (
   conf.handleBuildScheduler === "enabled" ||
-  conf.handleRetentionScheduler === "enabled"
-) {
-  setInterval(buildSchedule, fiveMinuteInterval);
+  conf.handleRetentionScheduler === "enabled" ||
+  conf.handleQueueHeartbeatNotification === "enabled") {
+  setInterval(schedule, thirtySeconds);
 }
 
-async function buildSchedule() {
-  if (conf.handleBuildScheduler === "enabled") {
-    await buildScheduleHandler.handle(dependencies);
+let scheduleDuration = 0;
+
+async function schedule() {
+  if (conf.handleQueueHeartbeatNotification === "enabled") {
+    await queueHeartbeatHandler.handle(dependencies)
   }
 
-  if (conf.handleRetentionScheduler === "enabled") {
-    await retentionHandler.handle(dependencies);
+  scheduleDuration += thirtySeconds;
+  if (scheduleDuration > fiveMinuteInterval) {
+    if (conf.handleBuildScheduler === "enabled") {
+      await buildScheduleHandler.handle(dependencies);
+    }
+
+    if (conf.handleRetentionScheduler === "enabled") {
+      await retentionHandler.handle(dependencies);
+    }
+    scheduleDuration = 0;
   }
 }
+
+
 
 const dependencies = {
   serverConfig: conf,
