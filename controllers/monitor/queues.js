@@ -29,12 +29,14 @@ async function handle(req, res, dependencies, owners) {
   }
 
   const systemQueues = []
-  let incomingStats = await queueStats(dependencies.serverConfig.incomingQueue, dependencies.redisConfig)
+  let incomingStats = 
+    await queueStats(dependencies.serverConfig.incomingQueue, dependencies.redisConfig)
   systemQueues.push({
     queue: dependencies.serverConfig.incomingQueue,
     stats: incomingStats
   })
-  let responseStats = await queueStats(dependencies.serverConfig.responseQueue, dependencies.redisConfig)
+  let responseStats = 
+    await queueStats(dependencies.serverConfig.responseQueue, dependencies.redisConfig)
   systemQueues.push({
     queue: dependencies.serverConfig.responseQueue,
     stats: responseStats
