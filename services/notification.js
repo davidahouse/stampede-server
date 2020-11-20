@@ -196,6 +196,19 @@ async function workerHeartbeat(heartbeat) {
   await sendNotification(notification);
 }
 
+/**
+ * queueHeartbeat
+ * @param {*} notification 
+ */
+async function queueHeartbeat(queues) {
+  const notification = {
+    notification: "queueHeartbeat",
+    id: "queue-heartbeat",
+    payload: queues
+  };
+  await sendNotification(notification);
+}
+
 // Private Methods
 
 /**
@@ -247,3 +260,4 @@ module.exports.taskStarted = taskStarted;
 module.exports.taskCompleted = taskCompleted;
 module.exports.taskUpdated = taskUpdated;
 module.exports.workerHeartbeat = workerHeartbeat;
+module.exports.queueHeartbeat = queueHeartbeat;
