@@ -6,7 +6,7 @@ include ../components/tableRow
 
 block content
 
-  +titleBar([{title: 'Queues'}])
+  +titleBar([{title: 'Task Queues'}])
   div(class="flex flex-wrap m-4")
 
     table(class="table-auto w-full")
@@ -15,7 +15,21 @@ block content
           +tableHeader('Queue')
           +tableHeader('Tasks Waiting')
       tbody
-        each queue, i in queues
+        each queue, i in taskQueues
+          +tableRow()
+            +tableCell(queue.queue)
+            +tableCell(queue.stats.waiting.toString())
+
+  +titleBar([{title: 'System Queues'}])
+  div(class="flex flex-wrap m-4")
+
+    table(class="table-auto w-full")
+      thead
+        tr
+          +tableHeader('Queue')
+          +tableHeader('Waiting')
+      tbody
+        each queue, i in systemQueues
           +tableRow()
             +tableCell(queue.queue)
             +tableCell(queue.stats.waiting.toString())
