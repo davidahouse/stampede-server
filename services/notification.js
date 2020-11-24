@@ -198,13 +198,13 @@ async function workerHeartbeat(heartbeat) {
 
 /**
  * queueHeartbeat
- * @param {*} notification 
+ * @param {*} notification
  */
 async function queueHeartbeat(queues) {
   const notification = {
     notification: "queueHeartbeat",
     id: "queue-heartbeat",
-    payload: queues
+    payload: queues,
   };
   await sendNotification(notification);
 }
@@ -236,9 +236,10 @@ async function sendToNotificationChannels(
       channels[index].id
     );
     if (config != null && config.providerID != null) {
-      const q = new Queue("stampede-" + config.providerID, redisConfig);
+      const q = new Queue("stampede-notification", redisConfig);
       await q.add(
         {
+          providerID: config.providerID,
           build: build,
           notification: notification,
           filter: filter,

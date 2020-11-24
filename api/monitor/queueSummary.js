@@ -26,54 +26,51 @@ async function handle(req, res, dependencies) {
   const queues = [];
 
   for (let index = 0; index < queueList.length; index++) {
-    let stats = await queueStats("stampede-" + queueList[index].id, redisConfig)
+    let stats = await queueStats(
+      "stampede-" + queueList[index].id,
+      redisConfig
+    );
     queues.push({
       queue: queueList[index].id,
       stats: stats,
     });
   }
 
-  const systemQueues = []
-  let incomingStats = await queueStats(dependencies.serverConfig.incomingQueue, redisConfig)
+  const systemQueues = [];
+  let incomingStats = await queueStats(
+    dependencies.serverConfig.incomingQueue,
+    redisConfig
+  );
   systemQueues.push({
     queue: dependencies.serverConfig.incomingQueue,
-    stats: incomingStats
-  })
-  let responseStats = await queueStats(dependencies.serverConfig.responseQueue, redisConfig)
+    stats: incomingStats,
+  });
+  let responseStats = await queueStats(
+    dependencies.serverConfig.responseQueue,
+    redisConfig
+  );
   systemQueues.push({
     queue: dependencies.serverConfig.responseQueue,
-    stats: responseStats
-  })
-  if (dependencies.serverConfig.handleSlackNotifications === "enabled") {
-    let slackStats = await queueStats("slack-notifications", dependencies.redisConfig)
-    systemQueues.push({
-      queue: "slack-notifications",
-      stats: slackStats
-    })
-  }
-  if (dependencies.serverConfig.handlePRCommentNotifications === "enabled") {
-    let prCommentStats = await queueStats("prcomment-notifications", dependencies.redisConfig)
-    systemQueues.push({
-      queue: "prcomment-notifications",
-      stats: prCommentStats
-    })
-  }
+    stats: responseStats,
+  });
+  let notificationStats = await queueStats("notification", redisConfig);
+  systemQueues.push({
+    queue: "notification",
+    stats: notificationStats,
+  });
 
   res.send({ taskQueues: queues, systemQueues: systemQueues });
 }
 
 /**
  * Collect queue stats
- * @param {*} queue 
- * @param {*} redisConfig 
+ * @param {*} queue
+ * @param {*} redisConfig
  */
 async function queueStats(queue, redisConfig) {
-  const q = new Queue(
-    "stampede-" + queue,
-    redisConfig
-  );
+  const q = new Queue("stampede-" + queue, redisConfig);
   const stats = await q.getJobCounts();
-  return stats
+  return stats;
 }
 
 /**

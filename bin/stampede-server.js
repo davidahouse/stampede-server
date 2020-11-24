@@ -15,10 +15,9 @@ const cache = require("../lib/cache/cache");
 // Services
 const web = require("../services/web");
 const notification = require("../services/notification");
-const responseQueue = require("../services/responseQueue");
-const slackNotificationQueue = require("../services/slackNotificationQueue");
 const incomingQueue = require("../services/incomingQueue");
-const prCommentNotificationQueue = require("../services/prCommentNotificationQueue");
+const responseQueue = require("../services/responseQueue");
+const notificationChannelQueue = require("../services/notificationChannelQueue");
 
 // Other libs
 const taskQueue = require("../lib/taskQueue");
@@ -65,6 +64,8 @@ const conf = require("rc")("stampede", {
   handleIncomingQueue: "enabled",
   // Control if the server will handle anything in the response queue
   handleResponseQueue: "enabled",
+  // Control if the server will handle notification channel queue
+  handleNotificationChannelQueue: "enabled",
   // Control if the server looks for builds that need to be auto-started
   handleBuildScheduler: "enabled",
   // Control if the server executes the retention policy handler
@@ -82,10 +83,8 @@ const conf = require("rc")("stampede", {
   // API Docs
   enableApiDocs: false,
   // Notification channels
-  handleSlackNotifications: "disabled",
   slackNotificationMoreInfoURL: null,
-  handlePRCommentNotifications: "disabled",
-  prCommentNotificationMoreInfoURL: null
+  prCommentNotificationMoreInfoURL: null,
 });
 
 // Configure winston logging
@@ -183,8 +182,7 @@ process.on("SIGINT", function () {
 async function gracefulShutdown() {
   logger.verbose("Closing queues");
   await responseQueue.shutdown();
-  await slackNotificationQueue.shutdown();
-  await prCommentNotificationQueue.shutdown();
+  await notificationChannelQueue.shutdown();
   await incomingQueue.shutdown();
   await db.stop();
   await cache.stopCache();
@@ -197,7 +195,8 @@ db.start(conf, logger);
 if (
   conf.handleBuildScheduler === "enabled" ||
   conf.handleRetentionScheduler === "enabled" ||
-  conf.handleQueueHeartbeatNotification === "enabled") {
+  conf.handleQueueHeartbeatNotification === "enabled"
+) {
   setInterval(schedule, thirtySeconds);
 }
 
@@ -205,7 +204,7 @@ let scheduleDuration = 0;
 
 async function schedule() {
   if (conf.handleQueueHeartbeatNotification === "enabled") {
-    await queueHeartbeatHandler.handle(dependencies)
+    await queueHeartbeatHandler.handle(dependencies);
   }
 
   scheduleDuration += thirtySeconds;
@@ -220,8 +219,6 @@ async function schedule() {
     scheduleDuration = 0;
   }
 }
-
-
 
 const dependencies = {
   serverConfig: conf,
@@ -238,6 +235,5 @@ let incomingEventQueue = incomingQueue.start(dependencies);
 dependencies.incomingQueue = incomingEventQueue;
 notification.start(dependencies);
 responseQueue.start(dependencies);
-slackNotificationQueue.start(dependencies);
-prCommentNotificationQueue.start(dependencies);
+notificationChannelQueue.start(dependencies);
 web.start(dependencies);
