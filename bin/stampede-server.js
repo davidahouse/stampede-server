@@ -85,6 +85,8 @@ const conf = require("rc")("stampede", {
   // Notification channels
   slackNotificationMoreInfoURL: null,
   prCommentNotificationMoreInfoURL: null,
+  // HTTP Notification feed
+  queueSummaryNotificationURL: null,
 });
 
 // Configure winston logging

@@ -4,6 +4,7 @@ const Queue = require("bull");
 
 let redisConfig = {};
 let notificationQueues = [];
+let sendQueueHeartbeatNotification = false;
 
 // Public methods
 
@@ -20,6 +21,9 @@ function start(dependencies) {
     notificationQueues = dependencies.serverConfig.notificationQueues.split(
       ","
     );
+  }
+  if (dependencies.serverConfig.queueSummaryNotificationURL != null) {
+    sendQueueHeartbeatNotification = true;
   }
 }
 
@@ -207,6 +211,18 @@ async function queueHeartbeat(queues) {
     payload: queues,
   };
   await sendNotification(notification);
+
+  if (sendQueueHeartbeatNotification == true) {
+    const q = new Queue("stampede-notification", redisConfig);
+    await q.add(
+      {
+        providerID: "queueHeartbeat",
+        notification: notification,
+      },
+      { removeOnComplete: true, removeOnFail: true }
+    );
+    await q.close();
+  }
 }
 
 // Private Methods
