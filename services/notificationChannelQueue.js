@@ -3,6 +3,7 @@
 const taskQueue = require("../lib/taskQueue");
 const prComment = require("../lib/notificationChannels/prComment");
 const slack = require("../lib/notificationChannels/slack");
+const httpPost = require("../lib/notificationChannels/httpPost");
 
 let notificationQueue = null;
 
@@ -26,6 +27,12 @@ function start(dependencies) {
           prComment.sendNotification(job.data, dependencies);
         } else if (job.data.providerID === "slack-notifications") {
           slack.sendNotification(job.data, dependencies);
+        } else if (job.data.providerID === "queueHeartbeat") {
+          httpPost.sendNotification(
+            job.data,
+            dependencies.serverConfig.queueSummaryNotificationURL,
+            dependencies
+          );
         }
       } catch (e) {
         logger.error("Error handling pr comment notification: " + e);
