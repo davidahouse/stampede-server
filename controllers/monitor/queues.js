@@ -72,6 +72,7 @@ async function handle(req, res, dependencies, owners) {
 async function queueStats(queue, redisConfig) {
   const q = new Queue("stampede-" + queue, redisConfig);
   const stats = await q.getJobCounts();
+  q.close();
   return stats;
 }
 
