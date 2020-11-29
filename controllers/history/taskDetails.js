@@ -145,13 +145,6 @@ async function handle(req, res, dependencies, owners) {
           "&artifact=" +
           encodeURI(artifact.title);
       }
-      if (artifact.metadata != null) {
-        artifact.metadataurl =
-          "/artifacts/viewMetadata?taskID=" +
-          task.task_id +
-          "&artifact=" +
-          encodeURI(artifact.title);
-      }
       artifacts.push(artifact);
     }
   }
