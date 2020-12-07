@@ -14,7 +14,7 @@ function path() {
  * @param {*} dependencies
  */
 async function handle(req, res, dependencies) {
-  const taskID = req.query.taskID
+  const taskID = req.query.taskID;
   const taskRows = await dependencies.db.fetchTask(taskID);
   const task = taskRows.rows[0];
 
@@ -128,14 +128,15 @@ async function handle(req, res, dependencies) {
           task.task_id +
           "&artifact=" +
           encodeURI(artifact.title);
-        } else if (artifact.type == "imagediff") {
-          artifact.url =
-            "/artifacts/viewImageGalleryDiff?taskID=" +
-            task.task_id +
-            "&artifact=" +
-            encodeURI(artifact.title);
-        } else if (artifact.type == "download") {
+      } else if (artifact.type == "imagediff") {
+        artifact.url =
+          "/artifacts/viewImageGalleryDiff?taskID=" +
+          task.task_id +
+          "&artifact=" +
+          encodeURI(artifact.title);
+      } else if (artifact.type == "download") {
       } else if (artifact.type == "link") {
+      } else if (artifact.type == "installplist") {
       } else {
         artifact.url =
           "/artifacts/viewUnknown?taskID=" +
@@ -154,7 +155,7 @@ async function handle(req, res, dependencies) {
     text: text,
     artifacts: artifacts,
     scmDetails: scmDetails,
-  })
+  });
 }
 
 /**
