@@ -137,6 +137,7 @@ async function handle(req, res, dependencies, owners) {
           encodeURI(artifact.title);
       } else if (artifact.type == "download") {
       } else if (artifact.type == "link") {
+      } else if (artifact.type == "installplist") {
       } else {
         artifact.url =
           "/artifacts/viewUnknown?taskID=" +
