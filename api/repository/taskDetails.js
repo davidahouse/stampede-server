@@ -137,6 +137,9 @@ async function handle(req, res, dependencies) {
       } else if (artifact.type == "download") {
       } else if (artifact.type == "link") {
       } else if (artifact.type == "installplist") {
+        artifact.url =
+          "itms-services://?action=download-manifest&url=" +
+          encodeURI(artifact.url);
       } else {
         artifact.url =
           "/artifacts/viewUnknown?taskID=" +
