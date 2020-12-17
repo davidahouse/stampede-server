@@ -32,9 +32,14 @@ mixin sideBar(activeMenu, owners, isAdmin)
                         {title: 'Reports', href: '/admin/reports'},
                         {title: 'Info', href: '/admin/info'},
                         {title: 'API Docs', href: '/api/api-docs'},
-                        {title: 'Logout', href: '/admin/logout'}
+                        {title: 'Logout', href: '/admin/logout', class: 'pb-3'}
                         ])
                 else
                     +sideBarSection('Admin', 'user-cog', [
-                        {title: 'Login', href: '/admin/login'},
+                        {title: 'Login', href: '/admin/login', class: 'pb-3'},
+                    ])
+
+                +sideBarSection('Help', 'help', [
+                    {title: 'General', href: '/help/general'},
+                    {title: 'Tasks', href: '/help/tasks', class: 'pb-3'},
                     ])

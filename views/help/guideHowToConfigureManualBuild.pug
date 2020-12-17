@@ -1,0 +1,21 @@
+extends ../layout
+
+include ../components/titleBar
+include ../components/tableHeader
+include ../components/tableCell
+include ../components/tableRow
+
+block content
+
+  +titleBar([{title: 'How to configure a manual build'}])
+  div(class="flex flex-wrap m-4")
+
+    div
+      h3(class="text-l font-bold") Overview
+
+      p. 
+        Manual builds can be configured to execute whenever you start them. Just like other
+        builds they can have any number of tasks. These builds are good for times when you 
+        want to run a build on a specific branch without changing the .stampede.yaml, or just for
+        infrequent builds. Also note at this point, only a system admin can setup a manual
+        build for you.

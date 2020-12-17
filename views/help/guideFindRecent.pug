@@ -1,0 +1,69 @@
+extends ../layout
+
+include ../components/titleBar
+include ../components/tableHeader
+include ../components/tableCell
+include ../components/tableRow
+
+block content
+
+  +titleBar([{title: 'How to find recent builds'}])
+  div(class="flex flex-wrap m-4")
+
+    div
+      h3(class="text-l font-bold") Finding builds using repository details
+
+      p.
+        The best way to find your builds and tasks is to look at your repositories detail
+        screen. You can find it by first finding your GitHub organization under the 
+        Repositories menu in the sidebar. Then select the repository you are looking to find
+        builds for.
+      br
+
+      p.
+        On the repository details screen you will see several sections that help to organize
+        all the builds that are executed on the system. Below you will find a description of 
+        each section.
+      br
+
+      p.
+        The active builds section will display any builds that are currently executing. So if you 
+        have recently started a build then you will probably see it in this list. From this
+        list you can click on the build to see the status of the currently executing tasks. Once
+        the build is complete (aka all tasks are finished), then the build will be removed 
+        from this active builds list.
+      br
+
+      p.
+        The repository builds section contains a list of any manual or scheduled builds that your 
+        system admin has setup for you. You can click on these builds to see a list of the recently
+        executed builds, and a button to start a new instance of the build. Note that for scheduled 
+        builds that run once per day, you will just see the time it is scheduled to run next, there will 
+        be no start button. Some repository builds are configured to prompt you for the branch to 
+        execute the build against when you hit the start button. If you aren't prompted for a branch,
+        this means that the build is configured to execute against a specific branch only.
+      br
+
+      p.
+        The branches section will display all the unique branch names from the recent list of 
+        builds that have executed due to your .stampede.yaml configuration. Note that manual or scheduled
+        builds do not show up in this list. You can click on the branch to view the details 
+        of the recently executed builds for that branch.
+      br
+
+      p.
+        The releases section will display all the github releases that have started builds
+        based on your .stampede.yaml configuration. You can click on the release to view the list
+        of builds that have been executed against that release. For release builds, you will usually 
+        see just one build, but if you have re-published the same release it can show up
+        multiple times.
+      br
+
+      p.
+        Pull requests will show a list of pull requests that have recent builds executed on 
+        them, based on your .stampede.yaml config file. Clicking on the pull request
+        will show the list of the builds that have executed for that pull request. A build will 
+        execute on the pull request when it is first created and on subsequent pushes to the pull 
+        requests branch. You can also trigger a new build using the GitHub UI and selecting 
+        to re-run the checks.
+      br

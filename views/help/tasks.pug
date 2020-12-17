@@ -1,0 +1,13 @@
+extends ../layout
+
+include ../components/titleBar
+include ../components/tableHeader
+include ../components/tableCell
+include ../components/tableRow
+
+block content
+
+  +titleBar([{title: 'Tasks'}])
+  div(class="flex flex-wrap m-4")
+
+  h3= Task List
