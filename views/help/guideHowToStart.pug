@@ -1,0 +1,21 @@
+extends ../layout
+
+include ../components/titleBar
+include ../components/tableHeader
+include ../components/tableCell
+include ../components/tableRow
+
+block content
+
+  +titleBar([{title: 'How to start a manual build'}])
+  div(class="flex flex-wrap m-4")
+
+    div
+      h3(class="text-l font-bold") Overview
+
+      p. 
+        To start a manual build, simply navigate to the repository that has the build configured in,
+        then select the build under the section titled Repository Builds. Once on this page just click 
+        the start button and the build will start. If your build is configured to allow you to select 
+        a branch to run the build in, a screen will be displayed that allows you to enter the branch. Only
+        one instance of a manual build 

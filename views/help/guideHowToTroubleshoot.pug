@@ -1,0 +1,31 @@
+extends ../layout
+
+include ../components/titleBar
+include ../components/tableHeader
+include ../components/tableCell
+include ../components/tableRow
+
+block content
+
+  +titleBar([{title: 'How to troubleshoot a failed build'}])
+  div(class="flex flex-wrap m-4")
+
+    div
+      h3(class="text-l font-bold") Overview
+
+      p. 
+        The first step in troubleshooting a failed task is to examine the task details 
+        for the task. You can find the task details if you click on the build, then click 
+        on the task that has failed. At the bottom of the task details you will find a section 
+        where detailed information will be displayed on the task execution. For failed tasks 
+        this should show you the reason for the failure. Note that this is configured by the 
+        system admins when they create the tasks, so the exact failure details depends on how the 
+        task was setup and how difficult the failure is to determine. If you have failed tasks 
+        without some detailed information, be sure to let your system administrators
+        know and they can hopefully add additional failure details for future task executions.
+      br
+
+      p.
+        At this time Stampede does not provide a method to view the full log from a task execution. However,
+        system administrators can add complete or a portion of the build log as attachments to the task.
+      br

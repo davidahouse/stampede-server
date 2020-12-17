@@ -1,0 +1,82 @@
+extends ../layout
+
+include ../components/titleBar
+include ../components/tableHeader
+include ../components/tableCell
+include ../components/tableRow
+
+block content
+
+  +titleBar([{title: 'General'}])
+  div(class="flex flex-wrap m-4")
+
+    div
+      h3(class="text-l font-bold") Overview
+
+      p. 
+        Stampede is a continuous automation platform that integrates closely with GitHub to provide your team with a streamlined DevOps process.
+
+    div
+      h2(class="text-l font-bold pt-3") Definitions
+
+      p. 
+        A build is a single execution of a set of tasks in Stampede. Builds are the method that your
+        tasks are executed. A build can be started in one of three ways: automatically from GitHub events such
+        as creating a PR, pushing to a branch or creating a GitHub release, manually via the Stampede UI or
+        on a schedule.
+      br
+
+      p.
+        A task is a single execution of work on one of the build nodes. Each task in a build is completely independent
+        of other tasks so they can run in parallel. Each task represents a distinct automation such as creating an app build
+        for an iOS mobile app, or performing a lint task in an android app code folder. Tasks have parameters that allow you to
+        customize the behavior of the task. Some parameters are required while others are optional. You can find 
+        a reference of tasks defined by your system admin if you look in Help | Tasks.
+
+        Each task execution also has a conclusion once the task is complete. A task will show a successfull conclusion
+        if the task finished with no errors, or a failed conclusion if there were errors executing the task. A task
+        can also have a conclusion of timeout if it has exeeced the allowed time to run. And finally a task can
+        have a cancelled conclusion if the task was cancelled.
+
+        Tasks have optional conclusion details that will appear in the Stampede UI. There is a summary and also 
+        a text field that might be populated once the task is completed. These are defined by the system admin
+        when they create the tasks. If a task isn't providing any useful information in either of these fields, 
+        talk to your system admins to get more details added!
+      br
+
+      p.
+        An artifact is an output of a task that is made available via the Stampede UI. For example an iOS app build task
+        can provide the complete .ipa file for download once the task is complete. Artifacts can be files you can download,
+        links for more details about a task, or other supported build details such as results from unit test execution.
+        Artifacts are defined by the system admins, so reach out to them if there are artifacts that you
+        would like added to a task.
+      br
+
+      p. 
+        A worker is the stampede agent that runs on a build node and handles executing tasks. Multiple workers 
+        can run on a single node, and there can be many nodes defined in the system.
+      br
+
+      p. 
+        A queue is where tasks are placed so they can be executed by a worker. If you look at the Monitor | Queues
+        page you can see the number of items currently in each queue. Usually this number should be zero, but 
+        a higher number might indicate a busy time where many builds are running, or could indicate a problem
+        with the system.
+      br
+
+    div
+      h2(class="text-l font-bold pt-3") Guides
+
+      ul
+        li
+          a(href="/help/guideConfigureRepository" class="underline") How to configure your repository for Stampede tasks
+        li
+          a(href="/help/guideFindRecent" class="underline") How to find recent builds / tasks
+        li 
+          a(href="/help/guideHowToStart" class="underline") How to start an on-demand build
+        li 
+          a(href="/help/guideHowToConfigureManualBuild" class="underline") How to configure a manual build
+        li 
+          a(href="/help/guideHowToConfigureAScheduledBuild" class="underline") How to configure a scheduled build
+        li 
+          a(href="/help/guideHowToTroubleshoot" class="underline") How to troubleshoot a failed task

@@ -1,0 +1,42 @@
+extends ../layout
+
+include ../components/titleBar
+include ../components/tableHeader
+include ../components/tableCell
+include ../components/tableRow
+
+block content
+
+  +titleBar([{title: 'How to configure your repository'}])
+  div(class="flex flex-wrap m-4")
+
+    div
+      h3(class="text-l font-bold") Overview
+
+      p. 
+        Adding a `.stampede.yaml` file to the root of your repository gives you the control over
+        how tasks are executed in the stampede build system. When Stampede receives events from GitHub
+        such as when a pull request is created or a branch is pushed, the system looks in the associated repo
+        to see if there is a `.stampede.yaml` file found. If so, it uses this to determine which tasks 
+        it should run for that event (if any).
+
+      p.
+        The `.stampede.yaml` file uses a file format called YAML. This file format is very readable
+        for humans and easy to parse for the system. However, it does have a drawback that the spacing you
+        use is very particular. Make sure you follow the guide closely and have the correct indentation, otherwise
+        Stampede will not process the file and no builds will be triggered.
+
+    div
+      h2(class="text-l font-bold pt-3") Stampede config file format
+
+      p.
+        The `.stampede.yaml` file format contains 4 primary sections: A file wide config section,
+        a section for configuring pull request build, a section for configuring branch specific builds, and
+        finally a section for configuring GitHub release builds.
+
+      p.
+        Here is a sample `.stampede.file` that you can use as a template. Descriptions of each section
+        are included as comments in the file.
+ 
+      a(href="/stampede-example.zip" download) Click here to download example file
+

@@ -1,0 +1,41 @@
+config:
+  # This section contains default values for parameters used by
+  # tasks in the rest of the file.
+  # An example is here below, but be sure to use the real parameter
+  # name, based on the tasks that you have added to your file below
+  parameter: value
+
+pullrequests:
+  tasks:
+    # add any tasks you want to execute for your pull requests here.
+    # An example is provided here of a task, but the actual tasks available
+    # are setup by your admin, so check out the Help | Tasks section to learn more.
+    # You can include many tasks here, even ones with the same id.
+    # Also note that each task will have it's own set of parameters that have been defined
+    # by the system admin. These are described in the Help | Tasks section as well.
+    - id: my-task
+      config:
+        parameter: value
+    - id: another-task
+      config:
+        parameter: value
+
+branches:
+  # This section can contain as many branch names as you want. Each branch
+  # can have a different set of tasks. For this example, we will use the main branch:
+  main:
+    tasks:
+      - id: a-task
+        config:
+          parameter: value
+
+releases:
+  published:
+    # This section will determine which tasks are executed when you create a GitHub
+    # release and publish it. At this time, publishing is the only time when release tasks
+    # are executed. Similar to pull requests and branches, you can have many tasks defined
+    # here to run
+    tasks:
+      - id: a-task
+        config:
+          parameter: value
