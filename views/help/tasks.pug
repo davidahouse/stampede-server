@@ -10,4 +10,26 @@ block content
   +titleBar([{title: 'Tasks'}])
   div(class="flex flex-wrap m-4")
 
-  h3= Task List
+    div
+      h3(class="text-l font-bold") Tasks
+
+      p. 
+        All builds in Stampede can be configured for as many tasks as are needed. Each
+        task can also be added to a build multiple times with different parameters to perform
+        slightly different operations (building different variants of a mobile app for example). Below
+        is the list of tasks that your system administrators have setup. Each task has a set 
+        of parameters that you can use to configure based on the details in your project.
+      br
+
+    div(class="flex flex-wrap m-4")
+      
+      table(class="table-auto w-full")
+        thead
+          tr
+            +tableHeader('Task ID')
+            +tableHeader('Title')
+        tbody
+          each task, i in tasks
+            +tableRow(`/help/taskHelp?taskID=` + task.id)
+              +tableCell(task.id)
+              +tableCell(task.title)
