@@ -87,6 +87,8 @@ const conf = require("rc")("stampede", {
   prCommentNotificationMoreInfoURL: null,
   // HTTP Notification feed
   queueSummaryNotificationURL: null,
+  // Worker notes
+  workerHeartbeatTimeout: 3600,
 });
 
 // Configure winston logging
