@@ -1,4 +1,5 @@
 const prettyMilliseconds = require("pretty-ms");
+const taskDetail = require("../../lib/taskDetail");
 
 /**
  * path this handler will serve
@@ -20,23 +21,18 @@ async function handle(req, res, dependencies, owners) {
     const detailsRows = await dependencies.db.fetchTaskDetails(
       req.query.taskID
     );
-    const configValues = [];
+    let configValues = [];
     const scmDetails = [];
     let artifacts = [];
     let taskDetails = { details: {} };
     if (detailsRows.rows.length > 0) {
       taskDetails = detailsRows.rows[0];
-      if (req.validAdminSession == true) {
-        Object.keys(
-          taskDetails.details.config != null ? taskDetails.details.config : {}
-        ).forEach(function (key) {
-          configValues.push({
-            key: key,
-            value: taskDetails.details.config[key].value,
-            source: taskDetails.details.config[key].source,
-          });
-        });
-      }
+      const taskConfig = await dependencies.cache.fetchTaskConfig(task.task);
+      configValues = await taskDetail.taskConfigValues(
+        taskDetails,
+        taskConfig,
+        req.validAdminSession
+      );
       artifacts =
         taskDetails.details.result != null &&
         taskDetails.details.result.artifacts != null

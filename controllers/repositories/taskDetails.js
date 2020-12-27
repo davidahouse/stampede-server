@@ -1,4 +1,6 @@
+const { config } = require("chai");
 const prettyMilliseconds = require("pretty-ms");
+const taskDetail = require("../../lib/taskDetail.js");
 
 /**
  * path this handler will serve
@@ -18,6 +20,7 @@ async function handle(req, res, dependencies, owners) {
   const task = taskRows.rows[0];
   const buildRows = await dependencies.db.fetchBuild(task.build_id);
   const build = buildRows.rows[0];
+  const taskConfig = await dependencies.cache.fetchTaskConfig(task.task);
 
   const detailsRows = await dependencies.db.fetchTaskDetails(req.query.taskID);
   let taskDetails = { details: {} };
@@ -28,17 +31,11 @@ async function handle(req, res, dependencies, owners) {
   let artifacts = [];
   if (detailsRows.rows.length > 0) {
     taskDetails = detailsRows.rows[0];
-    if (req.validAdminSession == true) {
-      Object.keys(
-        taskDetails.details.config != null ? taskDetails.details.config : {}
-      ).forEach(function (key) {
-        configValues.push({
-          key: key,
-          value: taskDetails.details.config[key].value,
-          source: taskDetails.details.config[key].source,
-        });
-      });
-    }
+    configValues = await taskDetail.taskConfigValues(
+      taskDetails,
+      taskConfig,
+      req.validAdminSession
+    );
     summary =
       taskDetails.details.result != null &&
       taskDetails.details.result.summary != null

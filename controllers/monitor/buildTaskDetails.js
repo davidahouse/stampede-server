@@ -1,3 +1,5 @@
+const taskDetail = require("../../lib/taskDetail");
+
 /**
  * path this handler will serve
  */
@@ -19,18 +21,12 @@ async function handle(req, res, dependencies, owners) {
       req.query.taskID
     );
     const taskDetails = detailsRows.rows[0];
-    const configValues = [];
-    if (req.validAdminSession == true) {
-      Object.keys(
-        taskDetails.details.config != null ? taskDetails.details.config : {}
-      ).forEach(function (key) {
-        configValues.push({
-          key: key,
-          value: taskDetails.details.config[key].value,
-          source: taskDetails.details.config[key].source,
-        });
-      });
-    }
+    const taskConfig = await dependencies.cache.fetchTaskConfig(task.task);
+    const configValues = await taskDetail.taskConfigValues(
+      taskDetails,
+      taskConfig,
+      req.validAdminSession
+    );
     const buildRows = await dependencies.db.fetchBuild(task.build_id);
     const build = buildRows.rows[0];
     const summary =
