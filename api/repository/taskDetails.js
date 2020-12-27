@@ -1,5 +1,7 @@
 "use strict";
 
+const taskDetail = require("../../lib/taskDetail");
+
 /**
  * The url path this handler will serve
  */
@@ -27,17 +29,12 @@ async function handle(req, res, dependencies) {
   let artifacts = [];
   if (detailsRows.rows.length > 0) {
     taskDetails = detailsRows.rows[0];
-    if (req.validAdminSession == true) {
-      Object.keys(
-        taskDetails.details.config != null ? taskDetails.details.config : {}
-      ).forEach(function (key) {
-        configValues.push({
-          key: key,
-          value: taskDetails.details.config[key].value,
-          source: taskDetails.details.config[key].source,
-        });
-      });
-    }
+    const taskConfig = await dependencies.cache.fetchTaskConfig(task.task);
+    configValues = await taskDetail.taskConfigValues(
+      taskDetails,
+      taskConfig,
+      req.validAdminSession
+    );
     summary =
       taskDetails.details.result != null &&
       taskDetails.details.result.summary != null
