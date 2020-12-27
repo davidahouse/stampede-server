@@ -20,7 +20,10 @@ block content
       tbody
         each worker, i in workers
           +tableRow(`/monitor/workerDetails?workerID=` + worker.workerID)
-            +tableCell(worker.node)
+            if new Date() - Date.parse(worker.timestamp) > 30000
+              +tableCell("❌ " + worker.node)
+            else
+              +tableCell("✅ " + worker.node)
             +tableCell(worker.workerName)
             +tableCell(worker.status)
             +tableCell(worker.taskQueue)
