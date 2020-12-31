@@ -1,0 +1,24 @@
+extends ../layout
+
+include ../components/titleBar
+include ../components/tableHeader
+include ../components/tableCell
+include ../components/tableRow
+include ../components/infoCard
+
+block content
+
+  +titleBar([{title: 'Server Settings'}])
+  div(class="flex flex-wrap m-4")
+
+    +infoCard('Server Settings')
+      table(class="table-auto w-full")
+        thead
+          tr
+            +tableHeader('Setting')
+            +tableHeader('Value')
+        tbody
+          each setting, i in settings
+            +tableRow()
+              +tableCell(setting.name)
+              +tableCell(setting.value)
