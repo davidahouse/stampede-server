@@ -8,6 +8,7 @@ const checkRunEvent = require("../scm/events/checkRun");
 const pullRequestEvent = require("../scm/events/pullRequest");
 const pushEvent = require("../scm/events/push");
 const releaseEvent = require("../scm/events/release");
+const uuidv1 = require("uuid/v1");
 
 let incomingQueue = null;
 
@@ -38,16 +39,25 @@ function start(dependencies) {
  */
 async function handle(job, dependencies) {
   try {
+    let eventID = uuidv1();
+    if (job.headers != null) {
+      Object.keys(job.headers).forEach(function (key) {
+        if (key.toLowerCase() === "x-github-delivery") {
+          eventID = job.headers[key];
+        }
+      });
+    }
+
     if (job.event === "check_suite") {
       await checkSuiteEvent.handle(job.body, dependencies);
     } else if (job.event === "check_run") {
       await checkRunEvent.handle(job.body, dependencies);
     } else if (job.event === "pull_request") {
-      await pullRequestEvent.handle(job.body, dependencies);
+      await pullRequestEvent.handle(job.body, eventID, dependencies);
     } else if (job.event === "push") {
-      await pushEvent.handle(job.body, dependencies);
+      await pushEvent.handle(job.body, eventID, dependencies);
     } else if (job.event === "release") {
-      await releaseEvent.handle(job.body, dependencies);
+      await releaseEvent.handle(job.body, eventID, dependencies);
     }
   } catch (e) {
     dependencies.logger.error("Error handling incoming message: " + e);

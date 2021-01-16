@@ -8,10 +8,11 @@ const notification = require("../../services/notification");
 
 /**
  * handle event
- * @param {*} req
+ * @param {*} body
+ * @param {*} eventID
  * @param {*} dependencies
  */
-async function handle(body, dependencies) {
+async function handle(body, eventID, dependencies) {
   // Parse the incoming body into the parts we care about
   const event = parseEvent(body);
   dependencies.logger.info("ReleaseEvent:");
@@ -20,6 +21,7 @@ async function handle(body, dependencies) {
   dependencies.cache.storeRepoEvent(event.owner, event.repo, {
     source: "release",
     timestamp: new Date(),
+    eventID: eventID,
     body: body,
   });
   await dependencies.db.storeRepository(event.owner, event.repo);

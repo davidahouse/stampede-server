@@ -21,10 +21,13 @@ function requiresAdmin() {
 async function handle(req, res, dependencies, owners) {
   const owner = req.query.owner;
   const repository = req.query.repository;
+  const eventID = req.query.eventID;
   const events = await dependencies.cache.fetchRepoEvents(owner, repository);
   let body = "";
-  if (req.query.index >= 0 && req.query.index < events.length) {
-    body = JSON.stringify(events[req.query.index].body, null, 2);
+  for (let index = 0; index < events.length; index++) {
+    if (events[index].eventID === eventID) {
+      body = JSON.stringify(events[index].body, null, 2);
+    }
   }
 
   res.render(dependencies.viewsPath + "admin/viewRepoEventDetails", {
@@ -32,6 +35,7 @@ async function handle(req, res, dependencies, owners) {
     isAdmin: req.validAdminSession,
     owner: owner,
     repository: repository,
+    eventID: eventID,
     body: body,
   });
 }

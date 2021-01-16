@@ -8,9 +8,10 @@ const build = require("../../lib/build");
 /**
  * handle event
  * @param {*} body
+ * @param {*} eventID
  * @param {*} dependencies
  */
-async function handle(body, dependencies) {
+async function handle(body, eventID, dependencies) {
   // Parse the incoming body into the parts we care about
   const event = parseEvent(body);
   dependencies.logger.info("PullRequestEvent:");
@@ -22,6 +23,7 @@ async function handle(body, dependencies) {
   dependencies.cache.storeRepoEvent(event.owner, event.repo, {
     source: "pull-request",
     timestamp: new Date(),
+    eventID: eventID,
     body: body,
   });
   await dependencies.db.storeRepository(event.owner, event.repo);
