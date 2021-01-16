@@ -11,20 +11,11 @@ block content
 
 	+titleBar([{title: 'Repositories', href: '/admin/repositories'},
 	{title: owner + ' ' + repository, href: '/admin/repositoryAdmin?owner=' + owner + '&repository=' + repository},
-	{title: 'Repository SCM Events'}])
-		
+	{title: 'Repository SCM Events', href: '/admin/viewRepoEvents?owner=' + owner + '&repository=' + repository},
+	{title: 'Event Re-Execute'}])
+
 	div(class="flex flex-wrap m-4")
 	div(class="flex flex-wrap m-4")
 
-		table(class="table-auto w-full")
-			thead
-				tr
-					+tableHeader('Source')
-					+tableHeader('ID')
-					+tableHeader('Timestamp')
-			tbody
-				each event, i in events
-					+tableRow('/admin/viewRepoEventDetails?owner=' + owner + '&repository=' + repository + '&eventID=' + event.eventID)
-						+tableCell(event.source)
-						+tableCell(event.eventID)
-						+tableCell(event.timestamp)
+		p Event submitted for re-execution
+
