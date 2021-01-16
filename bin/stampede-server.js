@@ -89,6 +89,8 @@ const conf = require("rc")("stampede", {
   queueSummaryNotificationURL: null,
   // Worker notes
   workerHeartbeatTimeout: 3600,
+  // Repository event cache limit
+  repoEventLimit: 10,
 });
 
 // Configure winston logging

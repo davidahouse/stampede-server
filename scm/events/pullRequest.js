@@ -19,6 +19,10 @@ async function handle(body, dependencies) {
   }
   notification.repositoryEventReceived("pull_request", event);
 
+  dependencies.cache.storeRepoEvent(event.owner, event.repo, {
+    source: "pull-request",
+    body: body,
+  });
   await dependencies.db.storeRepository(event.owner, event.repo);
 
   if (

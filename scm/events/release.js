@@ -17,6 +17,10 @@ async function handle(body, dependencies) {
   dependencies.logger.info("ReleaseEvent:");
   notification.repositoryEventReceived("release", event);
 
+  dependencies.cache.storeRepoEvent(event.owner, event.repo, {
+    source: "release",
+    body: body,
+  });
   await dependencies.db.storeRepository(event.owner, event.repo);
 
   if (event.action !== "published") {
