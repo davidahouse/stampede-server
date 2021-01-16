@@ -1,0 +1,28 @@
+extends ../layout
+
+include ../components/titleBar
+include ../components/tableHeader
+include ../components/tableCell
+include ../components/tableRow
+include ../components/formFile
+include ../components/formHidden
+
+block content
+
+	+titleBar([{title: 'Repositories', href: '/admin/repositories'},
+	{title: owner + ' ' + repository, href: '/admin/repositoryAdmin?owner=' + owner + '&repository=' + repository},
+	{title: 'Repository SCM Events'}])
+		
+	div(class="flex flex-wrap m-4")
+	div(class="flex flex-wrap m-4")
+
+		table(class="table-auto w-full")
+			thead
+				tr
+					+tableHeader('Source')
+					+tableHeader('Timestamp')
+			tbody
+				each event, i in events
+					+tableRow('/admin/viewRepoEventDetails?owner=' + owner + '&repository=' + repository + '&index=' + i)
+						+tableCell(event.source)
+						+tableCell(event.timestamp)
