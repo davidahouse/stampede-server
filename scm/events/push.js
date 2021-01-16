@@ -17,6 +17,10 @@ async function handle(body, dependencies) {
   dependencies.logger.info("PushEvent:");
   notification.repositoryEventReceived("push", event);
 
+  dependencies.cache.storeRepoEvent(event.owner, event.repo, {
+    source: "branch-push",
+    body: body,
+  });
   await dependencies.db.storeRepository(event.owner, event.repo);
 
   if (event.deleted === true) {
