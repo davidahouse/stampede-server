@@ -1,0 +1,20 @@
+extends ../layout
+
+include ../components/titleBar
+include ../components/tableHeader
+include ../components/tableCell
+include ../components/tableRow
+include ../components/formFile
+include ../components/formHidden
+
+block content
+
+	+titleBar([{title: 'Repositories', href: '/admin/repositories'},
+	{title: owner + ' ' + repository, href: '/admin/repositoryAdmin?owner=' + owner + '&repository=' + repository},
+	{title: 'Repository SCM Events', href: '/admin/viewRepoEvents?owner=' + owner + '&repository=' + repository},
+	{title: 'Event Details'}])
+
+	div(class="flex flex-wrap m-4")
+	div(class="flex flex-wrap m-4")
+
+		pre= body

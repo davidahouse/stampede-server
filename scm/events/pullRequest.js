@@ -21,6 +21,7 @@ async function handle(body, dependencies) {
 
   dependencies.cache.storeRepoEvent(event.owner, event.repo, {
     source: "pull-request",
+    timestamp: new Date(),
     body: body,
   });
   await dependencies.db.storeRepository(event.owner, event.repo);

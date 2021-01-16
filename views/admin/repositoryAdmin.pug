@@ -48,6 +48,10 @@ block content
                 +tableCell('Manually Execute Task')
                 +tableCell('')
                 +tableCellButton("Start", `/admin/executeTaskSelection?owner=` + owner + `&repository=` + repository)
+              +tableRow()
+                +tableCell('SCM Events')
+                +tableCell('')
+                +tableCellButton("View", `/admin/viewRepoEvents?owner=` + owner + `&repository=` + repository)
 
   div(class="w-full p-3")
       div(class="bg-white border-transparent rounded-lg shadow-lg")
