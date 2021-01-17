@@ -30,9 +30,13 @@ function requiresAdmin() {
 async function handle(req, res, dependencies, owners) {
   if (req.files != null) {
     const uploadData = req.files.uploadFile;
-    const uploadQueues = yaml.safeLoad(uploadData.data);
-    if (uploadQueues != null) {
-      await dependencies.cache.systemQueues.storeSystemQueues(uploadQueues);
+    try {
+      const uploadQueues = yaml.safeLoad(uploadData.data);
+      if (uploadQueues != null) {
+        await dependencies.cache.systemQueues.storeSystemQueues(uploadQueues);
+      }
+    } catch (e) {
+      dependencies.logger.error("Error parsing queues file: " + e);
     }
   }
 

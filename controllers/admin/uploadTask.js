@@ -30,17 +30,21 @@ function requiresAdmin() {
 async function handle(req, res, dependencies) {
   if (req.files != null) {
     const uploadData = req.files.uploadFile;
-    const taskConfig = yaml.safeLoad(uploadData.data);
-    if (taskConfig != null) {
-      if (taskConfig.id != null) {
-        await dependencies.cache.storeTask(taskConfig.id);
-        await dependencies.cache.storeTaskConfig(taskConfig.id, taskConfig);
+    try {
+      const taskConfig = yaml.safeLoad(uploadData.data);
+      if (taskConfig != null) {
+        if (taskConfig.id != null) {
+          await dependencies.cache.storeTask(taskConfig.id);
+          await dependencies.cache.storeTaskConfig(taskConfig.id, taskConfig);
+        }
       }
+    } catch (e) {
+      dependencies.logger.error("Error parsing task file: " + e);
     }
   }
 
   res.writeHead(301, {
-    Location: "/admin/tasks"
+    Location: "/admin/tasks",
   });
   res.end();
 }

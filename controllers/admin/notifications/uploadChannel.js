@@ -30,17 +30,21 @@ function requiresAdmin() {
 async function handle(req, res, dependencies) {
   if (req.files != null) {
     const uploadData = req.files.uploadFile;
-    const channelConfig = yaml.safeLoad(uploadData.data);
-    if (channelConfig != null) {
-      if (channelConfig.id != null) {
-        await dependencies.cache.notifications.storeNotificationChannel(
-          channelConfig.id
-        );
-        await dependencies.cache.notifications.storeNotificationChannelConfig(
-          channelConfig.id,
-          channelConfig
-        );
+    try {
+      const channelConfig = yaml.safeLoad(uploadData.data);
+      if (channelConfig != null) {
+        if (channelConfig.id != null) {
+          await dependencies.cache.notifications.storeNotificationChannel(
+            channelConfig.id
+          );
+          await dependencies.cache.notifications.storeNotificationChannelConfig(
+            channelConfig.id,
+            channelConfig
+          );
+        }
       }
+    } catch (e) {
+      dependencies.logger.error("Error parsing channels file: " + e);
     }
   }
 
