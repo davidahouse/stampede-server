@@ -38,11 +38,16 @@ async function handle(req, res, dependencies) {
     try {
       const buildInfo = yaml.safeLoad(uploadData.data);
       if (buildInfo != null) {
-        await dependencies.cache.repositoryBuilds.updateRepositoryBuild(
-          owner,
-          repository,
-          buildInfo
-        );
+        if (buildInfo.id == null || buildInfo.tasks == null) {
+          repositoryAdminURL +=
+            "&uploadError=Missing required params (id or tasks)";
+        } else {
+          await dependencies.cache.repositoryBuilds.updateRepositoryBuild(
+            owner,
+            repository,
+            buildInfo
+          );
+        }
       }
     } catch (e) {
       repositoryAdminURL += "&uploadError=Invalid build file";

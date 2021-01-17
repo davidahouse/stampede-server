@@ -30,9 +30,13 @@ function requiresAdmin() {
 async function handle(req, res, dependencies, owners) {
   if (req.files != null) {
     const uploadData = req.files.uploadFile;
-    const uploadOverrides = yaml.safeLoad(uploadData.data);
-    if (uploadOverrides != null) {
-      await dependencies.cache.storeSystemOverrides(uploadOverrides);
+    try {
+      const uploadOverrides = yaml.safeLoad(uploadData.data);
+      if (uploadOverrides != null) {
+        await dependencies.cache.storeSystemOverrides(uploadOverrides);
+      }
+    } catch (e) {
+      dependencies.logger.error("Error parsing overrides file: " + e);
     }
   }
 

@@ -34,19 +34,23 @@ async function handle(req, res, dependencies, owners) {
   // If we were passed a file, use that instead of prompting the user
   if (req.files != null && req.files.uploadFile != null) {
     const uploadData = req.files.uploadFile;
-    const uploadDetails = yaml.safeLoad(uploadData.data);
-    const providedConfig =
-      uploadDetails.config != null ? uploadDetails.config : {};
-    Object.keys(providedConfig).forEach(function (key) {
-      config.push({
-        key: key,
-        value: providedConfig[key] != null ? providedConfig[key] : "",
+    try {
+      const uploadDetails = yaml.safeLoad(uploadData.data);
+      const providedConfig =
+        uploadDetails.config != null ? uploadDetails.config : {};
+      Object.keys(providedConfig).forEach(function (key) {
+        config.push({
+          key: key,
+          value: providedConfig[key] != null ? providedConfig[key] : "",
+        });
       });
-    });
 
-    providedScm = uploadDetails.scm != null ? uploadDetails.scm : {};
-    if (uploadDetails.taskQueue != null) {
-      taskQueue = uploadDetails.taskQueue;
+      providedScm = uploadDetails.scm != null ? uploadDetails.scm : {};
+      if (uploadDetails.taskQueue != null) {
+        taskQueue = uploadDetails.taskQueue;
+      }
+    } catch (e) {
+      dependencies.logger.error("Error parsing task config file: " + e);
     }
   } else {
     if (taskDetails.config != null) {

@@ -30,9 +30,13 @@ function requiresAdmin() {
 async function handle(req, res, dependencies, owners) {
   if (req.files != null) {
     const uploadDefaultsData = req.files.uploadFile;
-    const uploadDefaults = yaml.safeLoad(uploadDefaultsData.data);
-    if (uploadDefaults != null) {
-      await dependencies.cache.storeSystemDefaults(uploadDefaults);
+    try {
+      const uploadDefaults = yaml.safeLoad(uploadDefaultsData.data);
+      if (uploadDefaults != null) {
+        await dependencies.cache.storeSystemDefaults(uploadDefaults);
+      }
+    } catch (e) {
+      dependencies.logger.error("Error parsing defaults file: " + e);
     }
   }
 

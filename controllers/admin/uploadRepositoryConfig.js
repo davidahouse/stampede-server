@@ -32,9 +32,13 @@ async function handle(req, res, dependencies) {
   const repository = req.body.repository;
   if (req.files != null) {
     const uploadData = req.files.uploadFile;
-    const repoConfig = yaml.safeLoad(uploadData.data);
-    if (repoConfig != null) {
-      await dependencies.cache.storeRepoConfig(owner, repository, repoConfig);
+    try {
+      const repoConfig = yaml.safeLoad(uploadData.data);
+      if (repoConfig != null) {
+        await dependencies.cache.storeRepoConfig(owner, repository, repoConfig);
+      }
+    } catch (e) {
+      dependencies.logger.error("Error parsing config file: " + e);
     }
   }
 
