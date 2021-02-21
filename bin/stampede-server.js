@@ -91,6 +91,8 @@ const conf = require("rc")("stampede", {
   workerHeartbeatTimeout: 3600,
   // Repository event cache limit
   repoEventLimit: 10,
+  // Render artifact list automatically in PR comment, slack notification and GitHub check summary
+  autoRenderArtifactListComment: "enabled",
 });
 
 // Configure winston logging
