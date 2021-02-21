@@ -25,6 +25,7 @@ async function handle(req, res, dependencies) {
   let configValues = [];
   let scmDetails = [];
   let summary = "";
+  let summaryTable = [];
   let text = "";
   let artifacts = [];
   if (detailsRows.rows.length > 0) {
@@ -50,7 +51,11 @@ async function handle(req, res, dependencies) {
       taskDetails.details.result.artifacts != null
         ? taskDetails.details.result.artifacts
         : [];
-
+    summaryTable =
+      taskDetails.details.result != null &&
+      taskDetails.details.result.summaryTable != null
+        ? taskDetails.details.result.summaryTable
+        : [];
     if (taskDetails.details.scm.pullRequest != null) {
       scmDetails.push({
         title: "PR Number",
@@ -105,13 +110,14 @@ async function handle(req, res, dependencies) {
     req.query.taskID
   );
   if (artifactRows != null && artifactRows.rows != null) {
-    artifacts = artifactRows.rows
+    artifacts = artifactRows.rows;
   }
-  
+
   res.send({
     task: task,
     configValues: configValues,
     summary: summary,
+    summaryTable: summaryTable,
     text: text,
     artifacts: artifacts,
     scmDetails: scmDetails,

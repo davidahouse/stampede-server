@@ -1,0 +1,32 @@
+mixin resultSummary(summary, summaryTable)
+    +infoCard('Summary')
+        div(id="task-result-summary")
+        data(id="task-result-summary-data" hidden)
+            = summary
+        script.
+            document.getElementById('task-result-summary').innerHTML =
+            marked(document.getElementById('task-result-summary-data').innerHTML, {gfm: true});
+
+        if summaryTable.length > 0
+            br
+            hr
+            div
+                table(class="table-auto w-full")
+                    tbody
+                        each summary, i in summaryTable
+                            +tableRow(summary.link)
+                                +tableCell(summary.title)
+                                td(class="border px-2 py-2")
+                                    div(class="flex space-x-4")
+                                        if summary.valueString != null
+                                            div= summary.valueString
+                                        if summary.valueBadges != null 
+                                            each badge, b in summary.valueBadges
+                                                if badge.logo && badge.style
+                                                    img(src=`https://img.shields.io/badge/` + badge.shield + `?logo=` + badge.logo + `&style=` + badge.style alt=`` + badge.alt)
+                                                else if badge.logo
+                                                    img(src=`https://img.shields.io/badge/` + badge.shield + `?logo=` + badge.logo alt=`` + badge.alt)
+                                                else if badge.style 
+                                                    img(src=`https://img.shields.io/badge/` + badge.shield + `?style=` + badge.style alt=`` + badge.alt)
+                                                else
+                                                    img(src=`https://img.shields.io/badge/` + badge.shield alt=`` + badge.alt)

@@ -6,6 +6,7 @@ include ../components/tableRow
 include ../components/infoCard
 include ../components/tableCellButton
 include ../components/tableConclusionCell
+include ../components/resultSummary
 
 block content
 
@@ -78,13 +79,7 @@ block content
                           else
                             +tableCellButton("View", artifact.url)
                             
-        +infoCard('Summary')
-          div(id="task-result-summary")
-          data(id="task-result-summary-data" hidden)
-            = summary
-          script.
-            document.getElementById('task-result-summary').innerHTML =
-              marked(document.getElementById('task-result-summary-data').innerHTML, {gfm: true});
+        +resultSummary(summary, summaryTable)
 
         +infoCard('Text')
           div(id="task-result-text")

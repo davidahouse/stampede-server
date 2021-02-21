@@ -44,6 +44,11 @@ async function handle(req, res, dependencies, owners) {
       taskDetails.details.result.artifacts != null
         ? taskDetails.details.result.artifacts
         : [];
+    const summaryTable =
+      taskDetails.details.result != null &&
+      taskDetails.details.result.summaryTable != null
+        ? taskDetails.details.result.summaryTable
+        : [];
 
     const scmDetails = [];
     if (taskDetails.details.scm.pullRequest != null) {
@@ -112,6 +117,7 @@ async function handle(req, res, dependencies, owners) {
       taskDetails: taskDetails,
       configValues: configValues,
       summary: summary,
+      summaryTable: summaryTable,
       text: text,
       artifacts: artifacts,
       scmDetails: scmDetails,
@@ -125,6 +131,7 @@ async function handle(req, res, dependencies, owners) {
       taskDetails: { details: {} },
       configValues: [],
       summary: "",
+      summaryTable: summaryTable,
       text: "",
       artifacts: [],
       scmDetails: scmDetails,
