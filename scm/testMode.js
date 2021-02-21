@@ -136,7 +136,6 @@ async function commentOnPR(owner, repository, prNumber, comment, serverConfig) {
   systemLogger.info(`repository: ${repository}`);
   systemLogger.info(`prNumber: ${prNumber}`);
   systemLogger.info(`comment: ${comment}`);
-  console.log(comment);
 }
 
 module.exports.verifyCredentials = verifyCredentials;
