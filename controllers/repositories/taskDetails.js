@@ -51,6 +51,11 @@ async function handle(req, res, dependencies, owners) {
       taskDetails.details.result.artifacts != null
         ? taskDetails.details.result.artifacts
         : [];
+    summaryTable =
+      taskDetails.details.result != null &&
+      taskDetails.details.result.summaryTable != null
+        ? taskDetails.details.result.summaryTable
+        : [];
 
     if (taskDetails.details.scm.pullRequest != null) {
       scmDetails.push({
@@ -125,6 +130,7 @@ async function handle(req, res, dependencies, owners) {
     taskDetails: taskDetails,
     configValues: configValues,
     summary: summary,
+    summaryTable: summaryTable,
     text: text,
     artifacts: artifacts,
     scmDetails: scmDetails,
