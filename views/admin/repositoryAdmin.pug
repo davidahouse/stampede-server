@@ -52,6 +52,10 @@ block content
                 +tableCell('SCM Events')
                 +tableCell('')
                 +tableCellButton("View", `/admin/viewRepoEvents?owner=` + owner + `&repository=` + repository)
+              +tableRow()
+                +tableCell('Parse Errors')
+                +tableCell('')
+                +tableCellButton("View", `/admin/viewRepoParseErrors?owner=` + owner + `&repository=` + repository)
 
   div(class="w-full p-3")
       div(class="bg-white border-transparent rounded-lg shadow-lg")
