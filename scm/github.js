@@ -151,17 +151,19 @@ async function findRepoConfig(owner, repo, stampedeFile, sha, serverConf) {
         try {
           const stampedeConfig = yaml.safeLoad(configFile.body);
           if (stampedeConfig != null) {
-            return stampedeConfig;
+            return {
+              config: stampedeConfig,
+            };
           }
         } catch (e) {
-          return {};
+          return { error: e };
         }
       }
     }
     return null;
   } catch (e) {
     systemLogger.verbose("exception trying to find config: " + e);
-    return null;
+    return { error: e };
   }
 }
 

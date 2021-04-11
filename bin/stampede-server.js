@@ -91,6 +91,9 @@ const conf = require("rc")("stampede", {
   workerHeartbeatTimeout: 3600,
   // Repository event cache limit
   repoEventLimit: 10,
+  // Repository parse error limit and timeout
+  repoParseErrorLimit: 10,
+  repoParseErrorTimeout: 14400,
   // Render artifact list automatically in PR comment, slack notification and GitHub check summary
   autoRenderArtifactListComment: "enabled",
 });

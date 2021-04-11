@@ -33,9 +33,9 @@ async function findRepoConfig(owner, repo, stampedeFile, sha, serverConf) {
       systemLogger.verbose("loading repo config: " + path);
       const testModeConfigFile = fs.readFileSync(path);
       const config = yaml.safeLoad(testModeConfigFile);
-      return config;
+      return { config: config };
     } catch (e) {
-      return {};
+      return { error: e };
     }
   } else {
     return null;
