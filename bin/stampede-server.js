@@ -27,7 +27,7 @@ const queueHeartbeatHandler = require("../lib/queueHeartbeatHandler");
 
 const thirtySeconds = 1000 * 30;
 const fiveMinuteInterval = 1000 * 60 * 5;
-const conf = require("rc")("stampede", {
+const conf = require("rc-house")("stampede", {
   // redis
   redisHost: "localhost",
   redisPort: 6379,
@@ -161,6 +161,8 @@ const redisConfig = {
     port: conf.redisPort,
     host: conf.redisHost,
     password: conf.redisPassword,
+    maxRetriesPerRequest: null,
+    enableReadyCheck: false,
   },
 };
 
