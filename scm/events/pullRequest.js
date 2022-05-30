@@ -20,19 +20,35 @@ async function handle(body, eventID, dependencies) {
   }
   notification.repositoryEventReceived("pull_request", event);
 
+  if (dependencies.serverConfig.logLevel === "verbose") {
+    dependencies.logger.verbose("Storing repo event");
+  }
+
   dependencies.cache.storeRepoEvent(event.owner, event.repo, {
     source: "pull-request",
     timestamp: new Date(),
     eventID: eventID,
     body: body,
   });
+
+  if (dependencies.serverConfig.logLevel === "verbose") {
+    dependencies.logger.verbose("Storing repository in the db");
+  }
+
   await dependencies.db.storeRepository(event.owner, event.repo);
+
+  if (dependencies.serverConfig.logLevel === "verbose") {
+    dependencies.logger.verbose("Finished storing data in the db");
+  }
 
   if (
     event.action === "opened" ||
     event.action === "reopened" ||
     event.action === "synchronize"
   ) {
+    if (dependencies.serverConfig.logLevel === "verbose") {
+      dependencies.logger.verbose("Creating Check Run for this pull request");
+    }
     await checkRun.createCheckRun(
       event.owner,
       event.repo,
@@ -62,6 +78,11 @@ async function handle(body, eventID, dependencies) {
       dependencies.logger
     );
   } else {
+    if (dependencies.serverConfig.logLevel === "verbose") {
+      dependencies.logger.verbose(
+        "Pull Request ignored, status does not match. Is: " + event.action
+      );
+    }
     return { status: "ignored, pull request not opened or reopened" };
   }
 }

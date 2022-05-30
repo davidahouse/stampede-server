@@ -8,7 +8,7 @@ const checkRunEvent = require("../scm/events/checkRun");
 const pullRequestEvent = require("../scm/events/pullRequest");
 const pushEvent = require("../scm/events/push");
 const releaseEvent = require("../scm/events/release");
-const uuidv1 = require("uuid/v1");
+const { v4: uuidv4 } = require("uuid");
 
 let incomingQueue = null;
 
@@ -39,7 +39,7 @@ function start(dependencies) {
  */
 async function handle(job, dependencies) {
   try {
-    let eventID = uuidv1();
+    let eventID = uuidv4();
     if (job.headers != null) {
       Object.keys(job.headers).forEach(function (key) {
         if (key.toLowerCase() === "x-github-delivery") {

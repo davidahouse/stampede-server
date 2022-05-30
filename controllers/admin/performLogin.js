@@ -1,5 +1,5 @@
 require("pkginfo")(module);
-const uuidv1 = require("uuid/v1");
+const { v4: uuidv4 } = require("uuid");
 
 /**
  * path this handler will serve
@@ -30,7 +30,7 @@ function requiresAdmin() {
  */
 async function handle(req, res, dependencies, owners) {
   if (req.body.password === dependencies.serverConfig.adminPassword) {
-    const sessionID = uuidv1();
+    const sessionID = uuidv4();
     await dependencies.cache.admin.storeSession(
       sessionID,
       { id: sessionID },
