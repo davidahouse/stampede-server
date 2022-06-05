@@ -1,6 +1,6 @@
 "use strict";
 
-const LynnRequest = require("lynn-request");
+const axios = require('axios').default;
 const yaml = require("js-yaml");
 const { App } = require("@octokit/app");
 const { Octokit } = require("@octokit/rest");
@@ -21,8 +21,8 @@ async function verifyCredentials(serverConf, logger) {
     userAgent: "octokit/rest.js v1.2.3",
     baseUrl: serverConf.githubHost,
     log: {
-      debug: () => {},
-      info: () => {},
+      debug: () => { },
+      info: () => { },
       warn: console.warn,
       error: console.error,
     },
@@ -49,8 +49,8 @@ async function getAuthorizedOctokit(owner, repo, serverConf) {
     userAgent: "octokit/rest.js v1.2.3",
     baseUrl: serverConf.githubHost,
     log: {
-      debug: () => {},
-      info: () => {},
+      debug: () => { },
+      info: () => { },
       warn: console.warn,
       error: console.error,
     },
@@ -70,8 +70,8 @@ async function getAuthorizedOctokit(owner, repo, serverConf) {
     userAgent: "octokit/rest.js v1.2.3",
     baseUrl: serverConf.githubHost,
     log: {
-      debug: () => {},
-      info: () => {},
+      debug: () => { },
+      info: () => { },
       warn: console.warn,
       error: console.error,
     },
@@ -93,8 +93,8 @@ async function getAccessToken(owner, repo, serverConf) {
       userAgent: "octokit/rest.js v1.2.3",
       baseUrl: serverConf.githubHost,
       log: {
-        debug: () => {},
-        info: () => {},
+        debug: () => { },
+        info: () => { },
         warn: console.warn,
         error: console.error,
       },
@@ -173,28 +173,18 @@ async function findRepoConfig(owner, repo, stampedeFile, sha, serverConf) {
  * @param {*} serverConf
  */
 async function downloadStampedeFile(downloadURL, owner, repo, serverConf) {
-  const fileURL = url.parse(downloadURL);
   const token = await getBearerToken(owner, repo, serverConf);
-  return new Promise((resolve) => {
-    const request = {
-      title: "stampedeDownload",
-      options: {
-        protocol: fileURL.protocol,
-        port: fileURL.port,
-        method: "GET",
-        host: fileURL.hostname,
-        path: fileURL.path,
-        auth: "token " + token,
-        headers: {
-          "User-Agent": owner,
-        },
-      },
-    };
-    const runner = new LynnRequest(request);
-    runner.execute(function (result) {
-      resolve(result);
-    });
-  });
+
+  try {
+    const result = await axios({
+      method: 'get',
+      url: downloadURL,
+      headers: { 'User-Agent': owner, "Authorization": "token " + token }
+    })
+    return result.data
+  } catch (error) {
+    systemLogger.error("Error downloading stampede file: " + error)
+  }
 }
 
 /**
@@ -216,8 +206,8 @@ async function getBearerToken(owner, repo, serverConf) {
     userAgent: "octokit/rest.js v1.2.3",
     baseUrl: serverConf.githubHost,
     log: {
-      debug: () => {},
-      info: () => {},
+      debug: () => { },
+      info: () => { },
       warn: console.warn,
       error: console.error,
     },
